@@ -1,8 +1,8 @@
-Chapter 6. Operations on Objects
+* Chapter 6. Operations on Objects
 
 This chapter describes the operations on objects, including lists, numbers, characters, strings, vectors, bytevectors, symbols, booleans, hashtables, and enumerations. The first section covers constant objects and quotation. The second section describes generic equivalence predicates for comparing two objects and predicates for determining the type of an object. Later sections describe procedures that deal primarily with one of the object types mentioned above. There is no section treating operations on procedures, since the only operation defined specifically for procedures is application, and this is described in Chapter 5. Operations on ports are covered in the more general discussion of input and output in Chapter 7. A mechanism for defining new data types is described in Chapter 9.
 
-Section 6.1. Constants and Quotation
+** Section 6.1. Constants and Quotation
 
 syntax: constant
 returns: constant
@@ -79,7 +79,7 @@ unquote and unquote-splicing forms with zero or more than one subform are valid 
 
 unquote and unquote-splicing are auxiliary keywords for quasiquote. It is a syntax violation to reference these identifiers except in contexts where they are recognized as auxiliary keywords.
 
-Section 6.2. Generic Equivalence and Type Predicates
+** Section 6.2. Generic Equivalence and Type Predicates
 
 This section describes the basic Scheme predicates (procedures returning one of the boolean values #t or #f) for determining the type of an object or the equivalence of two objects. The equivalence predicates eq?, eqv?, and equal? are discussed first, followed by the type predicates.
 
@@ -581,7 +581,7 @@ libraries: (rnrs hashtables), (rnrs)
 (hashtable? (make-eq-hashtable)) <graphic> #t
 (hashtable? '(not a hash table)) <graphic> #f
 
-Section 6.3. Lists and Pairs
+** Section 6.3. Lists and Pairs
 
 The pair, or cons cell, is the most fundamental of Scheme's structured object types. The most common use for pairs is to build lists, which are ordered sequences of pairs linked one to the next by the cdr field. The elements of the list occupy the car fields of the pairs. The cdr of the last pair in a proper list is the empty list, (); the cdr of the last pair in an improper list can be anything other than ().
 
@@ -1013,7 +1013,7 @@ predicate should be a procedure that expects two arguments and returns #t if its
   (list-sort char>?
     (string->list "hello"))) <graphic> "ollhe"
 
-Section 6.4. Numbers
+** Section 6.4. Numbers
 
 Scheme numbers may be classified as integers, rational numbers, real numbers, or complex numbers. This classification is hierarchical, in that all integers are rational, all rational numbers are real, and all real numbers are complex. The predicates integer?, rational?, real?, and complex? described in Section 6.2 are used to determine into which of these classes a number falls.
 
@@ -1894,7 +1894,7 @@ If radix is 10, inexact values of num are expressed using the fewest number of s
 (number->string -7/2) <graphic> "-7/2"
 (number->string 220/9 16) <graphic> "DC/9"
 
-Section 6.5. Fixnums
+** Section 6.5. Fixnums
 
 Fixnums represent exact integers in the fixnum range, which is required to be a closed range [-2w-1,2w-1 - 1], where w (the fixnum width) is at least 24. The implementation-specific value of w may be determined via the procedure fixnum-width, and the endpoints of the range may be determined via the procedures least-fixnum and greatest-fixnum.
 
@@ -2275,7 +2275,7 @@ fx2 and fx3 must be nonnegative and less than the value of (fixnum-width), and f
 (fxreverse-bit-field #b00011010 0 5) <graphic> #b00001011
 (fxreverse-bit-field #b01101011 2 7) <graphic> #b00101111
 
-Section 6.6. Flonums
+** Section 6.6. Flonums
 
 Flonums represent inexact real numbers. Implementations are required to represent as a flonum any inexact real number whose lexical syntax contains no vertical bar and no exponent marker other than e, but are not required to represent any other inexact real number as a flonum.
 
@@ -2636,7 +2636,7 @@ fixnum->flonum is a restricted variant of inexact. real->flonum is a restricted 
 (real->flonum -1/2) <graphic> -0.5
 (real->flonum 1s3) <graphic> 1000.0
 
-Section 6.7. Characters
+** Section 6.7. Characters
 
 Characters are atomic objects representing letters, digits, special symbols such as $ or -, and certain nongraphic control characters such as space and newline. Characters are written with a #\ prefix. For most characters, the prefix is followed by the character itself. The written character representation of the letter A, for example, is #\A. The characters newline, space, and tab may be written in this manner as well, but they can be written more clearly as #\newline, #\space, and #\tab. Other character names are supported as well, as defined by the grammar for character objects on page 457. Any Unicode character may be written with the syntax #\xn, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value.
 
@@ -2791,7 +2791,7 @@ n must be an exact integer and a valid Unicode scalar value, i.e., <graphic> or 
 (integer->char 48) <graphic> #\0
 (integer->char #x3BB) <graphic> #\<graphic>
 
-Section 6.8. Strings
+** Section 6.8. Strings
 
 Strings are sequences of characters and are often used as messages, character buffers, or containers for blocks of text. Scheme provides operations for creating strings, extracting characters from strings, obtaining substrings, concatenating strings, and altering the contents of strings.
 
@@ -3070,7 +3070,7 @@ list->string may be defined without error checks as follows.
   (map char-upcase
        (string->list "abc"))) <graphic> "ABC"
 
-Section 6.9. Vectors
+** Section 6.9. Vectors
 
 Vectors are more convenient and efficient than lists for some applications. Whereas accessing an arbitrary element in a list requires a linear traversal of the list up to the selected element, arbitrary vector elements are accessed in constant time. The length of a vector is the number of elements it contains. Vectors are indexed by exact nonnegative integers, and the index of the first element of any vector is 0. The highest valid index for a given vector is one less than its length.
 
@@ -3202,7 +3202,7 @@ vector-sort may call predicate up to nlogn times, where n is the length of vecto
   (vector-sort! < v)
   v) <graphic> #(1 2 2 3 4 5)
 
-Section 6.10. Bytevectors
+** Section 6.10. Bytevectors
 
 Bytevectors are vectors of raw binary data. Although nominally organized as a sequence of exact unsigned 8-bit integers, a bytevector can be interpreted as a sequence of exact signed 8-bit integers, exact signed or unsigned 16-bit, 32-bit, 64-bit, or arbitrary-precision integers, IEEE single or double floating-point numbers, or arbitrary combinations of the above.
 
@@ -3700,7 +3700,7 @@ v <graphic> #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 (bytevector-ieee-double-set! v 1 1e23 'big)
 (bytevector-ieee-double-ref v 1 'big) <graphic> 1e23
 
-Section 6.11. Symbols
+** Section 6.11. Symbols
 
 Symbols are used for a variety of purposes as symbolic names in Scheme programs. Strings could be used for most of the same purposes, but an important characteristic of symbols makes comparisons between symbols much more efficient. This characteristic is that two symbols with the same name are identical in the sense of eq?. The reason is that the Scheme reader (invoked by get-datum and read) and the procedure string->symbol catalog symbols in an internal symbol table and always return the same symbol whenever the same name is encountered. Thus, no character-by-character comparison is needed, as would be needed to compare two strings.
 
@@ -3748,7 +3748,7 @@ The string returned by symbol->string should be treated as immutable. Unpredicta
 (symbol->string 'Hi) <graphic> "Hi"
 (symbol->string (string->symbol "()")) <graphic> "()"
 
-Section 6.12. Booleans
+** Section 6.12. Booleans
 
 While every Scheme object has a truth value when used in a conditional context, with every object but #f counting as true, Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more than that it is true.
 
@@ -3762,7 +3762,7 @@ The boolean values #t and #f may also be compared with eq?, which is typically m
 (boolean=? #t #f) <graphic> #f
 (boolean=? #t (< 3 4)) <graphic> #t
 
-Section 6.13. Hashtables
+** Section 6.13. Hashtables
 
 Hashtables represent sets of associations between arbitrary Scheme values. They serve essentially the same purpose as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
 
@@ -4000,7 +4000,7 @@ hashtable-entries returns two values. The first is a vector containing the keys 
 (hashtable-entries ht) <graphic> #((a . b) q (a . b))
                         #("two" "three" "one")
 
-Section 6.14. Enumerations
+** Section 6.14. Enumerations
 
 Enumerations are ordered sets of symbols, typically used to name and manipulate options, as with the buffer modes and file options that may be specified when files are created.
 
