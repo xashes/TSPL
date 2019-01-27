@@ -107,564 +107,617 @@ quasiquote 表达式可以嵌套，每个 quasiquote 引入一层新的引用，
 unquote 和 unquote-splicing 是 quasiquote 的辅助关键字。在它们作为辅助关键字的环境以外引用这些标识符是违反语法的。
 
 
-** Section 6.2. 通用等价关系和类型谓词
+** Section 6.2. 通用的等价性和类型谓词
 
-This section describes the basic Scheme predicates (procedures returning one of the boolean values #t or #f) for determining the type of an object or the equivalence of two objects. The equivalence predicates eq?, eqv?, 和 equal? are discussed first, followed by the type predicates.
+本节介绍了基本的 Scheme 谓词（返回布尔值 #t 或 #f 的过程），用于判定对象的类型或两个对象的等价性。先讨论等价性谓词 eq?, eqv?, 和 equal?, 接下来是类型谓词。
 
-procedure: (eq? obj1 obj2)
+procedure: ~(eq? obj1 obj2)~
 
-returns: #t if obj1 和 obj2 are identical, #f otherwise
+返回: 如果 ~obj1~ 和 ~obj2~ 完全相同，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
-In most Scheme systems, two objects are considered identical if they are represented internally by the same pointer value 和 distinct (not identical) if they are represented internally by different pointer values, although other criteria, such as time-stamping, are possible.
+在大多数 Scheme 系统中，如果两个对象内部通过相同的指针值表示，则被认为是完全相同的，如果它们在内部以不同的指针值表示，则被认为是不同的。不过也有采用其它标准的情况，比如利用时间戳判定。
 
-Although the particular rules for object identity vary somewhat from system to system, the following rules always hold.
+虽然不同系统之间判定对象同一性的特定规则会有些微的不同，但以下规则总是成立的。
 
-    Two objects of different types (booleans, the empty list, pairs, numbers, characters, strings, vectors, symbols, 和 procedures) are distinct.
+    两个不同类型（布尔类型，空列表，点对，数字，字符，字符串，向量，符号，及过程）的对象是不同的。
 
-    Two objects of the same type with different contents or values are distinct.
+    两个内容或值不相同的同类型对象是不同的。
 
-    The boolean object #t is identical to itself wherever it appears, 和 #f is identical to itself wherever it appears, but #t 和 #f are distinct.
+    不论在哪里出现，布尔对象 #t 与其自身都是相同的。不论出现在哪里，#f 也与其自身相同。但#t 与#f 不同。
 
-    The empty list () is identical to itself wherever it appears.
+    不论出现在哪里，空列表 () 都与其自身相同。
 
-    Two symbols are identical if 和 only if they have the same name (by string=?).
+    当且仅当两个符号的名字相同时（通过 string=?判定），它们相同。
 
-    A constant pair, vector, string, or bytevector is identical to itself, as is a pair, vector, string, or bytevector created by an application of cons, vector, string, make-bytevector, etc. Two pairs, vectors, strings, or bytevectors created by different applications of cons, vector, string, make-bytevector, etc., are distinct. One consequence is that cons, for example, may be used to create a unique object distinct from all other objects.
+    一个常量点对，向量，字符串或字节向量与其自身相同，比如通过应用 cons, vector, string, make-bytevector 等创建的点对，向量，字符串或字节向量。通过对 cons, vector, string, make-bytevector 等的不同应用创建的两个点对，向量，字符串或字节向量是不同的。由此可得的一个推论是，比如说，cons，可以被用于创建一个和所有其它对象都不同的唯一性对象。
 
-    Two procedures that may behave differently are distinct. A procedure created by an evaluation of a lambda expression is identical to itself. Two procedures created by the same lambda expression at different times, or by similar lambda expressions, may or may not be distinct. 
+    两个行为可能不同的过程是不同的。通过求值一个 lambda 表达式创建的过程与其自身相同。两个通过相同 lambda 表达式在不同时间创建的过程，或通过相似 lambda 表达式创建的过程，可能相同，也可能不同。
 
-eq? cannot be used to compare numbers 和 characters reliably. Although every inexact number is distinct from every exact number, two exact numbers, two inexact numbers, or two characters with the same value may or may not be identical.
+eq? 用于比较数字和字符时并不可靠。尽管每个不精确的数字与每个精确的数字都不同，但拥有相同值的两个精确的数字，两个不精确的数字，或两个字符，都可能相同，也可能不同。
 
 Since constant objects are immutable, i.e., programs should not modify them via vector-set!, set-car!, or any other structure mutation operation, all or portions of different quoted constants or self-evaluating literals may be represented internally by the same object. Thus, eq? may return #t when applied to equal parts of different immutable constants.
+由于常量对象是不可变的，即，程序不应通过 vector-set!, set-car!, 或任何其它结构修改操作修改它们，不同的引用常量或自求值字面量的全部或部分可能在内部由同一个对象表示。于是，当应用于不同的不可变常量的相等部分时，eq? 可能返回 #t.
 
-eq? is most often used to compare symbols or to check for pointer equivalence of allocated objects, e.g., pairs, vectors, or record instances.
+eq? 最常用于比较符号，或检查分配对象的指针等价性，例如，点对，向量，或 record 实例。
 
-(eq? 'a 3) => #f
-(eq? #t 't) => #f
-(eq? "abc" 'abc) => #f
-(eq? "hi" '(hi)) => #f
-(eq? #f '()) => #f
+#+BEGIN_SRC scheme
+  (eq? 'a 3) => #f
+  (eq? #t 't) => #f
+  (eq? "abc" 'abc) => #f
+  (eq? "hi" '(hi)) => #f
+  (eq? #f '()) => #f
 
-(eq? 9/2 7/2) => #f
-(eq? 3.4 53344) => #f
-(eq? 3 3.0) => #f
-(eq? 1/3 #i1/3) => #f
+  (eq? 9/2 7/2) => #f
+  (eq? 3.4 53344) => #f
+  (eq? 3 3.0) => #f
+  (eq? 1/3 #i1/3) => #f
 
-(eq? 9/2 9/2) => unspecified
-(eq? 3.4 (+ 3.0 .4)) => unspecified
-(let ([x (* 12345678987654321 2)])
-  (eq? x x)) => unspecified
+  (eq? 9/2 9/2) => unspecified
+  (eq? 3.4 (+ 3.0 .4)) => unspecified
+  (let ([x (* 12345678987654321 2)])
+    (eq? x x)) => unspecified
 
-(eq? #\a #\b) => #f
-(eq? #\a #\a) => unspecified
-(let ([x (string-ref "hi" 0)])
-  (eq? x x)) => unspecified
+  (eq? #\a #\b) => #f
+  (eq? #\a #\a) => unspecified
+  (let ([x (string-ref "hi" 0)])
+    (eq? x x)) => unspecified
 
-(eq? #t #t) => #t
-(eq? #f #f) => #t
-(eq? #t #f) => #f
-(eq? (null? '()) #t) => #t
-(eq? (null? '(a)) #f) => #t
+  (eq? #t #t) => #t
+  (eq? #f #f) => #t
+  (eq? #t #f) => #f
+  (eq? (null? '()) #t) => #t
+  (eq? (null? '(a)) #f) => #t
 
-(eq? (cdr '(a)) '()) => #t
+  (eq? (cdr '(a)) '()) => #t
 
-(eq? 'a 'a) => #t
-(eq? 'a 'b) => #f
-(eq? 'a (string->symbol "a")) => #t
+  (eq? 'a 'a) => #t
+  (eq? 'a 'b) => #f
+  (eq? 'a (string->symbol "a")) => #t
 
-(eq? '(a) '(b)) => #f
-(eq? '(a) '(a)) => unspecified
-(let ([x '(a . b)]) (eq? x x)) => #t
-(let ([x (cons 'a 'b)])
-  (eq? x x)) => #t
-(eq? (cons 'a 'b) (cons 'a 'b)) => #f
+  (eq? '(a) '(b)) => #f
+  (eq? '(a) '(a)) => unspecified
+  (let ([x '(a . b)]) (eq? x x)) => #t
+  (let ([x (cons 'a 'b)])
+    (eq? x x)) => #t
+  (eq? (cons 'a 'b) (cons 'a 'b)) => #f
 
-(eq? "abc" "cba") => #f
-(eq? "abc" "abc") => unspecified
-(let ([x "hi"]) (eq? x x)) => #t
-(let ([x (string #\h #\i)]) (eq? x x)) => #t
-(eq? (string #\h #\i)
-     (string #\h #\i)) => #f
+  (eq? "abc" "cba") => #f
+  (eq? "abc" "abc") => unspecified
+  (let ([x "hi"]) (eq? x x)) => #t
+  (let ([x (string #\h #\i)]) (eq? x x)) => #t
+  (eq? (string #\h #\i)
+       (string #\h #\i)) => #f
 
-(eq? '#vu8(1) '#vu8(1)) => unspecified
-(eq? '#vu8(1) '#vu8(2)) => #f
-(let ([x (make-bytevector 10 0)])
-  (eq? x x)) => #t
-(let ([x (make-bytevector 10 0)])
-  (eq? x (make-bytevector 10 0))) => #f
+  (eq? '#vu8(1) '#vu8(1)) => unspecified
+  (eq? '#vu8(1) '#vu8(2)) => #f
+  (let ([x (make-bytevector 10 0)])
+    (eq? x x)) => #t
+  (let ([x (make-bytevector 10 0)])
+    (eq? x (make-bytevector 10 0))) => #f
 
-(eq? '#(a) '#(b)) => #f
-(eq? '#(a) '#(a)) => unspecified
-(let ([x '#(a)]) (eq? x x)) => #t
-(let ([x (vector 'a)])
-  (eq? x x)) => #t
-(eq? (vector 'a) (vector 'a)) => #f
+  (eq? '#(a) '#(b)) => #f
+  (eq? '#(a) '#(a)) => unspecified
+  (let ([x '#(a)]) (eq? x x)) => #t
+  (let ([x (vector 'a)])
+    (eq? x x)) => #t
+  (eq? (vector 'a) (vector 'a)) => #f
 
-(eq? car car) => #t
-(eq? car cdr) => #f
-(let ([f (lambda (x) x)])
-  (eq? f f)) => #t
-(let ([f (lambda () (lambda (x) x))])
-  (eq? (f) (f))) => unspecified
-(eq? (lambda (x) x) (lambda (y) y)) => unspecified
+  (eq? car car) => #t
+  (eq? car cdr) => #f
+  (let ([f (lambda (x) x)])
+    (eq? f f)) => #t
+  (let ([f (lambda () (lambda (x) x))])
+    (eq? (f) (f))) => unspecified
+  (eq? (lambda (x) x) (lambda (y) y)) => unspecified
 
-(let ([f (lambda (x)
-           (lambda ()
-             (set! x (+ x 1))
-             x))])
-  (eq? (f 0) (f 0))) => #f
-
-procedure: (eqv? obj1 obj2)
-
-returns: #t if obj1 和 obj2 are equivalent, #f otherwise
-
-libraries: (rnrs base), (rnrs)
+  (let ([f (lambda (x)
+             (lambda ()
+               (set! x (+ x 1))
+               x))])
+    (eq? (f 0) (f 0))) => #f
+#+END_SRC
 
 
-eqv? 类似于 eq? except eqv? is guaranteed to return #t for two characters that are considered equal by char=? 和 two numbers that are (a) considered equal by = 和 (b) cannot be distinguished by any other operation besides eq? 和 eqv?. A consequence of (b) is that (eqv? -0.0 +0.0) is #f even though (= -0.0 +0.0) is #t in systems that distinguish -0.0 和 +0.0, such as those based on IEEE floating-point arithmetic. This is because operations such as / can expose the difference:
+procedure: ~(eqv? obj1 obj2)~
 
-(/ 1.0 -0.0) => -inf.0
-(/ 1.0 +0.0) => +inf.0
-
-Similarly, although 3.0 和 3.0+0.0i are considered numerically equal, they are not considered equivalent by eqv? if -0.0 和 0.0 have different representations.
-
-(= 3.0+0.0i 3.0) => #t
-(eqv? 3.0+0.0i 3.0) => #f
-
-The boolean value returned by eqv? is not specified when the arguments are NaNs.
-
-(eqv? +nan.0 (/ 0.0 0.0)) => unspecified
-
-eqv? is less implementation-dependent but generally more expensive than eq?.
-
-(eqv? 'a 3) => #f
-(eqv? #t 't) => #f
-(eqv? "abc" 'abc) => #f
-(eqv? "hi" '(hi)) => #f
-(eqv? #f '()) => #f
-
-(eqv? 9/2 7/2) => #f
-(eqv? 3.4 53344) => #f
-(eqv? 3 3.0) => #f
-(eqv? 1/3 #i1/3) => #f
-
-(eqv? 9/2 9/2) => #t
-(eqv? 3.4 (+ 3.0 .4)) => #t
-(let ([x (* 12345678987654321 2)])
-  (eqv? x x)) => #t
-
-(eqv? #\a #\b) => #f
-(eqv? #\a #\a) => #t
-(let ([x (string-ref "hi" 0)])
-  (eqv? x x)) => #t
-
-(eqv? #t #t) => #t
-(eqv? #f #f) => #t
-(eqv? #t #f) => #f
-(eqv? (null? '()) #t) => #t
-(eqv? (null? '(a)) #f) => #t
-
-(eqv? (cdr '(a)) '()) => #t
-
-(eqv? 'a 'a) => #t
-(eqv? 'a 'b) => #f
-(eqv? 'a (string->symbol "a")) => #t
-
-(eqv? '(a) '(b)) => #f
-(eqv? '(a) '(a)) => unspecified
-(let ([x '(a . b)]) (eqv? x x)) => #t
-(let ([x (cons 'a 'b)])
-  (eqv? x x)) => #t
-(eqv? (cons 'a 'b) (cons 'a 'b)) => #f
-
-(eqv? "abc" "cba") => #f
-(eqv? "abc" "abc") => unspecified
-(let ([x "hi"]) (eqv? x x)) => #t
-(let ([x (string #\h #\i)]) (eqv? x x)) => #t
-(eqv? (string #\h #\i)
-      (string #\h #\i)) => #f
-
-(eqv? '#vu8(1) '#vu8(1)) => unspecified
-(eqv? '#vu8(1) '#vu8(2)) => #f
-(let ([x (make-bytevector 10 0)])
-  (eqv? x x)) => #t
-(let ([x (make-bytevector 10 0)])
-  (eqv? x (make-bytevector 10 0))) => #f
-
-(eqv? '#(a) '#(b)) => #f
-(eqv? '#(a) '#(a)) => unspecified
-(let ([x '#(a)]) (eqv? x x)) => #t
-(let ([x (vector 'a)])
-  (eqv? x x)) => #t
-(eqv? (vector 'a) (vector 'a)) => #f
-
-(eqv? car car) => #t
-(eqv? car cdr) => #f
-(let ([f (lambda (x) x)])
-  (eqv? f f)) => #t
-(let ([f (lambda () (lambda (x) x))])
-  (eqv? (f) (f))) => unspecified
-(eqv? (lambda (x) x) (lambda (y) y)) => unspecified
-
-(let ([f (lambda (x)
-           (lambda ()
-             (set! x (+ x 1))
-             x))])
-  (eqv? (f 0) (f 0))) => #f
-
-procedure: (equal? obj1 obj2)
-
-returns: #t if obj1 和 obj2 have the same structure 和 contents, #f otherwise
+返回: 如果 ~obj1~ 和 ~obj2~ 相等，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
-Two objects are equal if they are equivalent according to eqv?, strings that are string=?, bytevectors that are bytevector=?, pairs whose cars 和 cdrs are equal, or vectors of the same length whose corresponding elements are equal.
+eqv? 类似于 eq?, 只是 eqv? 对以下情况确定返回 #t: 被 char=? 判定为相等的两个字符，被 = 判定为相等 (a)，且不能被 eq? 和 eqv? 以外的任何操作区分 (b) 的两个数字。(b) 的一个推论是，在区分 -0.0 和+0.0 的系统中（比如那些基于 IEEE 浮点算术的系统），虽然 (= -0.0 +0.0) 为 #t, 但 (eqv? -0.0 +0.0) 为 #f. 这是因为一些操作，比如 /， 可以揭示出它们之间区别：
+
+#+BEGIN_SRC scheme
+  (/ 1.0 -0.0) => -inf.0
+  (/ 1.0 +0.0) => +inf.0
+#+END_SRC
+
+类似的，虽然 3.0 和 3.0+0.0i 在数值上被认为是相等的，但如果 -0.0 和 0.0 为不同的表示形式，则 eqv? 会判定它们为不相等。
+
+#+BEGIN_SRC scheme
+  (= 3.0+0.0i 3.0) => #t
+  (eqv? 3.0+0.0i 3.0) => #f
+#+END_SRC
+
+实参为 NaNs 时，eqv?返回的布尔值是未定义的。
+
+~(eqv? +nan.0 (/ 0.0 0.0)) => unspecified~
+
+eqv? 比起 eq?, 对具体实现的依赖较少，但通常对资源的消耗更大。
+
+#+BEGIN_SRC scheme
+  (eqv? 'a 3) => #f
+  (eqv? #t 't) => #f
+  (eqv? "abc" 'abc) => #f
+  (eqv? "hi" '(hi)) => #f
+  (eqv? #f '()) => #f
+
+  (eqv? 9/2 7/2) => #f
+  (eqv? 3.4 53344) => #f
+  (eqv? 3 3.0) => #f
+  (eqv? 1/3 #i1/3) => #f
+
+  (eqv? 9/2 9/2) => #t
+  (eqv? 3.4 (+ 3.0 .4)) => #t
+  (let ([x (* 12345678987654321 2)])
+    (eqv? x x)) => #t
+
+  (eqv? #\a #\b) => #f
+  (eqv? #\a #\a) => #t
+  (let ([x (string-ref "hi" 0)])
+    (eqv? x x)) => #t
+
+  (eqv? #t #t) => #t
+  (eqv? #f #f) => #t
+  (eqv? #t #f) => #f
+  (eqv? (null? '()) #t) => #t
+  (eqv? (null? '(a)) #f) => #t
+
+  (eqv? (cdr '(a)) '()) => #t
+
+  (eqv? 'a 'a) => #t
+  (eqv? 'a 'b) => #f
+  (eqv? 'a (string->symbol "a")) => #t
+
+  (eqv? '(a) '(b)) => #f
+  (eqv? '(a) '(a)) => unspecified
+  (let ([x '(a . b)]) (eqv? x x)) => #t
+  (let ([x (cons 'a 'b)])
+    (eqv? x x)) => #t
+  (eqv? (cons 'a 'b) (cons 'a 'b)) => #f
+
+  (eqv? "abc" "cba") => #f
+  (eqv? "abc" "abc") => unspecified
+  (let ([x "hi"]) (eqv? x x)) => #t
+  (let ([x (string #\h #\i)]) (eqv? x x)) => #t
+  (eqv? (string #\h #\i)
+        (string #\h #\i)) => #f
+
+  (eqv? '#vu8(1) '#vu8(1)) => unspecified
+  (eqv? '#vu8(1) '#vu8(2)) => #f
+  (let ([x (make-bytevector 10 0)])
+    (eqv? x x)) => #t
+  (let ([x (make-bytevector 10 0)])
+    (eqv? x (make-bytevector 10 0))) => #f
+
+  (eqv? '#(a) '#(b)) => #f
+  (eqv? '#(a) '#(a)) => unspecified
+  (let ([x '#(a)]) (eqv? x x)) => #t
+  (let ([x (vector 'a)])
+    (eqv? x x)) => #t
+  (eqv? (vector 'a) (vector 'a)) => #f
+
+  (eqv? car car) => #t
+  (eqv? car cdr) => #f
+  (let ([f (lambda (x) x)])
+    (eqv? f f)) => #t
+  (let ([f (lambda () (lambda (x) x))])
+    (eqv? (f) (f))) => unspecified
+  (eqv? (lambda (x) x) (lambda (y) y)) => unspecified
+
+  (let ([f (lambda (x)
+             (lambda ()
+               (set! x (+ x 1))
+               x))])
+    (eqv? (f 0) (f 0))) => #f
+#+END_SRC
+
+
+procedure: ~(equal? obj1 obj2)~
+
+返回: 如果 ~obj1~ 和 ~obj2~ 具有相同的结构和内容，则为 ~#t~, 否则为 ~#f~.
+
+libraries: (rnrs base), (rnrs)
+
+
+如果两个对象基于 eqv? 判定是相等的，则它们是 equal 的，如 string=? 的字符串，bytevector=? 的字节向量，cars 和 cdrs 都相等的点对，或相同长度，且对应元素都相等的向量。
 
 equal? is required to terminate even for cyclic arguments 和 return #t "if 和 only if the (possibly infinite) unfoldings of its arguments into regular trees are equal as ordered trees" [24]. In essence, two values are equivalent, in the sense of equal?, if the structure of the two objects cannot be distinguished by any composition of pair 和 vector accessors along with the eqv?, string=?, 和 bytevector=? procedures for comparing data at the leaves.
 
-Implementing equal? efficiently is tricky [1], 和 even with a good implementation, it is likely to be more expensive than either eqv? or eq?.
+如何高效实现 equal? 是很棘手的，而即使在一个很好的实现中，它也很可能比 eqv? 或 eq? 更消耗资源。
 
-(equal? 'a 3) => #f
-(equal? #t 't) => #f
-(equal? "abc" 'abc) => #f
-(equal? "hi" '(hi)) => #f
-(equal? #f '()) => #f
+#+BEGIN_SRC scheme
+  (equal? 'a 3) => #f
+  (equal? #t 't) => #f
+  (equal? "abc" 'abc) => #f
+  (equal? "hi" '(hi)) => #f
+  (equal? #f '()) => #f
 
-(equal? 9/2 7/2) => #f
-(equal? 3.4 53344) => #f
-(equal? 3 3.0) => #f
-(equal? 1/3 #i1/3) => #f
+  (equal? 9/2 7/2) => #f
+  (equal? 3.4 53344) => #f
+  (equal? 3 3.0) => #f
+  (equal? 1/3 #i1/3) => #f
 
-(equal? 9/2 9/2) => #t
-(equal? 3.4 (+ 3.0 .4)) => #t
-(let ([x (* 12345678987654321 2)])
-  (equal? x x)) => #t
+  (equal? 9/2 9/2) => #t
+  (equal? 3.4 (+ 3.0 .4)) => #t
+  (let ([x (* 12345678987654321 2)])
+    (equal? x x)) => #t
 
-(equal? #\a #\b) => #f
-(equal? #\a #\a) => #t
-(let ([x (string-ref "hi" 0)])
-  (equal? x x)) => #t
+  (equal? #\a #\b) => #f
+  (equal? #\a #\a) => #t
+  (let ([x (string-ref "hi" 0)])
+    (equal? x x)) => #t
 
-(equal? #t #t) => #t
-(equal? #f #f) => #t
-(equal? #t #f) => #f
-(equal? (null? '()) #t) => #t
-(equal? (null? '(a)) #f) => #t
+  (equal? #t #t) => #t
+  (equal? #f #f) => #t
+  (equal? #t #f) => #f
+  (equal? (null? '()) #t) => #t
+  (equal? (null? '(a)) #f) => #t
 
-(equal? (cdr '(a)) '()) => #t
+  (equal? (cdr '(a)) '()) => #t
 
-(equal? 'a 'a) => #t
-(equal? 'a 'b) => #f
-(equal? 'a (string->symbol "a")) => #t
+  (equal? 'a 'a) => #t
+  (equal? 'a 'b) => #f
+  (equal? 'a (string->symbol "a")) => #t
 
-(equal? '(a) '(b)) => #f
-(equal? '(a) '(a)) => #t
-(let ([x '(a . b)]) (equal? x x)) => #t
-(let ([x (cons 'a 'b)])
-  (equal? x x)) => #t
-(equal? (cons 'a 'b) (cons 'a 'b)) => #t
+  (equal? '(a) '(b)) => #f
+  (equal? '(a) '(a)) => #t
+  (let ([x '(a . b)]) (equal? x x)) => #t
+  (let ([x (cons 'a 'b)])
+    (equal? x x)) => #t
+  (equal? (cons 'a 'b) (cons 'a 'b)) => #t
 
-(equal? "abc" "cba") => #f
-(equal? "abc" "abc") => #t
-(let ([x "hi"]) (equal? x x)) => #t
-(let ([x (string #\h #\i)]) (equal? x x)) => #t
-(equal? (string #\h #\i)
-        (string #\h #\i)) => #t
+  (equal? "abc" "cba") => #f
+  (equal? "abc" "abc") => #t
+  (let ([x "hi"]) (equal? x x)) => #t
+  (let ([x (string #\h #\i)]) (equal? x x)) => #t
+  (equal? (string #\h #\i)
+          (string #\h #\i)) => #t
 
-(equal? '#vu8(1) '#vu8(1)) => #t
-(equal? '#vu8(1) '#vu8(2)) => #f
-(let ([x (make-bytevector 10 0)])
-  (equal? x x)) => #t
-(let ([x (make-bytevector 10 0)])
-  (equal? x (make-bytevector 10 0))) => #t
+  (equal? '#vu8(1) '#vu8(1)) => #t
+  (equal? '#vu8(1) '#vu8(2)) => #f
+  (let ([x (make-bytevector 10 0)])
+    (equal? x x)) => #t
+  (let ([x (make-bytevector 10 0)])
+    (equal? x (make-bytevector 10 0))) => #t
 
-(equal? '#(a) '#(b)) => #f
-(equal? '#(a) '#(a)) => #t
-(let ([x '#(a)]) (equal? x x)) => #t
-(let ([x (vector 'a)])
-  (equal? x x)) => #t
-(equal? (vector 'a) (vector 'a)) => #t
+  (equal? '#(a) '#(b)) => #f
+  (equal? '#(a) '#(a)) => #t
+  (let ([x '#(a)]) (equal? x x)) => #t
+  (let ([x (vector 'a)])
+    (equal? x x)) => #t
+  (equal? (vector 'a) (vector 'a)) => #t
 
-(equal? car car) => #t
-(equal? car cdr) => #f
-(let ([f (lambda (x) x)])
-  (equal? f f)) => #t
-(let ([f (lambda () (lambda (x) x))])
-  (equal? (f) (f))) => unspecified
-(equal? (lambda (x) x) (lambda (y) y)) => unspecified
+  (equal? car car) => #t
+  (equal? car cdr) => #f
+  (let ([f (lambda (x) x)])
+    (equal? f f)) => #t
+  (let ([f (lambda () (lambda (x) x))])
+    (equal? (f) (f))) => unspecified
+  (equal? (lambda (x) x) (lambda (y) y)) => unspecified
 
-(let ([f (lambda (x)
-           (lambda ()
-             (set! x (+ x 1))
-             x))])
-  (equal? (f 0) (f 0))) => #f
+  (let ([f (lambda (x)
+             (lambda ()
+               (set! x (+ x 1))
+               x))])
+    (equal? (f 0) (f 0))) => #f
 
-(equal?
-  (let ([x (cons 'x 'x)])
-    (set-car! x x)
-    (set-cdr! x x)
-    x)
-  (let ([x (cons 'x 'x)])
-    (set-car! x x)
-    (set-cdr! x x)
-    (cons x x))) => #t
+  (equal?
+    (let ([x (cons 'x 'x)])
+      (set-car! x x)
+      (set-cdr! x x)
+      x)
+    (let ([x (cons 'x 'x)])
+      (set-car! x x)
+      (set-cdr! x x)
+      (cons x x))) => #t
+#+END_SRC
 
-procedure: (boolean? obj)
 
-returns: #t if obj is either #t or #f, #f otherwise
+procedure: ~(boolean? obj)~
+
+返回: 如果 ~obj~ 是 #t 或 #f，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
 boolean? 等价于 (lambda (x) (or (eq? x #t) (eq? x #f))).
 
-(boolean? #t) => #t
-(boolean? #f) => #t
-(or (boolean? 't) (boolean? '())) => #f
+#+BEGIN_SRC scheme
+  (boolean? #t) => #t
+  (boolean? #f) => #t
+  (or (boolean? 't) (boolean? '())) => #f
+#+END_SRC
 
-procedure: (null? obj)
 
-returns: #t if obj is the empty list, #f otherwise
+procedure: ~(null? obj)~
+
+返回: 如果 ~obj~ 是空列表，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
 null? 等价于 (lambda (x) (eq? x '())).
 
-(null? '()) => #t
-(null? '(a)) => #f
-(null? (cdr '(a))) => #t
-(null? 3) => #f
-(null? #f) => #f
-
-procedure: (pair? obj)
-
-returns: #t if obj is a pair, #f otherwise
-
-libraries: (rnrs base), (rnrs)
+#+BEGIN_SRC scheme
+  (null? '()) => #t
+  (null? '(a)) => #f
+  (null? (cdr '(a))) => #t
+  (null? 3) => #f
+  (null? #f) => #f
+#+END_SRC
 
 
-(pair? '(a b c)) => #t
-(pair? '(3 . 4)) => #t
-(pair? '()) => #f
-(pair? '#(a b)) => #f
-(pair? 3) => #f
+procedure: ~(pair? obj)~
 
-procedure: (number? obj)
-
-returns: #t if obj is a number object, #f otherwise
-
-procedure: (complex? obj)
-
-returns: #t if obj is a complex number object, #f otherwise
-
-procedure: (real? obj)
-
-returns: #t if obj is a real number object, #f otherwise
-
-procedure: (rational? obj)
-
-returns: #t if obj is a rational number object, #f otherwise
-
-procedure: (integer? obj)
-
-returns: #t if obj is an integer object, #f otherwise
+返回: 如果 ~obj~ 是点对，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
-These predicates form a hierarchy: any integer is rational, any rational is real, any real is complex, 和 any complex is numeric. Most implementations do not provide internal representations for irrational numbers, so all real numbers are typically rational as well.
+#+BEGIN_SRC scheme
+  (pair? '(a b c)) => #t
+  (pair? '(3 . 4)) => #t
+  (pair? '()) => #f
+  (pair? '#(a b)) => #f
+  (pair? 3) => #f
+#+END_SRC
 
-The real?, rational?, 和 integer? predicates do not recognize as real, rational, or integer complex numbers with inexact zero imaginary parts.
 
-(integer? 1901) => #t
-(rational? 1901) => #t
-(real? 1901) => #t
-(complex? 1901) => #t
-(number? 1901) => #t
+procedure: ~(number? obj)~
 
-(integer? -3.0) => #t
-(rational? -3.0) => #t
-(real? -3.0) => #t
-(complex? -3.0) => #t
-(number? -3.0) => #t
+返回: 如果 ~obj~ 是数字对象，则为 ~#t~, 否则为 ~#f~.
 
-(integer? 7+0i) => #t
-(rational? 7+0i) => #t
-(real? 7+0i) => #t
-(complex? 7+0i) => #t
-(number? 7+0i) => #t
+procedure: ~(complex? obj)~
 
-(integer? -2/3) => #f
-(rational? -2/3) => #t
-(real? -2/3) => #t
-(complex? -2/3) => #t
-(number? -2/3) => #t
+返回: 如果 ~obj~ 是复数对象，则为 ~#t~, 否则为 ~#f~.
 
-(integer? -2.345) => #f
-(rational? -2.345) => #t
-(real? -2.345) => #t
-(complex? -2.345) => #t
-(number? -2.345) => #t
+procedure: ~(real? obj)~
 
-(integer? 7.0+0.0i) => #f
-(rational? 7.0+0.0i) => #f
-(real? 7.0+0.0i) => #f
-(complex? 7.0+0.0i) => #t
-(number? 7.0+0.0i) => #t
+返回: 如果 ~obj~ 是实数对象，则为 ~#t~, 否则为 ~#f~.
 
-(integer? 3.2-2.01i) => #f
-(rational? 3.2-2.01i) => #f
-(real? 3.2-2.01i) => #f
-(complex? 3.2-2.01i) => #t
-(number? 3.2-2.01i) => #t
+procedure: ~(rational? obj)~
 
-(integer? 'a) => #f
-(rational? '(a b c)) => #f
-(real? "3") => #f
-(complex? '#(1 2)) => #f
-(number? #\a) => #f
+返回: 如果 ~obj~ 是有理数对象，则为 ~#t~, 否则为 ~#f~.
 
-procedure: (real-valued? obj)
+procedure: ~(integer? obj)~
 
-returns: #t if obj is a real number, #f otherwise
-
-procedure: (rational-valued? obj)
-
-returns: #t if obj is a rational number, #f otherwise
-
-procedure: (integer-valued? obj)
-
-returns: #t if obj is an integer, #f otherwise
+返回: 如果 ~obj~ 是整数对象，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
-These predicates are similar to real?, rational?, 和 integer?, but treat as real, rational, or integral complex numbers with inexact zero imaginary parts.
+这些谓词形成了一个层次结构：任何整数都是有理数，任何有理数都是实数，任何实数都是复数，而任何复数都是数字。大多数实现不提供无理数的内部表示，所以所有实数通常也是有理数。
 
-(integer-valued? 1901) => #t
-(rational-valued? 1901) => #t
-(real-valued? 1901) => #t
+对于以不精确的 0 为虚部的复数，谓词 real?, rational?, 和 integer? 不会把它识别为实数，有理数或整数。
 
-(integer-valued? -3.0) => #t
-(rational-valued? -3.0) => #t
-(real-valued? -3.0) => #t
+#+BEGIN_SRC scheme
+  (integer? 1901) => #t
+  (rational? 1901) => #t
+  (real? 1901) => #t
+  (complex? 1901) => #t
+  (number? 1901) => #t
 
-(integer-valued? 7+0i) => #t
-(rational-valued? 7+0i) => #t
-(real-valued? 7+0i) => #t
+  (integer? -3.0) => #t
+  (rational? -3.0) => #t
+  (real? -3.0) => #t
+  (complex? -3.0) => #t
+  (number? -3.0) => #t
 
-(integer-valued? -2/3) => #f
-(rational-valued? -2/3) => #t
-(real-valued? -2/3) => #t
+  (integer? 7+0i) => #t
+  (rational? 7+0i) => #t
+  (real? 7+0i) => #t
+  (complex? 7+0i) => #t
+  (number? 7+0i) => #t
 
-(integer-valued? -2.345) => #f
-(rational-valued? -2.345) => #t
-(real-valued? -2.345) => #t
+  (integer? -2/3) => #f
+  (rational? -2/3) => #t
+  (real? -2/3) => #t
+  (complex? -2/3) => #t
+  (number? -2/3) => #t
 
-(integer-valued? 7.0+0.0i) => #t
-(rational-valued? 7.0+0.0i) => #t
-(real-valued? 7.0+0.0i) => #t
+  (integer? -2.345) => #f
+  (rational? -2.345) => #t
+  (real? -2.345) => #t
+  (complex? -2.345) => #t
+  (number? -2.345) => #t
 
-(integer-valued? 3.2-2.01i) => #f
-(rational-valued? 3.2-2.01i) => #f
-(real-valued? 3.2-2.01i) => #f
+  (integer? 7.0+0.0i) => #f
+  (rational? 7.0+0.0i) => #f
+  (real? 7.0+0.0i) => #f
+  (complex? 7.0+0.0i) => #t
+  (number? 7.0+0.0i) => #t
 
-As with real?, rational?, 和 integer?, these predicates return #f for all non-numeric values.
+  (integer? 3.2-2.01i) => #f
+  (rational? 3.2-2.01i) => #f
+  (real? 3.2-2.01i) => #f
+  (complex? 3.2-2.01i) => #t
+  (number? 3.2-2.01i) => #t
 
-(integer-valued? 'a) => #f
-(rational-valued? '(a b c)) => #f
-(real-valued? "3") => #f
-
-procedure: (char? obj)
-
-returns: #t if obj is a character, #f otherwise
-
-libraries: (rnrs base), (rnrs)
-
-
-(char? 'a) => #f
-(char? 97) => #f
-(char? #\a) => #t
-(char? "a") => #f
-(char? (string-ref (make-string 1) 0)) => #t
-
-procedure: (string? obj)
-
-returns: #t if obj is a string, #f otherwise
-
-libraries: (rnrs base), (rnrs)
-
-
-(string? "hi") => #t
-(string? 'hi) => #f
-(string? #\h) => #f
-
-procedure: (vector? obj)
-
-returns: #t if obj is a vector, #f otherwise
-
-libraries: (rnrs base), (rnrs)
+  (integer? 'a) => #f
+  (rational? '(a b c)) => #f
+  (real? "3") => #f
+  (complex? '#(1 2)) => #f
+  (number? #\a) => #f
+#+END_SRC
 
 
-(vector? '#()) => #t
-(vector? '#(a b c)) => #t
-(vector? (vector 'a 'b 'c)) => #t
-(vector? '()) => #f
-(vector? '(a b c)) => #f
-(vector? "abc") => #f
+procedure: ~(real-valued? obj)~
 
-procedure: (symbol? obj)
+返回: 如果 ~obj~ 是实数，则为 ~#t~, 否则为 ~#f~.
 
-returns: #t if obj is a symbol, #f otherwise
+procedure: ~(rational-valued? obj)~
+
+返回: 如果 ~obj~ 是有理数，则为 ~#t~, 否则为 ~#f~.
+
+procedure: ~(integer-valued? obj)~
+
+返回: 如果 ~obj~ 是整数，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
-(symbol? 't) => #t
-(symbol? "t") => #f
-(symbol? '(t)) => #f
-(symbol? #\t) => #f
-(symbol? 3) => #f
-(symbol? #t) => #f
+这些谓词类似于 real?, rational?, 和 integer?, 但把以不精确的 0 为虚部的复数当作实数，有理数或整数。
 
-procedure: (procedure? obj)
+#+BEGIN_SRC scheme
+  (integer-valued? 1901) => #t
+  (rational-valued? 1901) => #t
+  (real-valued? 1901) => #t
 
-returns: #t if obj is a procedure, #f otherwise
+  (integer-valued? -3.0) => #t
+  (rational-valued? -3.0) => #t
+  (real-valued? -3.0) => #t
+
+  (integer-valued? 7+0i) => #t
+  (rational-valued? 7+0i) => #t
+  (real-valued? 7+0i) => #t
+
+  (integer-valued? -2/3) => #f
+  (rational-valued? -2/3) => #t
+  (real-valued? -2/3) => #t
+
+  (integer-valued? -2.345) => #f
+  (rational-valued? -2.345) => #t
+  (real-valued? -2.345) => #t
+
+  (integer-valued? 7.0+0.0i) => #t
+  (rational-valued? 7.0+0.0i) => #t
+  (real-valued? 7.0+0.0i) => #t
+
+  (integer-valued? 3.2-2.01i) => #f
+  (rational-valued? 3.2-2.01i) => #f
+  (real-valued? 3.2-2.01i) => #f
+#+END_SRC
+
+
+和 real?, rational?, 及 integer? 一样，这些谓词对所有非数字值返回 #f.
+
+#+BEGIN_SRC scheme
+  (integer-valued? 'a) => #f
+  (rational-valued? '(a b c)) => #f
+  (real-valued? "3") => #f
+#+END_SRC
+
+
+procedure: ~(char? obj)~
+
+返回: 如果 ~obj~ 是字符，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
 
-(procedure? car) => #t
-(procedure? 'car) => #f
-(procedure? (lambda (x) x)) => #t
-(procedure? '(lambda (x) x)) => #f
-(call/cc procedure?) => #t
+#+BEGIN_SRC scheme
+  (char? 'a) => #f
+  (char? 97) => #f
+  (char? #\a) => #t
+  (char? "a") => #f
+  (char? (string-ref (make-string 1) 0)) => #t
+#+END_SRC
 
-procedure: (bytevector? obj)
 
-returns: #t if obj is a bytevector, #f otherwise
+procedure: ~(string? obj)~
+
+返回: 如果 ~obj~ 是字符串，则为 ~#t~, 否则为 ~#f~.
+
+libraries: (rnrs base), (rnrs)
+
+
+#+BEGIN_SRC scheme
+  (string? "hi") => #t
+  (string? 'hi) => #f
+  (string? #\h) => #f
+#+END_SRC
+
+
+procedure: ~(vector? obj)~
+
+返回: 如果 ~obj~ 是向量，则为 ~#t~, 否则为 ~#f~.
+
+libraries: (rnrs base), (rnrs)
+
+
+#+BEGIN_SRC scheme
+  (vector? '#()) => #t
+  (vector? '#(a b c)) => #t
+  (vector? (vector 'a 'b 'c)) => #t
+  (vector? '()) => #f
+  (vector? '(a b c)) => #f
+  (vector? "abc") => #f
+#+END_SRC
+
+
+procedure: ~(symbol? obj)~
+
+返回: 如果 ~obj~ 是符号，则为 ~#t~, 否则为 ~#f~.
+
+libraries: (rnrs base), (rnrs)
+
+
+#+BEGIN_SRC scheme
+  (symbol? 't) => #t
+  (symbol? "t") => #f
+  (symbol? '(t)) => #f
+  (symbol? #\t) => #f
+  (symbol? 3) => #f
+  (symbol? #t) => #f
+#+END_SRC
+
+
+procedure: ~(procedure? obj)~
+
+返回: 如果 ~obj~ 是过程，则为 ~#t~, 否则为 ~#f~.
+
+libraries: (rnrs base), (rnrs)
+
+
+#+BEGIN_SRC scheme
+  (procedure? car) => #t
+  (procedure? 'car) => #f
+  (procedure? (lambda (x) x)) => #t
+  (procedure? '(lambda (x) x)) => #f
+  (call/cc procedure?) => #t
+#+END_SRC
+
+
+procedure: ~(bytevector? obj)~
+
+返回: 如果 ~obj~ 是字节向量，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs bytevectors), (rnrs)
 
 
-(bytevector? #vu8()) => #t
-(bytevector? '#()) => #f
-(bytevector? "abc") => #f
+#+BEGIN_SRC scheme
+  (bytevector? #vu8()) => #t
+  (bytevector? '#()) => #f
+  (bytevector? "abc") => #f
+#+END_SRC
 
-procedure: (hashtable? obj)
 
-returns: #t if obj is a hashtable, #f otherwise
+procedure: ~(hashtable? obj)~
+
+返回: 如果 ~obj~ 是哈希表，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs hashtables), (rnrs)
 
 
-(hashtable? (make-eq-hashtable)) => #t
-(hashtable? '(not a hash table)) => #f
+#+BEGIN_SRC scheme
+  (hashtable? (make-eq-hashtable)) => #t
+  (hashtable? '(not a hash table)) => #f
+#+END_SRC
+
 
 ** Section 6.3. Lists 和 Pairs
 
@@ -680,7 +733,7 @@ It is possible to create a circular list or a cyclic graph by destructively alte
 
 Procedures that accept a list argument are required to detect that the list is improper only to the extent that they actually traverse the list far enough either (a) to attempt to operate on a non-list tail or (b) to loop indefinitely due to a circularity. For example, member need not detect that a list is improper if it actually finds the element being sought, 和 list-ref need never detect circularities, because its recursion is bounded by the index argument.
 
-procedure: (cons obj1 obj2)
+procedure: ~(cons obj1 obj2)~
 
 returns: a new pair whose car 和 cdr are obj1 和 obj2
 
@@ -693,7 +746,7 @@ cons is the pair constructor procedure. obj1 becomes the car 和 obj2 becomes th
 (cons 'a '(b c)) => (a b c)
 (cons 3 4) => (3 . 4)
 
-procedure: (car pair)
+procedure: ~(car pair)~
 
 returns: the car of pair
 
@@ -706,7 +759,7 @@ The empty list is not a pair, so the argument must not be the empty list.
 (car '(a b c)) => a
 (car (cons 3 4)) => 3
 
-procedure: (cdr pair)
+procedure: ~(cdr pair)~
 
 returns: the cdr of pair
 
@@ -719,7 +772,7 @@ The empty list is not a pair, so the argument must not be the empty list.
 (cdr '(a b c)) => (b c)
 (cdr (cons 3 4)) => 4
 
-procedure: (set-car! pair obj)
+procedure: ~(set-car! pair obj)~
 
 returns: unspecified
 
@@ -732,7 +785,7 @@ set-car! changes the car of pair to obj.
   (set-car! x 1)
   x) => (1 b c)
 
-procedure: (set-cdr! pair obj)
+procedure: ~(set-cdr! pair obj)~
 
 returns: unspecified
 
@@ -745,11 +798,11 @@ set-cdr! changes the cdr of pair to obj.
   (set-cdr! x 1)
   x) => (a . 1)
 
-procedure: (caar pair)
+procedure: ~(caar pair)~
 
-procedure: (cadr pair) =>
+procedure: ~(cadr pair)~ =>
 
-procedure: (cddddr pair)
+procedure: ~(cddddr pair)~
 
 returns: the caar, cadr, ..., or cddddr of pair
 
@@ -763,7 +816,7 @@ These procedures are defined as the composition of up to four cars 和 cdrs. The
 (cdddr '(a b c d)) => (d)
 (cadadr '(a (b c))) => c
 
-procedure: (list obj ...)
+procedure: ~(list obj ...)~
 
 returns: a list of obj ...
 
@@ -776,7 +829,7 @@ list 等价于 (lambda x x).
 (list 1 2 3) => (1 2 3)
 (list 3 2 1) => (3 2 1)
 
-procedure: (cons* obj ... final-obj)
+procedure: ~(cons* obj ... final-obj)~
 
 returns: a list of obj ... terminated by final-obj
 
@@ -790,7 +843,7 @@ If the objects obj ... are omitted, the result is simply final-obj. Otherwise, a
 (cons* 'a 'b 'c) => (a b . c)
 (cons* 'a 'b '(c d)) => (a b c d)
 
-procedure: (list? obj)
+procedure: ~(list? obj)~
 
 returns: #t if obj is a proper list, #f otherwise
 
@@ -808,7 +861,7 @@ list? must return #f for all improper lists, including cyclic lists. A definitio
   (set-cdr! (cddr x) x)
   (list? x)) => #f
 
-procedure: (length list)
+procedure: ~(length list)~
 
 returns: the number of elements in list
 
@@ -849,7 +902,7 @@ length may be defined as follows, using an adaptation of the hare 和 tortoise a
     (set-car! (cdr ls) ls) => 2
     ls))
 
-procedure: (list-ref list n)
+procedure: ~(list-ref list n)~
 
 returns: the nth element (zero-based) of list
 
@@ -868,7 +921,7 @@ n must be an exact nonnegative integer less than the length of list. list-ref ma
 (list-ref '(a b c) 1) => b
 (list-ref '(a b c) 2) => c
 
-procedure: (list-tail list n)
+procedure: ~(list-tail list n)~
 
 returns: the nth tail (zero-based) of list
 
@@ -894,9 +947,9 @@ list-tail may be defined without error checks as follows.
   (eq? (list-tail x 2)
        (cddr x))) => #t
 
-procedure: (append)
+procedure: ~(append)~
 
-procedure: (append list ... obj)
+procedure: ~(append list ... obj)~
 
 returns: the concatenation of the input lists
 
@@ -922,7 +975,7 @@ append returns a new list consisting of the elements of the first list followed 
 (let ([x (list 'b)])
   (eq? x (cdr (append '(a) x)))) => #t
 
-procedure: (reverse list)
+procedure: ~(reverse list)~
 
 returns: a new list containing the elements of list in reverse order
 
@@ -941,11 +994,11 @@ reverse may be defined without error checks as follows.
 (reverse '()) => ()
 (reverse '(a b c)) => (c b a)
 
-procedure: (memq obj list)
+procedure: ~(memq obj list)~
 
-procedure: (memv obj list)
+procedure: ~(memv obj list)~
 
-procedure: (member obj list)
+procedure: ~(member obj list)~
 
 returns: the first tail of list whose car 等价于 obj, or #f
 
@@ -995,7 +1048,7 @@ memv 和 member may be defined similarly, with eqv? 和 equal? in place of eq?.
 
 (count-occurrences 'a '(a b c d a)) => 2
 
-procedure: (memp procedure list)
+procedure: ~(memp procedure list)~
 
 returns: the first tail of list for whose car procedure returns true, or #f
 
@@ -1012,11 +1065,11 @@ procedure should accept one argument 和 return a single value. It should not mo
   (eq? (memp even? ls) (cdr ls))) => #t
 (memp odd? '(2 4 6 8)) => #f
 
-procedure: (remq obj list)
+procedure: ~(remq obj list)~
 
-procedure: (remv obj list)
+procedure: ~(remv obj list)~
 
-procedure: (remove obj list)
+procedure: ~(remove obj list)~
 
 returns: a list containing the elements of list with all occurrences of obj removed
 
@@ -1034,7 +1087,7 @@ The equivalence test for remq is eq?, for remv is eqv?, 和 for remove is equal?
 
 (remove '(b) '((a) (b) (c))) => ((a) (c))
 
-procedure: (remp procedure list)
+procedure: ~(remp procedure list)~
 
 returns: a list of the elements of list for which procedure returns #f
 
@@ -1050,7 +1103,7 @@ remp applies procedure to each element of list 和 returns a list containing onl
   (lambda (x) (和 (> x 0) (< x 10)))
   '(-5 15 3 14 -20 6 0 -9)) => (-5 15 14 -20 0 -9)
 
-procedure: (filter procedure list)
+procedure: ~(filter procedure list)~
 
 returns: a list of the elements of list for which procedure returns true
 
@@ -1066,7 +1119,7 @@ filter applies procedure to each element of list 和 returns a new list containi
   (lambda (x) (和 (> x 0) (< x 10)))
   '(-5 15 3 14 -20 6 0 -9)) => (3 6)
 
-procedure: (partition procedure list)
+procedure: ~(partition procedure list)~
 
 returns: see below
 
@@ -1086,7 +1139,7 @@ partition applies procedure to each element of list 和 returns two values: a ne
 
 The values returned by partition can be obtained by calling filter 和 remp separately, but this would require two calls to procedure for each element of list.
 
-procedure: (find procedure list)
+procedure: ~(find procedure list)~
 
 returns: the first element of list for which procedure returns true, or #f
 
@@ -1104,11 +1157,11 @@ If a program must distinguish between finding #f in the list 和 finding no elem
 (find odd? '(2 4 6 8)) => #f
 (find not '(1 a #f 55)) => #f
 
-procedure: (assq obj alist)
+procedure: ~(assq obj alist)~
 
-procedure: (assv obj alist)
+procedure: ~(assv obj alist)~
 
-procedure: (assoc obj alist)
+procedure: ~(assoc obj alist)~
 
 returns: first element of alist whose car 等价于 obj, or #f
 
@@ -1146,7 +1199,7 @@ assv 和 assoc may be defined similarly, with eqv? 和 equal? in place of eq?.
 
 The interpreter given in Section 12.7 represents environments as association lists 和 uses assq for both variable lookup 和 assignment.
 
-procedure: (assp procedure alist)
+procedure: ~(assp procedure alist)~
 
 returns: first element of alist for whose car procedure returns true, or #f
 
@@ -1163,7 +1216,7 @@ alist must be an association list. An association list is a proper list whose el
   (eq? (assp even? ls) (cadr ls))) => #t
 (assp odd? '((2 . b))) => #f
 
-procedure: (list-sort predicate list)
+procedure: ~(list-sort predicate list)~
 
 returns: a list containing the elements of list sorted according to predicate
 
@@ -1217,7 +1270,7 @@ The remainder of this section describes "generic arithmetic" procedures that ope
 
 The types of numeric arguments accepted by the procedures in this section are implied by the names given to the arguments: num for complex numbers (that is, all numbers), real for real numbers, rat for rational numbers, 和 int for integers. If a real, rat, or int is required, the argument must be considered real, rational, or integral by real?, rational?, or integer?, i.e., the imaginary part of the number must be exactly zero. Where exact integers are required, the name exint is used. In each case, a suffix may appear on the name, e.g., int2.
 
-procedure: (exact? num)
+procedure: ~(exact? num)~
 
 returns: #t if num is exact, #f otherwise
 
@@ -1231,7 +1284,7 @@ libraries: (rnrs base), (rnrs)
 (exact? #i2/3) => #f
 (exact? 1.0-2i) => #f
 
-procedure: (inexact? num)
+procedure: ~(inexact? num)~
 
 returns: #t if num is inexact, #f otherwise
 
@@ -1243,15 +1296,15 @@ libraries: (rnrs base), (rnrs)
 (inexact? 1e23) => #t
 (inexact? +i) => #f
 
-procedure: (= num1 num2 num3 ...)
+procedure: ~(= num1 num2 num3 ...)~
 
-procedure: (< real1 real2 real3 ...)
+procedure: ~(< real1 real2 real3 ...)~
 
-procedure: (> real1 real2 real3 ...)
+procedure: ~(> real1 real2 real3 ...)~
 
-procedure: (<= real1 real2 real3 ...)
+procedure: ~(<= real1 real2 real3 ...)~
 
-procedure: (>= real1 real2 real3 ...)
+procedure: ~(>= real1 real2 real3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -1296,7 +1349,7 @@ As implied by the names of the arguments, = is defined for complex arguments whi
 (>= +nan.0 -inf.0) => #f
 (> +nan.0 0.0) => #f
 
-procedure: (+ num ...)
+procedure: ~(+ num ...)~
 
 returns: the sum of the arguments num ...
 
@@ -1313,11 +1366,11 @@ When called with no arguments, + returns 0.
 (+ 3+4i 4+3i) => 7+7i
 (apply + '(1 2 3 4 5)) => 15
 
-procedure: (- num)
+procedure: ~(- num)~
 
 returns: the additive inverse of num
 
-procedure: (- num1 num2 num3 ...)
+procedure: ~(- num1 num2 num3 ...)~
 
 returns: the difference between num1 和 the sum of num2 num3 ...
 
@@ -1330,7 +1383,7 @@ libraries: (rnrs base), (rnrs)
 (- 3.25+4.25i 1/4+1/4i) => 3.0+4.0i
 (- 4 3 2 1) => -2
 
-procedure: (* num ...)
+procedure: ~(* num ...)~
 
 returns: the product of the arguments num ...
 
@@ -1346,11 +1399,11 @@ When called with no arguments, * returns 1.
 (* 1+2i 3+4i) => -5+10i
 (apply * '(1 2 3 4 5)) => 120
 
-procedure: (/ num)
+procedure: ~(/ num)~
 
 returns: the multiplicative inverse of num
 
-procedure: (/ num1 num2 num3 ...)
+procedure: ~(/ num1 num2 num3 ...)~
 
 returns: the result of dividing num1 by the product of num2 num3 ...
 
@@ -1365,7 +1418,7 @@ libraries: (rnrs base), (rnrs)
 (/ -5+10i 3+4i) => 1+2i
 (/ 60 5 4 3 2) => 1/2
 
-procedure: (zero? num)
+procedure: ~(zero? num)~
 
 returns: #t if num is zero, #f otherwise
 
@@ -1381,7 +1434,7 @@ zero? 等价于 (lambda (x) (= x 0)).
 (zero? 0+0i) => #t
 (zero? 0.0-0.0i) => #t
 
-procedure: (positive? real)
+procedure: ~(positive? real)~
 
 returns: #t if real is greater than zero, #f otherwise
 
@@ -1396,7 +1449,7 @@ positive? 等价于 (lambda (x) (> x 0)).
 (positive? -2/3) => #f
 (positive? .001-0.0i) => exception: not a real number
 
-procedure: (negative? real)
+procedure: ~(negative? real)~
 
 returns: #t if real is less than zero, #f otherwise
 
@@ -1411,11 +1464,11 @@ negative? 等价于 (lambda (x) (< x 0)).
 (negative? 15/16) => #f
 (negative? -7.0+0.0i) => exception: not a real number
 
-procedure: (even? int)
+procedure: ~(even? int)~
 
 returns: #t if int is even, #f otherwise
 
-procedure: (odd? int)
+procedure: ~(odd? int)~
 
 returns: #t if int is odd, #f otherwise
 
@@ -1434,15 +1487,15 @@ libraries: (rnrs base), (rnrs)
 (odd? -120762398465) => #t
 (odd? 2.0+0.0i) => exception: not an integer
 
-procedure: (finite? real)
+procedure: ~(finite? real)~
 
 returns: #t if real is finite, #f otherwise
 
-procedure: (infinite? real)
+procedure: ~(infinite? real)~
 
 returns: #t if real is infinite, #f otherwise
 
-procedure: (nan? real)
+procedure: ~(nan? real)~
 
 returns: #t if real is a NaN, #f otherwise
 
@@ -1465,15 +1518,15 @@ libraries: (rnrs base), (rnrs)
 (infinite? +nan.0) => #f
 (nan? +nan.0) => #t
 
-procedure: (quotient int1 int2)
+procedure: ~(quotient int1 int2)~
 
 returns: the integer quotient of int1 和 int2
 
-procedure: (remainder int1 int2)
+procedure: ~(remainder int1 int2)~
 
 returns: the integer remainder of int1 和 int2
 
-procedure: (modulo int1 int2)
+procedure: ~(modulo int1 int2)~
 
 returns: the integer modulus of int1 和 int2
 
@@ -1498,11 +1551,11 @@ The result of remainder has the same sign as int1, while the result of modulo ha
 (modulo 10.0 -3.0) => -2.0
 (modulo -17 -9) => -8
 
-procedure: (div x1 x2)
+procedure: ~(div x1 x2)~
 
-procedure: (mod x1 x2)
+procedure: ~(mod x1 x2)~
 
-procedure: (div-和-mod x1 x2)
+procedure: ~(div-和-mod x1 x2)~
 
 returns: see below
 
@@ -1531,11 +1584,11 @@ That is, unless it raises an exception in the circumstance described above, it r
 (div-和-mod 17.5 3) => 5.0
                       2.5
 
-procedure: (div0 x1 x2)
+procedure: ~(div0 x1 x2)~
 
-procedure: (mod0 x1 x2)
+procedure: ~(mod0 x1 x2)~
 
-procedure: (div0-和-mod0 x1 x2)
+procedure: ~(div0-和-mod0 x1 x2)~
 
 returns: see below
 
@@ -1562,7 +1615,7 @@ That is, unless it raises an exception in the circumstance described above, it r
 (div0-和-mod0 17.5 3) => 6.0
                         -0.5
 
-procedure: (truncate real)
+procedure: ~(truncate real)~
 
 returns: the integer closest to real toward zero
 
@@ -1577,7 +1630,7 @@ If real is an infinity or NaN, truncate returns real.
 (truncate 17.3) => 17.0
 (truncate -17/2) => -8
 
-procedure: (floor real)
+procedure: ~(floor real)~
 
 returns: the integer closest to real toward =>
 
@@ -1592,7 +1645,7 @@ If real is an infinity or NaN, floor returns real.
 (floor 17.3) => 17.0
 (floor -17/2) => -9
 
-procedure: (ceiling real)
+procedure: ~(ceiling real)~
 
 returns: the integer closest to real toward =>
 
@@ -1607,7 +1660,7 @@ If real is an infinity or NaN, ceiling returns real.
 (ceiling 17.3) => 18.0
 (ceiling -17/2) => -8
 
-procedure: (round real)
+procedure: ~(round real)~
 
 returns: the integer closest to real
 
@@ -1624,7 +1677,7 @@ If real is exactly between two integers, the closest even integer is returned. I
 (round 2.5) => 2.0
 (round 3.5) => 4.0
 
-procedure: (abs real)
+procedure: ~(abs real)~
 
 returns: the absolute value of real
 
@@ -1638,7 +1691,7 @@ abs 等价于 (lambda (x) (if (< x 0) (- x) x)). abs 和 magnitude (see page 183
 (abs 1.83) => 1.83
 (abs -0.093) => 0.093
 
-procedure: (max real1 real2 ...)
+procedure: ~(max real1 real2 ...)~
 
 returns: the maximum of real1 real2 ...
 
@@ -1653,7 +1706,7 @@ libraries: (rnrs base), (rnrs)
 (let ([ls '(7 3 5 2 9 8)])
   (apply max ls)) => 9
 
-procedure: (min real1 real2 ...)
+procedure: ~(min real1 real2 ...)~
 
 returns: the minimum of real1 real2 ...
 
@@ -1668,7 +1721,7 @@ libraries: (rnrs base), (rnrs)
 (let ([ls '(7 3 5 2 9 8)])
   (apply min ls)) => 2
 
-procedure: (gcd int ...)
+procedure: ~(gcd int ...)~
 
 returns: the greatest common divisor of its arguments int ...
 
@@ -1682,7 +1735,7 @@ The result is always nonnegative, i.e., factors of -1 are ignored. When called w
 (gcd 33.0 15.0) => 3.0
 (gcd 70 -42 28) => 14
 
-procedure: (lcm int ...)
+procedure: ~(lcm int ...)~
 
 returns: the least common multiple of its arguments int ...
 
@@ -1697,7 +1750,7 @@ The result is always nonnegative, i.e., common multiples of -1 are ignored. Alth
 (lcm 70 -42 28) => 420
 (lcm 17.0 0) => 0.0
 
-procedure: (expt num1 num2)
+procedure: ~(expt num1 num2)~
 
 returns: num1 raised to the num2 power
 
@@ -1713,7 +1766,7 @@ If both arguments are 0, expt returns 1.
 (expt 3.0 3) => 27.0
 (expt +i 2) => -1
 
-procedure: (inexact num)
+procedure: ~(inexact num)~
 
 returns: an inexact representation of num
 
@@ -1728,7 +1781,7 @@ If num is already inexact, it is returned unchanged. If no inexact representatio
 (inexact 3+4i) => 3.0+4.0i
 (inexact (expt 10 20)) => 1e20
 
-procedure: (exact num)
+procedure: ~(exact num)~
 
 returns: an exact representation of num
 
@@ -1743,11 +1796,11 @@ If num is already exact, it is returned unchanged. If no exact representation fo
 (exact 3.0+4.0i) => 3+4i
 (exact 1e20) => 100000000000000000000
 
-procedure: (exact->inexact num)
+procedure: ~(exact->inexact num)~
 
 returns: an inexact representation of num
 
-procedure: (inexact->exact num)
+procedure: ~(inexact->exact num)~
 
 returns: an exact representation of num
 
@@ -1756,7 +1809,7 @@ libraries: (rnrs r5rs)
 
 These are alternative names for inexact 和 exact, supported for compatibility with the Revised5 Report.
 
-procedure: (rationalize real1 real2)
+procedure: ~(rationalize real1 real2)~
 
 returns: see below
 
@@ -1769,7 +1822,7 @@ rationalize returns the simplest rational number that differs from real1 by no m
 (rationalize .3 1/10) => 0.3333333333333333
 (eqv? (rationalize .3 1/10) #i1/3) => #t
 
-procedure: (numerator rat)
+procedure: ~(numerator rat)~
 
 returns: the numerator of rat
 
@@ -1785,7 +1838,7 @@ If rat is an integer, the numerator is rat.
 (numerator -9/4) => -9
 (numerator -2.25) => -9.0
 
-procedure: (denominator rat)
+procedure: ~(denominator rat)~
 
 returns: the denominator of rat
 
@@ -1802,7 +1855,7 @@ If rat is an integer, including zero, the denominator is one.
 (denominator -9/4) => 4
 (denominator -2.25) => 4.0
 
-procedure: (real-part num)
+procedure: ~(real-part num)~
 
 returns: the real component of num
 
@@ -1817,7 +1870,7 @@ If num is real, real-part returns num.
 (real-part 17.2) => 17.2
 (real-part -17/100) => -17/100
 
-procedure: (imag-part num)
+procedure: ~(imag-part num)~
 
 returns: the imaginary component of num
 
@@ -1832,7 +1885,7 @@ If num is real, imag-part returns exact zero.
 (imag-part -2.5) => 0
 (imag-part -17/100) => 0
 
-procedure: (make-rectangular real1 real2)
+procedure: ~(make-rectangular real1 real2)~
 
 returns: a complex number with real component real1 和 imaginary component real2
 
@@ -1843,7 +1896,7 @@ libraries: (rnrs base), (rnrs)
 (make-rectangular 2/3 -1/2) => 2/3-1/2i
 (make-rectangular 3.2 5.3) => 3.2+5.3i
 
-procedure: (make-polar real1 real2)
+procedure: ~(make-polar real1 real2)~
 
 returns: a complex number with magnitude real1 和 angle real2
 
@@ -1855,7 +1908,7 @@ libraries: (rnrs base), (rnrs)
 (make-polar 1.0 (asin -1.0)) => 0.0-1.0i
 (eqv? (make-polar 7.2 -0.588) 7.2@-0.588) => #t
 
-procedure: (angle num)
+procedure: ~(angle num)~
 
 returns: the angle part of the polar representation of num
 
@@ -1867,7 +1920,7 @@ The range of the result is => (exclusive) to <graphic> (inclusive).
 (angle 7.3@1.5708) => 1.5708
 (angle 5.2) => 0.0
 
-procedure: (magnitude num)
+procedure: ~(magnitude num)~
 
 returns: the magnitude of num
 
@@ -1883,7 +1936,7 @@ magnitude 和 abs (see page 178) are identical for real arguments. The magnitude
 (magnitude 3+4i) => 5
 (magnitude 7.25@1.5708) => 7.25
 
-procedure: (sqrt num)
+procedure: ~(sqrt num)~
 
 returns: the principal square root of num
 
@@ -1899,7 +1952,7 @@ Implementations are encouraged, but not required, to return exact results for ex
 (sqrt 3+4i) => 2+1i
 (sqrt -3.0-4.0i) => 1.0-2.0i
 
-procedure: (exact-integer-sqrt n)
+procedure: ~(exact-integer-sqrt n)~
 
 returns: see below
 
@@ -1915,7 +1968,7 @@ This procedure returns two nonnegative exact integers s 和 r where n = s2 + r �
 (exact-integer-sqrt 19) => 4
                         => 3
 
-procedure: (exp num)
+procedure: ~(exp num)~
 
 returns: e to the num power
 
@@ -1926,11 +1979,11 @@ libraries: (rnrs base), (rnrs)
 (exp 1.0) => 2.7182818284590455
 (exp -.5) => 0.6065306597126334
 
-procedure: (log num)
+procedure: ~(log num)~
 
 returns: the natural logarithm of num
 
-procedure: (log num1 num2)
+procedure: ~(log num1 num2)~
 
 returns: the base-num2 logarithm of num1
 
@@ -1945,11 +1998,11 @@ libraries: (rnrs base), (rnrs)
 (log 100.0 10.0) => 2.0
 (log .125 2.0) => -3.0
 
-procedure: (sin num)
+procedure: ~(sin num)~
 
-procedure: (cos num)
+procedure: ~(cos num)~
 
-procedure: (tan num)
+procedure: ~(tan num)~
 
 returns: the sine, cosine, or tangent of num
 
@@ -1962,9 +2015,9 @@ The argument is specified in radians.
 (cos 0.0) => 1.0
 (tan 0.0) => 0.0
 
-procedure: (asin num)
+procedure: ~(asin num)~
 
-procedure: (acos num)
+procedure: ~(acos num)~
 
 returns: the arc sine or the arc cosine of num
 
@@ -1980,9 +2033,9 @@ The result is in radians. The arc sine 和 arc cosine of a complex number z are 
 (define pi (* (asin 1) 2))
 (= (* (acos 0) 2) pi) => #t
 
-procedure: (atan num)
+procedure: ~(atan num)~
 
-procedure: (atan real1 real2)
+procedure: ~(atan real1 real2)~
 
 returns: see below
 
@@ -1998,19 +2051,19 @@ When passed two real arguments (the second form), atan 等价于 (lambda (y x) (
 (define pi (* (atan 1) 4))
 (= (* (atan 1.0 0.0) 2) pi) => #t
 
-procedure: (bitwise-not exint)
+procedure: ~(bitwise-not exint)~
 
 returns: the bitwise not of exint
 
-procedure: (bitwise-和 exint ...)
+procedure: ~(bitwise-和 exint ...)~
 
 returns: the bitwise 和 of exint ...
 
-procedure: (bitwise-ior exint ...)
+procedure: ~(bitwise-ior exint ...)~
 
 returns: the bitwise inclusive or of exint ...
 
-procedure: (bitwise-xor exint ...)
+procedure: ~(bitwise-xor exint ...)~
 
 returns: the bitwise exclusive or of exint ...
 
@@ -2026,7 +2079,7 @@ The inputs are treated as if represented in two's complement, even if they are n
 (bitwise-ior #b01101 #b00111) => #b01111
 (bitwise-xor #b01101 #b00111) => #b01010
 
-procedure: (bitwise-if exint1 exint2 exint3)
+procedure: ~(bitwise-if exint1 exint2 exint3)~
 
 returns: the bitwise "if" of its arguments
 
@@ -2047,7 +2100,7 @@ bitwise-if might be defined as follows:
       (bitwise-和 exint1 exint2)
       (bitwise-和 (bitwise-not exint1) exint3))))
 
-procedure: (bitwise-bit-count exint)
+procedure: ~(bitwise-bit-count exint)~
 
 returns: see below
 
@@ -2065,7 +2118,7 @@ For nonnegative inputs, bitwise-bit-count returns the number of bits set in the 
 (bitwise-bit-count -2) => -2
 (bitwise-bit-count -4) => -3
 
-procedure: (bitwise-length exint)
+procedure: ~(bitwise-length exint)~
 
 returns: see below
 
@@ -2083,7 +2136,7 @@ This procedure returns the number of bits of the smallest two's complement repre
 (bitwise-length -6) => 3
 (bitwise-length -9) => 4
 
-procedure: (bitwise-first-bit-set exint)
+procedure: ~(bitwise-first-bit-set exint)~
 
 returns: the index of the least significant bit set in exint
 
@@ -2102,7 +2155,7 @@ If exint is 0, bitwise-first-bit-set returns -1.
 (bitwise-first-bit-set -2) => 1
 (bitwise-first-bit-set -3) => 0
 
-procedure: (bitwise-bit-set? exint1 exint2)
+procedure: ~(bitwise-bit-set? exint1 exint2)~
 
 returns: #t if bit exint2 of exint1 is set, #f otherwise
 
@@ -2121,7 +2174,7 @@ exint2 is taken as a zero-based index for the bits in the two's complement repre
 (bitwise-bit-set? 0 5000) => #f
 (bitwise-bit-set? -1 5000) => #t
 
-procedure: (bitwise-copy-bit exint1 exint2 exint3)
+procedure: ~(bitwise-copy-bit exint1 exint2 exint3)~
 
 returns: exint1 with bit exint2 replaced by exint3
 
@@ -2133,7 +2186,7 @@ exint2 is taken as a zero-based index for the bits in the two's complement repre
 (bitwise-copy-bit #b01110 0 1) => #b01111
 (bitwise-copy-bit #b01110 2 0) => #b01010
 
-procedure: (bitwise-bit-field exint1 exint2 exint3)
+procedure: ~(bitwise-bit-field exint1 exint2 exint3)~
 
 returns: see below
 
@@ -2147,7 +2200,7 @@ exint2 和 exint3 must be nonnegative, 和 exint2 must not be greater than exint
 (bitwise-bit-field #b10110 2 3) => #b00001
 (bitwise-bit-field #b10110 3 3) => #b00000
 
-procedure: (bitwise-copy-bit-field exint1 exint2 exint3 exint4)
+procedure: ~(bitwise-copy-bit-field exint1 exint2 exint3 exint4)~
 
 returns: see below
 
@@ -2161,11 +2214,11 @@ exint2 和 exint3 must be nonnegative, 和 exint2 must not be greater than exint
 (bitwise-copy-bit-field #b10000 2 3 #b10101) => #b10100
 (bitwise-copy-bit-field #b10000 3 3 #b10101) => #b10000
 
-procedure: (bitwise-arithmetic-shift-right exint1 exint2)
+procedure: ~(bitwise-arithmetic-shift-right exint1 exint2)~
 
 returns: exint1 arithmetically shifted right by exint2 bits
 
-procedure: (bitwise-arithmetic-shift-left exint1 exint2)
+procedure: ~(bitwise-arithmetic-shift-left exint1 exint2)~
 
 returns: exint1 shifted left by exint2 bits
 
@@ -2181,7 +2234,7 @@ exint2 must be nonnegative. exint1 is treated as if represented in two's complem
 (bitwise-arithmetic-shift-left #b00010 2) => #b01000
 (bitwise-arithmetic-shift-left -1 2) => -4
 
-procedure: (bitwise-arithmetic-shift exint1 exint2)
+procedure: ~(bitwise-arithmetic-shift exint1 exint2)~
 
 returns: see below
 
@@ -2204,7 +2257,7 @@ Thus, bitwise-arithmetic-shift behaves as if defined as follows.
         (bitwise-arithmetic-shift-right exint1 (- exint2))
         (bitwise-arithmetic-shift-left exint1 exint2))))
 
-procedure: (bitwise-rotate-bit-field exint1 exint2 exint3 exint4)
+procedure: ~(bitwise-rotate-bit-field exint1 exint2 exint3 exint4)~
 
 returns: see below
 
@@ -2216,7 +2269,7 @@ exint2, exint3, 和 exint4 must be nonnegative, 和 exint2 must not be greater t
 (bitwise-rotate-bit-field #b00011010 0 5 3) => #b00010110
 (bitwise-rotate-bit-field #b01101011 2 7 3) => #b01011011
 
-procedure: (bitwise-reverse-bit-field exint1 exint2 exint3)
+procedure: ~(bitwise-reverse-bit-field exint1 exint2 exint3)~
 
 returns: see below
 
@@ -2228,9 +2281,9 @@ exint2 和 exint3 must be nonnegative, 和 exint2 must not be greater than exint
 (bitwise-reverse-bit-field #b00011010 0 5) => #b00001011
 (bitwise-reverse-bit-field #b01101011 2 7) => #b00101111
 
-procedure: (string->number string)
+procedure: ~(string->number string)~
 
-procedure: (string->number string radix)
+procedure: ~(string->number string radix)~
 
 returns: the number represented by string, or #f
 
@@ -2246,11 +2299,11 @@ If string is a valid representation of a number, that number is returned, otherw
 (string->number "#i15/16") => 0.9375
 (string->number "10" 16) => 16
 
-procedure: (number->string num)
+procedure: ~(number->string num)~
 
-procedure: (number->string num radix)
+procedure: ~(number->string num radix)~
 
-procedure: (number->string num radix precision)
+procedure: ~(number->string num radix precision)~
 
 returns: an external representation of num as a string
 
@@ -2290,7 +2343,7 @@ Unless otherwise specified, the numeric values of fixnum-specific procedures are
 
 Bit 和 shift operations on fixnums assume that fixnums are represented in two's complement, even if they are not represented that way internally.
 
-procedure: (fixnum? obj)
+procedure: ~(fixnum? obj)~
 
 returns: #t if obj is a fixnum, #f otherwise
 
@@ -2302,11 +2355,11 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 (fixnum? (- (expt 2 23))) => #t
 (fixnum? (- (expt 2 23) 1)) => #t
 
-procedure: (least-fixnum)
+procedure: ~(least-fixnum)~
 
 returns: the least (most negative) fixnum supported by the implementation
 
-procedure: (greatest-fixnum)
+procedure: ~(greatest-fixnum)~
 
 returns: the greatest (most positive) fixnum supported by the implementation
 
@@ -2318,7 +2371,7 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 (fixnum? (greatest-fixnum)) => #t
 (fixnum? (+ (greatest-fixnum) 1)) => #f
 
-procedure: (fixnum-width)
+procedure: ~(fixnum-width)~
 
 returns: the implementation-dependent fixnum width
 
@@ -2332,15 +2385,15 @@ As described in the lead-in to this section, the fixnum width determines the siz
 (= (greatest-fixnum) (- (expt 2 (- w 1)) 1)) => #t
 (>= w 24) => #t
 
-procedure: (fx=? fx1 fx2 fx3 ...)
+procedure: ~(fx=? fx1 fx2 fx3 ...)~
 
-procedure: (fx<? fx1 fx2 fx3 ...)
+procedure: ~(fx<? fx1 fx2 fx3 ...)~
 
-procedure: (fx>? fx1 fx2 fx3 ...)
+procedure: ~(fx>? fx1 fx2 fx3 ...)~
 
-procedure: (fx<=? fx1 fx2 fx3 ...)
+procedure: ~(fx<=? fx1 fx2 fx3 ...)~
 
-procedure: (fx>=? fx1 fx2 fx3 ...)
+procedure: ~(fx>=? fx1 fx2 fx3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -2357,15 +2410,15 @@ The predicate fx=? returns #t if its arguments are equal. The predicate fx<? ret
 (fx<=? 1 3 2) => #f
 (fx>=? 0 0 (least-fixnum)) => #t
 
-procedure: (fxzero? fx)
+procedure: ~(fxzero? fx)~
 
 returns: #t if fx is zero, #f otherwise
 
-procedure: (fxpositive? fx)
+procedure: ~(fxpositive? fx)~
 
 returns: #t if fx is greater than zero, #f otherwise
 
-procedure: (fxnegative? fx)
+procedure: ~(fxnegative? fx)~
 
 returns: #t if fx is less than zero, #f otherwise
 
@@ -2385,11 +2438,11 @@ fxzero? 等价于 (lambda (x) (fx=? x 0)), fxpositive? 等价于 (lambda (x) (fx
 (fxnegative? 0) => #f
 (fxnegative? 1) => #f
 
-procedure: (fxeven? fx)
+procedure: ~(fxeven? fx)~
 
 returns: #t if fx is even, #f otherwise
 
-procedure: (fxodd? fx)
+procedure: ~(fxodd? fx)~
 
 returns: #t if fx is odd, #f otherwise
 
@@ -2406,11 +2459,11 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 (fxodd? -1) => #t
 (fxodd? -10) => #f
 
-procedure: (fxmin fx1 fx2 ...)
+procedure: ~(fxmin fx1 fx2 ...)~
 
 returns: the minimum of fx1 fx2 ...
 
-procedure: (fxmax fx1 fx2 ...)
+procedure: ~(fxmax fx1 fx2 ...)~
 
 returns: the maximum of fx1 fx2 ...
 
@@ -2427,7 +2480,7 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 (let ([ls '(7 3 5 2 9 8)])
   (apply fxmax ls)) => 9
 
-procedure: (fx+ fx1 fx2)
+procedure: ~(fx+ fx1 fx2)~
 
 returns: the sum of fx1 和 fx2
 
@@ -2436,11 +2489,11 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 
 (fx+ -3 4) => 1
 
-procedure: (fx- fx)
+procedure: ~(fx- fx)~
 
 returns: the additive inverse of fx
 
-procedure: (fx- fx1 fx2)
+procedure: ~(fx- fx1 fx2)~
 
 returns: the difference between fx1 和 fx2
 
@@ -2450,7 +2503,7 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 (fx- 3) => -3
 (fx- -3 4) => -7
 
-procedure: (fx* fx1 fx2)
+procedure: ~(fx* fx1 fx2)~
 
 returns: the product of fx1 和 fx2
 
@@ -2459,11 +2512,11 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 
 (fx* -3 4) => -12
 
-procedure: (fxdiv fx1 fx2)
+procedure: ~(fxdiv fx1 fx2)~
 
-procedure: (fxmod fx1 fx2)
+procedure: ~(fxmod fx1 fx2)~
 
-procedure: (fxdiv-和-mod fx1 fx2)
+procedure: ~(fxdiv-和-mod fx1 fx2)~
 
 returns: see below
 
@@ -2484,11 +2537,11 @@ fx2 must not be zero. These are fixnum-specific versions of the generic div, mod
 (fxdiv-和-mod 17 3) => 5
                       2
 
-procedure: (fxdiv0 fx1 fx2)
+procedure: ~(fxdiv0 fx1 fx2)~
 
-procedure: (fxmod0 fx1 fx2)
+procedure: ~(fxmod0 fx1 fx2)~
 
-procedure: (fxdiv0-和-mod0 fx1 fx2)
+procedure: ~(fxdiv0-和-mod0 fx1 fx2)~
 
 returns: see below
 
@@ -2509,11 +2562,11 @@ fx2 must not be zero. These are fixnum-specific versions of the generic div0, mo
 (fxdiv0-和-mod0 17 3) => 6
                         -1
 
-procedure: (fx+/carry fx1 fx2 fx3)
+procedure: ~(fx+/carry fx1 fx2 fx3)~
 
-procedure: (fx-/carry fx1 fx2 fx3)
+procedure: ~(fx-/carry fx1 fx2 fx3)~
 
-procedure: (fx*/carry fx1 fx2 fx3)
+procedure: ~(fx*/carry fx1 fx2 fx3)~
 
 returns: see below
 
@@ -2543,19 +2596,19 @@ for fx-/carry:
        [s1 (div0 s (expt 2 (fixnum-width)))])
   (values s0 s1))
 
-procedure: (fxnot fx)
+procedure: ~(fxnot fx)~
 
 returns: the bitwise not of fx
 
-procedure: (fx 和 fx ...)
+procedure: ~(fx 和 fx ...)~
 
 returns: the bitwise 和 of fx ...
 
-procedure: (fxior fx ...)
+procedure: ~(fxior fx ...)~
 
 returns: the bitwise inclusive or of fx ...
 
-procedure: (fxxor fx ...)
+procedure: ~(fxxor fx ...)~
 
 returns: the bitwise exclusive or of fx ...
 
@@ -2569,7 +2622,7 @@ libraries: (rnrs arithmetic fixnums), (rnrs)
 (fxior #b01101 #b00111) => #b01111
 (fxxor #b01101 #b00111) => #b01010
 
-procedure: (fxif fx1 fx2 fx3)
+procedure: ~(fxif fx1 fx2 fx3)~
 
 returns: the bitwise "if" of its arguments
 
@@ -2587,7 +2640,7 @@ fxif might be defined as follows:
     (fxior (fx 和 fx1 fx2)
            (fx 和 (fxnot fx1) fx3))))
 
-procedure: (fxbit-count fx)
+procedure: ~(fxbit-count fx)~
 
 returns: see below
 
@@ -2605,7 +2658,7 @@ For nonnegative inputs, fxbit-count returns the number of bits set in the two's 
 (fxbit-count -2) => -2
 (fxbit-count -4) => -3
 
-procedure: (fxlength fx)
+procedure: ~(fxlength fx)~
 
 returns: see below
 
@@ -2623,7 +2676,7 @@ This procedure returns the number of bits of the smallest two's complement repre
 (fxlength -6) => 3
 (fxlength -9) => 4
 
-procedure: (fxfirst-bit-set fx)
+procedure: ~(fxfirst-bit-set fx)~
 
 returns: the index of the least significant bit set in fx
 
@@ -2640,7 +2693,7 @@ If fx is 0, fxfirst-bit-set returns -1.
 (fxfirst-bit-set -2) => 1
 (fxfirst-bit-set -3) => 0
 
-procedure: (fxbit-set? fx1 fx2)
+procedure: ~(fxbit-set? fx1 fx2)~
 
 returns: #t if bit fx2 of fx1 is set, #f otherwise
 
@@ -2658,7 +2711,7 @@ fx2 must be nonnegative. It is taken as a zero-based index for the bits in the t
 (fxbit-set? 0 (- (fixnum-width) 1)) => #f
 (fxbit-set? -1 (- (fixnum-width) 1)) => #t
 
-procedure: (fxcopy-bit fx1 fx2 fx3)
+procedure: ~(fxcopy-bit fx1 fx2 fx3)~
 
 returns: fx1 with bit fx2 replaced by fx3
 
@@ -2670,7 +2723,7 @@ fx2 must be nonnegative 和 less than the value of (- (fixnum-width) 1). fx3 mus
 (fxcopy-bit #b01110 0 1) => #b01111
 (fxcopy-bit #b01110 2 0) => #b01010
 
-procedure: (fxbit-field fx1 fx2 fx3)
+procedure: ~(fxbit-field fx1 fx2 fx3)~
 
 returns: see below
 
@@ -2684,7 +2737,7 @@ fx2 和 fx3 must be nonnegative 和 less than the value of (fixnum-width), 和 f
 (fxbit-field #b10110 2 3) => #b00001
 (fxbit-field #b10110 3 3) => #b00000
 
-procedure: (fxcopy-bit-field fx1 fx2 fx3 fx4)
+procedure: ~(fxcopy-bit-field fx1 fx2 fx3 fx4)~
 
 returns: see below
 
@@ -2698,11 +2751,11 @@ fx2 和 fx3 must be nonnegative 和 less than the value of (fixnum-width), 和 f
 (fxcopy-bit-field #b10000 2 3 #b10101) => #b10100
 (fxcopy-bit-field #b10000 3 3 #b10101) => #b10000
 
-procedure: (fxarithmetic-shift-right fx1 fx2)
+procedure: ~(fxarithmetic-shift-right fx1 fx2)~
 
 returns: fx1 arithmetically shifted right by fx2 bits
 
-procedure: (fxarithmetic-shift-left fx1 fx2)
+procedure: ~(fxarithmetic-shift-left fx1 fx2)~
 
 returns: fx1 shifted left by fx2 bits
 
@@ -2718,7 +2771,7 @@ fx2 must be nonnegative 和 less than the value of (fixnum-width).
 (fxarithmetic-shift-left #b00010 2) => #b01000
 (fxarithmetic-shift-left -1 2) => -4
 
-procedure: (fxarithmetic-shift fx1 fx2)
+procedure: ~(fxarithmetic-shift fx1 fx2)~
 
 returns: see below
 
@@ -2741,7 +2794,7 @@ Thus, fxarithmetic-shift behaves as if defined as follows.
         (fxarithmetic-shift-right fx1 (fx- fx2))
         (fxarithmetic-shift-left fx1 fx2))))
 
-procedure: (fxrotate-bit-field fx1 fx2 fx3 fx4)
+procedure: ~(fxrotate-bit-field fx1 fx2 fx3 fx4)~
 
 returns: see below
 
@@ -2755,7 +2808,7 @@ This procedure returns the result of shifting the bits of fx1 from bit fx2 (incl
 (fxrotate-bit-field #b00011010 0 5 3) => #b00010110
 (fxrotate-bit-field #b01101011 2 7 3) => #b01011011
 
-procedure: (fxreverse-bit-field fx1 fx2 fx3)
+procedure: ~(fxreverse-bit-field fx1 fx2 fx3)~
 
 returns: see below
 
@@ -2777,7 +2830,7 @@ This section describes operations on flonums. Flonum-specific procedure names be
 
 Procedure arguments required to be flonums are named fl, possibly with suffix, e.g., fl2. Unless otherwise specified, the numeric values of flonum-specific procedures are flonums.
 
-procedure: (flonum? obj)
+procedure: ~(flonum? obj)~
 
 returns: #t if obj is a flonum, otherwise #f
 
@@ -2791,15 +2844,15 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (flonum? 1e10) => #t
 (flonum? 3.0+0.0i) => #f
 
-procedure: (fl=? fl1 fl2 fl3 ...)
+procedure: ~(fl=? fl1 fl2 fl3 ...)~
 
-procedure: (fl<? fl1 fl2 fl3 ...)
+procedure: ~(fl<? fl1 fl2 fl3 ...)~
 
-procedure: (fl>? fl1 fl2 fl3 ...)
+procedure: ~(fl>? fl1 fl2 fl3 ...)~
 
-procedure: (fl<=? fl1 fl2 fl3 ...)
+procedure: ~(fl<=? fl1 fl2 fl3 ...)~
 
-procedure: (fl>=? fl1 fl2 fl3 ...)
+procedure: ~(fl>=? fl1 fl2 fl3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -2822,15 +2875,15 @@ Comparisons involving NaNs always return #f.
 (fl<=? +nan.0 +inf.0) => #f
 (fl>=? +nan.0 +inf.0) => #f
 
-procedure: (flzero? fl)
+procedure: ~(flzero? fl)~
 
 returns: #t if fl is zero, #f otherwise
 
-procedure: (flpositive? fl)
+procedure: ~(flpositive? fl)~
 
 returns: #t if fl is greater than zero, #f otherwise
 
-procedure: (flnegative? fl)
+procedure: ~(flnegative? fl)~
 
 returns: #t if fl is less than zero, #f otherwise
 
@@ -2862,7 +2915,7 @@ Even if the flonum representation distinguishes -0.0 from +0.0, -0.0 is consider
 (flnegative? +inf.0) => #f
 (flnegative? -inf.0) => #t
 
-procedure: (flinteger? fl)
+procedure: ~(flinteger? fl)~
 
 returns: #t if fl is integer, #f otherwise
 
@@ -2874,15 +2927,15 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (flinteger? +nan.0) => #f
 (flinteger? +inf.0) => #f
 
-procedure: (flfinite? fl)
+procedure: ~(flfinite? fl)~
 
 returns: #t if fl is finite, #f otherwise
 
-procedure: (flinfinite? fl)
+procedure: ~(flinfinite? fl)~
 
 returns: #t if fl is infinite, #f otherwise
 
-procedure: (flnan? fl)
+procedure: ~(flnan? fl)~
 
 returns: #t if fl is a NaN, #f otherwise
 
@@ -2901,11 +2954,11 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (flinfinite? +nan.0) => #f
 (flnan? +nan.0) => #t
 
-procedure: (fleven? fl-int)
+procedure: ~(fleven? fl-int)~
 
 returns: #t if fl-int is even, #f otherwise
 
-procedure: (flodd? fl-int)
+procedure: ~(flodd? fl-int)~
 
 returns: #t if fl-int is odd, #f otherwise
 
@@ -2924,11 +2977,11 @@ fl-int must be an integer-valued flonum.
 (flodd? -1.0) => #t
 (flodd? -10.0) => #f
 
-procedure: (flmin fl1 fl2 ...)
+procedure: ~(flmin fl1 fl2 ...)~
 
 returns: the minimum of fl1 fl2 ...
 
-procedure: (flmax fl1 fl2 ...)
+procedure: ~(flmax fl1 fl2 ...)~
 
 returns: the maximum of fl1 fl2 ...
 
@@ -2945,7 +2998,7 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (let ([ls '(7.1 3.5 5.0 2.6 2.6 8.0)])
   (apply flmax ls)) => 8.0
 
-procedure: (fl+ fl ...)
+procedure: ~(fl+ fl ...)~
 
 returns: the sum of the arguments fl ...
 
@@ -2959,11 +3012,11 @@ When called with no arguments, fl+ returns 0.0.
 (fl+ 3.0 4.25 5.0) => 12.25
 (apply fl+ '(1.0 2.0 3.0 4.0 5.0)) => 15.0
 
-procedure: (fl- fl)
+procedure: ~(fl- fl)~
 
 returns: the additive inverse of fl
 
-procedure: (fl- fl1 fl2 fl3 ...)
+procedure: ~(fl- fl1 fl2 fl3 ...)~
 
 returns: the difference between fl1 和 the sum of fl2 fl3 ...
 
@@ -2989,7 +3042,7 @@ since the latter returns 0.0 rather than -0.0 for 0.0.
 (fl- 4.0 3.0) => 1.0
 (fl- 4.0 3.0 2.0 1.0) => -2.0
 
-procedure: (fl* fl ...)
+procedure: ~(fl* fl ...)~
 
 returns: the product of the arguments fl ...
 
@@ -3003,11 +3056,11 @@ When called with no arguments, fl* returns 1.0.
 (fl* 3.0 -4.0 5.0) => -60.0
 (apply fl* '(1.0 -2.0 3.0 -4.0 5.0)) => 120.0
 
-procedure: (fl/ fl)
+procedure: ~(fl/ fl)~
 
 returns: the multiplicative inverse of fl
 
-procedure: (fl/ fl1 fl2 fl3 ...)
+procedure: ~(fl/ fl1 fl2 fl3 ...)~
 
 returns: the result of dividing fl1 by the product of fl2 fl3 ...
 
@@ -3019,11 +3072,11 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (fl/ -9.0 2.0) => -4.5
 (fl/ 60.0 5.0 3.0 2.0) => 2.0
 
-procedure: (fldiv fl1 fl2)
+procedure: ~(fldiv fl1 fl2)~
 
-procedure: (flmod fl1 fl2)
+procedure: ~(flmod fl1 fl2)~
 
-procedure: (fldiv-和-mod fl1 fl2)
+procedure: ~(fldiv-和-mod fl1 fl2)~
 
 returns: see below
 
@@ -3044,11 +3097,11 @@ These are flonum-specific versions of the generic div, mod, 和 div-和-mod.
 (fldiv-和-mod 17.5 3.75) => 4.0
                            2.5
 
-procedure: (fldiv0 fl1 fl2)
+procedure: ~(fldiv0 fl1 fl2)~
 
-procedure: (flmod0 fl1 fl2)
+procedure: ~(flmod0 fl1 fl2)~
 
-procedure: (fldiv0-和-mod0 fl1 fl2)
+procedure: ~(fldiv0-和-mod0 fl1 fl2)~
 
 returns: see below
 
@@ -3069,19 +3122,19 @@ These are flonum-specific versions of the generic div0, mod0, 和 div0-和-mod0.
 (fldiv0-和-mod0 17.5 3.75) => 5.0
                              -1.25
 
-procedure: (flround fl)
+procedure: ~(flround fl)~
 
 returns: the integer closest to fl
 
-procedure: (fltruncate fl)
+procedure: ~(fltruncate fl)~
 
 returns: the integer closest to fl toward zero
 
-procedure: (flfloor fl)
+procedure: ~(flfloor fl)~
 
 returns: the integer closest to fl toward =>
 
-procedure: (flceiling fl)
+procedure: ~(flceiling fl)~
 
 returns: the integer closest to fl toward =>
 
@@ -3104,11 +3157,11 @@ If fl is an integer, NaN, or infinity, each of these procedures returns fl. If f
 (flceiling 17.3) => 18.0
 (flceiling -17.3) => -17.0
 
-procedure: (flnumerator fl)
+procedure: ~(flnumerator fl)~
 
 returns: the numerator of fl
 
-procedure: (fldenominator fl)
+procedure: ~(fldenominator fl)~
 
 returns: the denominator of fl
 
@@ -3129,7 +3182,7 @@ The following hold for IEEE floats, but not necessarily other flonum representat
 (flnumerator 3.5) => 7.0
 (fldenominator 3.5) => 2.0
 
-procedure: (flabs fl)
+procedure: ~(flabs fl)~
 
 returns: absolute value of fl
 
@@ -3139,15 +3192,15 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (flabs 3.2) => 3.2
 (flabs -2e-20) => 2e-20
 
-procedure: (flexp fl)
+procedure: ~(flexp fl)~
 
 returns: e to the fl power
 
-procedure: (fllog fl)
+procedure: ~(fllog fl)~
 
 returns: the natural logarithm of fl
 
-procedure: (fllog fl1 fl2)
+procedure: ~(fllog fl1 fl2)~
 
 returns: the base-fl2 logarithm of fl1
 
@@ -3164,41 +3217,41 @@ libraries: (rnrs arithmetic flonums), (rnrs)
 (fllog 100.0 10.0) => 2.0
 (fllog .125 2.0) => -3.0
 
-procedure: (flsin fl)
+procedure: ~(flsin fl)~
 
 returns: the sine of fl
 
-procedure: (flcos fl)
+procedure: ~(flcos fl)~
 
 returns: the cosine of fl
 
-procedure: (fltan fl)
+procedure: ~(fltan fl)~
 
 returns: the tangent of fl
 
 libraries: (rnrs arithmetic flonums), (rnrs)
 
 
-procedure: (flasin fl)
+procedure: ~(flasin fl)~
 
 returns: the arc sine of fl
 
-procedure: (flacos fl)
+procedure: ~(flacos fl)~
 
 returns: the arc cosine of fl
 
-procedure: (flatan fl)
+procedure: ~(flatan fl)~
 
 returns: the arc tangent of fl
 
-procedure: (flatan fl1 fl2)
+procedure: ~(flatan fl1 fl2)~
 
 returns: the arc tangent of fl1/fl2
 
 libraries: (rnrs arithmetic flonums), (rnrs)
 
 
-procedure: (flsqrt fl)
+procedure: ~(flsqrt fl)~
 
 returns: the principal square root of fl
 
@@ -3211,7 +3264,7 @@ Returns the principal square root of fl. The square root of -0.0 should be -0.0.
 (flsqrt 0.0) => 0.0
 (flsqrt -0.0) => -0.0
 
-procedure: (flexpt fl1 fl2)
+procedure: ~(flexpt fl1 fl2)~
 
 returns: fl1 raised to the fl2 power
 
@@ -3223,11 +3276,11 @@ If fl1 is negative 和 fl2 is not an integer, the result may be a NaN or some ot
 (flexpt 3.0 2.0) => 9.0
 (flexpt 0.0 +inf.0) => 0.0
 
-procedure: (fixnum->flonum fx)
+procedure: ~(fixnum->flonum fx)~
 
 returns: the flonum representation closest to fx
 
-procedure: (real->flonum real)
+procedure: ~(real->flonum real)~
 
 returns: the flonum representation closest to real
 
@@ -3248,15 +3301,15 @@ Characters are atomic objects representing letters, digits, special symbols such
 
 This section describes the operations that deal primarily with characters. See also the following section on strings 和 Chapter 7 on input 和 output for other operations relating to characters.
 
-procedure: (char=? char1 char2 char3 ...)
+procedure: ~(char=? char1 char2 char3 ...)~
 
-procedure: (char<? char1 char2 char3 ...)
+procedure: ~(char<? char1 char2 char3 ...)~
 
-procedure: (char>? char1 char2 char3 ...)
+procedure: ~(char>? char1 char2 char3 ...)~
 
-procedure: (char<=? char1 char2 char3 ...)
+procedure: ~(char<=? char1 char2 char3 ...)~
 
-procedure: (char>=? char1 char2 char3 ...)
+procedure: ~(char>=? char1 char2 char3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -3273,15 +3326,15 @@ These predicates behave in a similar manner to the numeric predicates =, <, >, <
 (char<=? #\Z #\W) => #f
 (char=? #\+ #\+) => #t
 
-procedure: (char-ci=? char1 char2 char3 ...)
+procedure: ~(char-ci=? char1 char2 char3 ...)~
 
-procedure: (char-ci<? char1 char2 char3 ...)
+procedure: ~(char-ci<? char1 char2 char3 ...)~
 
-procedure: (char-ci>? char1 char2 char3 ...)
+procedure: ~(char-ci>? char1 char2 char3 ...)~
 
-procedure: (char-ci<=? char1 char2 char3 ...)
+procedure: ~(char-ci<=? char1 char2 char3 ...)~
 
-procedure: (char-ci>=? char1 char2 char3 ...)
+procedure: ~(char-ci>=? char1 char2 char3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -3297,15 +3350,15 @@ These predicates are identical to the predicates char=?, char<?, char>?, char<=?
   (list (char<=? #\a c #\z)
         (char-ci<=? #\a c #\z))) => (#f #t)
 
-procedure: (char-alphabetic? char)
+procedure: ~(char-alphabetic? char)~
 
 returns: #t if char is a letter, #f otherwise
 
-procedure: (char-numeric? char)
+procedure: ~(char-numeric? char)~
 
 returns: #t if char is a digit, #f otherwise
 
-procedure: (char-whitespace? char)
+procedure: ~(char-whitespace? char)~
 
 returns: #t if char is whitespace, #f otherwise
 
@@ -3328,15 +3381,15 @@ A character is alphabetic if it has the Unicode "Alphabetic" property, numeric i
 (char-whitespace? #\newline) => #t
 (char-whitespace? #\Z) => #f
 
-procedure: (char-lower-case? char)
+procedure: ~(char-lower-case? char)~
 
 returns: #t if char is lower case, #f otherwise
 
-procedure: (char-upper-case? char)
+procedure: ~(char-upper-case? char)~
 
 returns: #t if char is upper case, #f otherwise
 
-procedure: (char-title-case? char)
+procedure: ~(char-title-case? char)~
 
 returns: #t if char is title case, #f otherwise
 
@@ -3354,7 +3407,7 @@ A character is upper-case if it has the Unicode "Uppercase" property, lower-case
 (char-title-case? #\I) => #f
 (char-title-case? #\x01C5) => #t
 
-procedure: (char-general-category char)
+procedure: ~(char-general-category char)~
 
 returns: a symbol representing the Unicode general category of char
 
@@ -3367,7 +3420,7 @@ The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, N
 (char-general-category #\space) => Zs
 (char-general-category #\x10FFFF) => Cn  
 
-procedure: (char-upcase char)
+procedure: ~(char-upcase char)~
 
 returns: the upper-case character counterpart of char
 
@@ -3381,7 +3434,7 @@ If char is a lower- or title-case character 和 has a single upper-case counterp
 (char-upcase #\7) => #\7
 (char-upcase #\=>) <graphic> #\<graphic>
 
-procedure: (char-downcase char)
+procedure: ~(char-downcase char)~
 
 returns: the lower-case character equivalent of char
 
@@ -3395,7 +3448,7 @@ If char is an upper- or title-case character 和 has a single lower-case counter
 (char-downcase #\7) => #\7
 (char-downcase #\=>) <graphic> #\<graphic>
 
-procedure: (char-titlecase char)
+procedure: ~(char-titlecase char)~
 
 returns: the title-case character equivalent of char
 
@@ -3409,7 +3462,7 @@ If char is an upper- or lower-case character 和 has a single title-case counter
 (char-titlecase #\7) => #\7
 (char-titlecase #\=>) <graphic> #\<graphic>
 
-procedure: (char-foldcase char)
+procedure: ~(char-foldcase char)~
 
 returns: the case-folded character equivalent of char
 
@@ -3423,7 +3476,7 @@ If char has a case-folded counterpart, char-foldcase returns the case-folded cou
 (char-foldcase #\7) => #\7
 (char-foldcase #\=>) <graphic> #\<graphic>
 
-procedure: (char->integer char)
+procedure: ~(char->integer char)~
 
 returns: the Unicode scalar value of char as an exact integer
 
@@ -3434,7 +3487,7 @@ libraries: (rnrs base), (rnrs)
 (char->integer #\space) => 32
 (- (char->integer #\Z) (char->integer #\A)) => 25
 
-procedure: (integer->char n)
+procedure: ~(integer->char n)~
 
 returns: the character corresponding to the Unicode scalar value n
 
@@ -3454,15 +3507,15 @@ A string is written as a sequence of characters enclosed in double quotes, e.g.,
 
 Strings are indexed by exact nonnegative integers, 和 the index of the first element of any string is 0. The highest valid index for a given string is one less than its length.
 
-procedure: (string=? string1 string2 string3 ...)
+procedure: ~(string=? string1 string2 string3 ...)~
 
-procedure: (string<? string1 string2 string3 ...)
+procedure: ~(string<? string1 string2 string3 ...)~
 
-procedure: (string>? string1 string2 string3 ...)
+procedure: ~(string>? string1 string2 string3 ...)~
 
-procedure: (string<=? string1 string2 string3 ...)
+procedure: ~(string<=? string1 string2 string3 ...)~
 
-procedure: (string>=? string1 string2 string3 ...)
+procedure: ~(string>=? string1 string2 string3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -3505,15 +3558,15 @@ These definitions may be extended straightforwardly to support three or more arg
 (string=? "Mom 和 Dad" "mom 和 dad") => #f
 (string<? "a" "b" "c") => #t
 
-procedure: (string-ci=? string1 string2 string3 ...)
+procedure: ~(string-ci=? string1 string2 string3 ...)~
 
-procedure: (string-ci<? string1 string2 string3 ...)
+procedure: ~(string-ci<? string1 string2 string3 ...)~
 
-procedure: (string-ci>? string1 string2 string3 ...)
+procedure: ~(string-ci>? string1 string2 string3 ...)~
 
-procedure: (string-ci<=? string1 string2 string3 ...)
+procedure: ~(string-ci<=? string1 string2 string3 ...)~
 
-procedure: (string-ci>=? string1 string2 string3 ...)
+procedure: ~(string-ci>=? string1 string2 string3 ...)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -3527,7 +3580,7 @@ These predicates are identical to string=?, string<?, string>?, string<=?, 和 s
 (string-ci>? "N" "m" "L" "k") => #t
 (string-ci=? "Straße" "Strasse") => #t
 
-procedure: (string char ...)
+procedure: ~(string char ...)~
 
 returns: a string containing the characters char ...
 
@@ -3538,9 +3591,9 @@ libraries: (rnrs base), (rnrs)
 (string #\a #\b #\c) => "abc"
 (string #\H #\E #\Y #\!) => "HEY!"
 
-procedure: (make-string n)
+procedure: ~(make-string n)~
 
-procedure: (make-string n char)
+procedure: ~(make-string n char)~
 
 returns: a string of length n
 
@@ -3553,7 +3606,7 @@ n must be an exact nonnegative integer. If char is supplied, the string is fille
 (make-string 0 #\x) => ""
 (make-string 5 #\x) => "xxxxx"
 
-procedure: (string-length string)
+procedure: ~(string-length string)~
 
 returns: the number of characters in string
 
@@ -3567,7 +3620,7 @@ The length of a string is always an exact nonnegative integer.
 (string-length "hi there") => 8
 (string-length (make-string 1000000)) => 1000000
 
-procedure: (string-ref string n)
+procedure: ~(string-ref string n)~
 
 returns: the nth character (zero-based) of string
 
@@ -3579,7 +3632,7 @@ n must be an exact nonnegative integer less than the length of string.
 (string-ref "hi there" 0) => #\h
 (string-ref "hi there" 5) => #\e
 
-procedure: (string-set! string n char)
+procedure: ~(string-set! string n char)~
 
 returns: unspecified
 
@@ -3593,7 +3646,7 @@ n must be an exact nonnegative integer less than the length of string. string-se
   (string-set! str 6 #\r)
   str) => "hi there"
 
-procedure: (string-copy string)
+procedure: ~(string-copy string)~
 
 returns: a new copy of string
 
@@ -3607,7 +3660,7 @@ This procedure creates a new string with the same length 和 contents as string.
 (let ([str "abc"])
   (eq? str (string-copy str))) => #f
 
-procedure: (string-append string ...)
+procedure: ~(string-append string ...)~
 
 returns: a new string formed by concatenating the strings string ...
 
@@ -3632,7 +3685,7 @@ The following implementation of string-append recurs down the list of strings to
                 ((= i m) s2)
               (string-set! s2 j (string-ref s1 i))))))))
 
-procedure: (substring string start end)
+procedure: ~(substring string start end)~
 
 returns: a copy of string from start (inclusive) to end (exclusive)
 
@@ -3656,7 +3709,7 @@ start 和 end must be exact nonnegative integers; start must be less than or equ
   (let ([end (string-length str)])
     (substring str 0 end))) => "hi there"
 
-procedure: (string-fill! string char)
+procedure: ~(string-fill! string char)~
 
 returns: unspecified
 
@@ -3680,19 +3733,19 @@ string-fill! might be defined as follows:
 
 An alternative definition is given on page 276.
 
-procedure: (string-upcase string)
+procedure: ~(string-upcase string)~
 
 returns: the upper-case equivalent of string
 
-procedure: (string-downcase string)
+procedure: ~(string-downcase string)~
 
 returns: the lower-case equivalent of string
 
-procedure: (string-foldcase string)
+procedure: ~(string-foldcase string)~
 
 returns: the case-folded equivalent of string
 
-procedure: (string-titlecase string)
+procedure: ~(string-titlecase string)~
 
 returns: the title-case equivalent of string
 
@@ -3719,19 +3772,19 @@ string-titlecase converts the first cased character of each word in string to it
 (string-titlecase "r6rs") => "R6rs"
 (string-titlecase "R6RS") => "R6rs"
 
-procedure: (string-normalize-nfd string)
+procedure: ~(string-normalize-nfd string)~
 
 returns: the Unicode normalized form D of string
 
-procedure: (string-normalize-nfkd string)
+procedure: ~(string-normalize-nfkd string)~
 
 returns: the Unicode normalized form KD of string
 
-procedure: (string-normalize-nfc string)
+procedure: ~(string-normalize-nfc string)~
 
 returns: the Unicode normalized form C of string
 
-procedure: (string-normalize-nfkc string)
+procedure: ~(string-normalize-nfkc string)~
 
 returns: the Unicode normalized form KC of string
 
@@ -3745,7 +3798,7 @@ If the result string is the same as string (by string=?), string or a copy of st
 (string-normalize-nfd "\x65;\x301;") => "e\x301;"
 (string-normalize-nfc "\x65;\x301;") => "\xE9;"
 
-procedure: (string->list string)
+procedure: ~(string->list string)~
 
 returns: a list of the characters in string
 
@@ -3765,7 +3818,7 @@ string->list allows a string to be converted into a list, so that Scheme's list-
 (apply char<? (string->list "abc")) => #t
 (map char-upcase (string->list "abc")) => (#\A #\B #\C)
 
-procedure: (list->string list)
+procedure: ~(list->string list)~
 
 returns: a string of the characters in list
 
@@ -3799,7 +3852,7 @@ As with lists, the elements of a vector can be of any type, 和 a single vector 
 
 A vector is written as a sequence of objects separated by whitespace, preceded by the prefix #( 和 followed by ). For example, a vector consisting of the elements a, b, 和 c would be written #(a b c).
 
-procedure: (vector obj ...)
+procedure: ~(vector obj ...)~
 
 returns: a vector of the objects obj ...
 
@@ -3809,9 +3862,9 @@ libraries: (rnrs base), (rnrs)
 (vector) => #()
 (vector 'a 'b 'c) => #(a b c)
 
-procedure: (make-vector n)
+procedure: ~(make-vector n)~
 
-procedure: (make-vector n obj)
+procedure: ~(make-vector n obj)~
 
 returns: a vector of length n
 
@@ -3824,7 +3877,7 @@ n must be an exact nonnegative integer. If obj is supplied, each element of the 
 (make-vector 0 '#(a)) => #()
 (make-vector 5 '#(a)) => #(#(a) #(a) #(a) #(a) #(a))
 
-procedure: (vector-length vector)
+procedure: ~(vector-length vector)~
 
 returns: the number of elements in vector
 
@@ -3838,7 +3891,7 @@ The length of a vector is always an exact nonnegative integer.
 (vector-length (vector 1 '(2) 3 '#(4 5))) => 4
 (vector-length (make-vector 300)) => 300
 
-procedure: (vector-ref vector n)
+procedure: ~(vector-ref vector n)~
 
 returns: the nth element (zero-based) of vector
 
@@ -3851,7 +3904,7 @@ n must be an exact nonnegative integer less than the length of vector.
 (vector-ref '#(a b c) 1) => b
 (vector-ref '#(x y z w) 3) => w
 
-procedure: (vector-set! vector n obj)
+procedure: ~(vector-set! vector n obj)~
 
 returns: unspecified
 
@@ -3864,7 +3917,7 @@ n must be an exact nonnegative integer less than the length of vector. vector-se
   (vector-set! v 2 'x)
   v) => #(a b x d e)
 
-procedure: (vector-fill! vector obj)
+procedure: ~(vector-fill! vector obj)~
 
 returns: unspecified
 
@@ -3884,7 +3937,7 @@ vector-fill! replaces each element of vector with obj. It may be defined without
   (vector-fill! v 0)
   v) => #(0 0 0)
 
-procedure: (vector->list vector)
+procedure: ~(vector->list vector)~
 
 returns: a list of the elements of vector
 
@@ -3905,7 +3958,7 @@ vector->list provides a convenient method for applying list-processing operation
 (let ((v '#(1 2 3 4 5)))
   (apply * (vector->list v))) => 120
 
-procedure: (list->vector list)
+procedure: ~(list->vector list)~
 
 returns: a vector of the elements of list
 
@@ -3930,11 +3983,11 @@ list->vector may be defined without error checks as follows.
   (let ([ls (vector->list v)])
     (list->vector (map * ls ls)))) => #(1 4 9 16 25)
 
-procedure: (vector-sort predicate vector)
+procedure: ~(vector-sort predicate vector)~
 
 returns: a vector containing the elements of vector, sorted according to predicate
 
-procedure: (vector-sort! predicate vector)
+procedure: ~(vector-sort! predicate vector)~
 
 returns: unspecified
 
@@ -3980,7 +4033,7 @@ symbol must be the symbol little, the symbol big, or some other symbol recognize
 (endianness big) => big
 (endianness "spam") => exception
 
-procedure: (native-endianness)
+procedure: ~(native-endianness)~
 
 returns: a symbol naming the implementation's native endianness
 
@@ -3991,9 +4044,9 @@ The return value is the symbol little, the symbol big, or some other endianness 
 
 (symbol? (native-endianness)) => #t
 
-procedure: (make-bytevector n)
+procedure: ~(make-bytevector n)~
 
-procedure: (make-bytevector n fill)
+procedure: ~(make-bytevector n fill)~
 
 returns: a new bytevector of length n
 
@@ -4007,7 +4060,7 @@ If fill is supplied, each element of the bytevector is initialized to fill; othe
 (make-bytevector 5 7) => #vu8(7 7 7 7 7)
 (make-bytevector 5 -7) => #vu8(249 249 249 249 249)
 
-procedure: (bytevector-length bytevector)
+procedure: ~(bytevector-length bytevector)~
 
 returns: the length of bytevector in 8-bit bytes
 
@@ -4018,7 +4071,7 @@ libraries: (rnrs bytevectors), (rnrs)
 (bytevector-length #vu8(1 2 3)) => 3
 (bytevector-length (make-bytevector 300)) => 300
 
-procedure: (bytevector=? bytevector1 bytevector2)
+procedure: ~(bytevector=? bytevector1 bytevector2)~
 
 returns: #t if the relation holds, #f otherwise
 
@@ -4032,7 +4085,7 @@ Two bytevectors are equal by bytevector=? if 和 only if they have the same leng
 (bytevector=? (make-bytevector 5 0) #vu8(0 0 0)) => #f
 (bytevector=? #vu8(1 127 128 255) #vu8(255 128 127 1)) => #f
 
-procedure: (bytevector-fill! bytevector fill)
+procedure: ~(bytevector-fill! bytevector fill)~
 
 returns: unspecified
 
@@ -4051,7 +4104,7 @@ bytevector-fill! replaces each element of bytevector with fill.
   (bytevector-fill! v -128)
   v) => #vu8(128 128 128 128 128 128)
 
-procedure: (bytevector-copy bytevector)
+procedure: ~(bytevector-copy bytevector)~
 
 returns: a new bytevector that is a copy of bytevector
 
@@ -4065,7 +4118,7 @@ bytevector-copy creates a new bytevector with the same length 和 contents as by
 (let ([v #vu8(1 127 128 255)])
   (eq? v (bytevector-copy v))) => #f
 
-procedure: (bytevector-copy! src src-start dst dst-start n)
+procedure: ~(bytevector-copy! src src-start dst dst-start n)~
 
 returns: unspecified
 
@@ -4091,7 +4144,7 @@ v2 => #vu8(159 191 0 0 191 223 0 191 223 255)
 (bytevector-copy! v2 0 v2 1 9)
 v2 => #vu8(159 159 191 0 0 191 223 0 191 223)
 
-procedure: (bytevector-u8-ref bytevector n)
+procedure: ~(bytevector-u8-ref bytevector n)~
 
 returns: the 8-bit unsigned byte at index n (zero-based) of bytevector
 
@@ -4106,7 +4159,7 @@ The value is returned as an exact 8-bit unsigned integer, i.e., a value in the r
 (bytevector-u8-ref #vu8(1 127 128 255) 2) => 128
 (bytevector-u8-ref #vu8(1 127 128 255) 3) => 255
 
-procedure: (bytevector-s8-ref bytevector n)
+procedure: ~(bytevector-s8-ref bytevector n)~
 
 returns: the 8-bit signed byte at index n (zero-based) of bytevector
 
@@ -4122,7 +4175,7 @@ The value returned is an exact 8-bit signed integer, i.e., a value in the range 
 (bytevector-s8-ref #vu8(1 127 128 255) 2) => -128
 (bytevector-s8-ref #vu8(1 127 128 255) 3) => -1
 
-procedure: (bytevector-u8-set! bytevector n u8)
+procedure: ~(bytevector-u8-set! bytevector n u8)~
 
 returns: unspecified
 
@@ -4137,7 +4190,7 @@ bytevector-u8-set! changes the 8-bit value at index n (zero-based) of bytevector
   (bytevector-u8-set! v 2 128)
   v) => #vu8(255 255 128 255 255)
 
-procedure: (bytevector-s8-set! bytevector n s8)
+procedure: ~(bytevector-s8-set! bytevector n s8)~
 
 returns: unspecified
 
@@ -4153,7 +4206,7 @@ bytevector-s8-set! changes the 8-bit value at index n (zero-based) of bytevector
   (bytevector-s8-set! v 2 -100)
   v) => #vu8(0 100 156 0)
 
-procedure: (bytevector->u8-list bytevector)
+procedure: ~(bytevector->u8-list bytevector)~
 
 returns: a list of the 8-bit unsigned elements of bytevector
 
@@ -4166,7 +4219,7 @@ libraries: (rnrs bytevectors), (rnrs)
 (let ([v #vu8(1 2 3 255)])
   (apply * (bytevector->u8-list v))) => 1530
 
-procedure: (u8-list->bytevector list)
+procedure: ~(u8-list->bytevector list)~
 
 returns: a new bytevector of the elements of list
 
@@ -4182,27 +4235,27 @@ list must consist entirely of exact 8-bit unsigned integers, i.e., values in the
   (let ([ls (bytevector->u8-list v)])
     (u8-list->bytevector (map * ls ls)))) => #vu8(1 4 9 16 25)
 
-procedure: (bytevector-u16-native-ref bytevector n)
+procedure: ~(bytevector-u16-native-ref bytevector n)~
 
 returns: the 16-bit unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-s16-native-ref bytevector n)
+procedure: ~(bytevector-s16-native-ref bytevector n)~
 
 returns: the 16-bit signed integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-u32-native-ref bytevector n)
+procedure: ~(bytevector-u32-native-ref bytevector n)~
 
 returns: the 32-bit unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-s32-native-ref bytevector n)
+procedure: ~(bytevector-s32-native-ref bytevector n)~
 
 returns: the 32-bit signed integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-u64-native-ref bytevector n)
+procedure: ~(bytevector-u64-native-ref bytevector n)~
 
 returns: the 64-bit unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-s64-native-ref bytevector n)
+procedure: ~(bytevector-s64-native-ref bytevector n)~
 
 returns: the 64-bit signed integer at index n (zero-based) of bytevector
 
@@ -4241,17 +4294,17 @@ If native endianness is little:
 (bytevector-u64-native-ref v 0) => #x9878badc56fe3412
 (bytevector-s64-native-ref v 0) => #x-67874523a901cbee
 
-procedure: (bytevector-u16-native-set! bytevector n u16)
+procedure: ~(bytevector-u16-native-set! bytevector n u16)~
 
-procedure: (bytevector-s16-native-set! bytevector n s16)
+procedure: ~(bytevector-s16-native-set! bytevector n s16)~
 
-procedure: (bytevector-u32-native-set! bytevector n u32)
+procedure: ~(bytevector-u32-native-set! bytevector n u32)~
 
-procedure: (bytevector-s32-native-set! bytevector n s32)
+procedure: ~(bytevector-s32-native-set! bytevector n s32)~
 
-procedure: (bytevector-u64-native-set! bytevector n u64)
+procedure: ~(bytevector-u64-native-set! bytevector n u64)~
 
-procedure: (bytevector-s64-native-set! bytevector n s64)
+procedure: ~(bytevector-s64-native-set! bytevector n s64)~
 
 returns: unspecified
 
@@ -4307,27 +4360,27 @@ v => #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
         #x98 #x78 #xba #xdc #x56 #xfe #x34 #x12
         #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98)
 
-procedure: (bytevector-u16-ref bytevector n eness)
+procedure: ~(bytevector-u16-ref bytevector n eness)~
 
 returns: the 16-bit unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-s16-ref bytevector n eness)
+procedure: ~(bytevector-s16-ref bytevector n eness)~
 
 returns: the 16-bit signed integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-u32-ref bytevector n eness)
+procedure: ~(bytevector-u32-ref bytevector n eness)~
 
 returns: the 32-bit unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-s32-ref bytevector n eness)
+procedure: ~(bytevector-s32-ref bytevector n eness)~
 
 returns: the 32-bit signed integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-u64-ref bytevector n eness)
+procedure: ~(bytevector-u64-ref bytevector n eness)~
 
 returns: the 64-bit unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-s64-ref bytevector n eness)
+procedure: ~(bytevector-s64-ref bytevector n eness)~
 
 returns: the 64-bit signed integer at index n (zero-based) of bytevector
 
@@ -4361,17 +4414,17 @@ The return value is an exact integer in the appropriate range for the number of 
 (bytevector-u64-ref v 0 'little) => #x9878badc56fe3412
 (bytevector-s64-ref v 1 'little) => #x-6567874523a901cc
 
-procedure: (bytevector-u16-set! bytevector n u16 eness)
+procedure: ~(bytevector-u16-set! bytevector n u16 eness)~
 
-procedure: (bytevector-s16-set! bytevector n s16 eness)
+procedure: ~(bytevector-s16-set! bytevector n s16 eness)~
 
-procedure: (bytevector-u32-set! bytevector n u32 eness)
+procedure: ~(bytevector-u32-set! bytevector n u32 eness)~
 
-procedure: (bytevector-s32-set! bytevector n s32 eness)
+procedure: ~(bytevector-s32-set! bytevector n s32 eness)~
 
-procedure: (bytevector-u64-set! bytevector n u64 eness)
+procedure: ~(bytevector-u64-set! bytevector n u64 eness)~
 
-procedure: (bytevector-s64-set! bytevector n s64 eness)
+procedure: ~(bytevector-s64-set! bytevector n s64 eness)~
 
 returns: unspecified
 
@@ -4404,11 +4457,11 @@ v => #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0 #x0
         #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98 #x0
         #x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x0)
 
-procedure: (bytevector-uint-ref bytevector n eness size)
+procedure: ~(bytevector-uint-ref bytevector n eness size)~
 
 returns: the size-byte unsigned integer at index n (zero-based) of bytevector
 
-procedure: (bytevector-sint-ref bytevector n eness size)
+procedure: ~(bytevector-sint-ref bytevector n eness size)~
 
 returns: the size-byte signed integer at index n (zero-based) of bytevector
 
@@ -4432,9 +4485,9 @@ The return value is an exact integer in the appropriate range for the number of 
 
 (bytevector-sint-ref (make-bytevector 1000 -1) 0 'big 1000) => -1
 
-procedure: (bytevector-uint-set! bytevector n uint eness size)
+procedure: ~(bytevector-uint-set! bytevector n uint eness size)~
 
-procedure: (bytevector-sint-set! bytevector n sint eness size)
+procedure: ~(bytevector-sint-set! bytevector n sint eness size)~
 
 returns: unspecified
 
@@ -4453,11 +4506,11 @@ v => #vu8(0 #x12 #x34 #x56 0)
 (bytevector-sint-set! v 1 #x-8000000000 (endianness little) 5)
 v => #vu8(#xff 0 0 0 0 #x80 #xff)
 
-procedure: (bytevector->uint-list bytevector eness size)
+procedure: ~(bytevector->uint-list bytevector eness size)~
 
 returns: a new list of the size-byte unsigned elements of bytevector
 
-procedure: (bytevector->sint-list bytevector eness size)
+procedure: ~(bytevector->sint-list bytevector eness size)~
 
 returns: a new list of the size-byte signed elements of bytevector
 
@@ -4474,9 +4527,9 @@ eness must be a valid endianness symbol naming the endianness. size must be an e
 (let ([v (make-bytevector 80 -1)])
   (bytevector->sint-list v 'big 20)) => (-1 -1 -1 -1)
 
-procedure: (uint-list->bytevector list eness size)
+procedure: ~(uint-list->bytevector list eness size)~
 
-procedure: (sint-list->bytevector list eness size)
+procedure: ~(sint-list->bytevector list eness size)~
 
 returns: a new bytevector of the elements of list
 
@@ -4495,11 +4548,11 @@ eness must be a valid endianness symbol naming the endianness. size must be an e
 (f 6) => #vu8(#x00 #x00 #x00 #x00 #x00 #x80
             #xff #xff #xff #xff #xff #x7f)
 
-procedure: (bytevector-ieee-single-native-ref bytevector n)
+procedure: ~(bytevector-ieee-single-native-ref bytevector n)~
 
 returns: the single floating-point value at index n (zero-based) of bytevector
 
-procedure: (bytevector-ieee-double-native-ref bytevector n)
+procedure: ~(bytevector-ieee-double-native-ref bytevector n)~
 
 returns: the double floating-point value at index n (zero-based) of bytevector
 
@@ -4510,9 +4563,9 @@ n must be an exact nonnegative integer. It indexes the starting byte of the valu
 
 The return value is an inexact real number. Examples appear after the mutation operators below.
 
-procedure: (bytevector-ieee-single-native-set! bytevector n x)
+procedure: ~(bytevector-ieee-single-native-set! bytevector n x)~
 
-procedure: (bytevector-ieee-double-native-set! bytevector n x)
+procedure: ~(bytevector-ieee-double-native-set! bytevector n x)~
 
 returns: unspecified
 
@@ -4533,11 +4586,11 @@ These procedures store the given value as an IEEE-754 single or double floating-
 (bytevector-ieee-double-native-set! v 0 1e23)
 (bytevector-ieee-double-native-ref v 0) => 1e23
 
-procedure: (bytevector-ieee-single-ref bytevector n eness)
+procedure: ~(bytevector-ieee-single-ref bytevector n eness)~
 
 returns: the single floating-point value at index n (zero-based) of bytevector
 
-procedure: (bytevector-ieee-double-ref bytevector n eness)
+procedure: ~(bytevector-ieee-double-ref bytevector n eness)~
 
 returns: the double floating-point value at index n (zero-based) of bytevector
 
@@ -4548,9 +4601,9 @@ n must be an exact nonnegative integer 和 indexes the starting byte of the valu
 
 The return value is an inexact real number. Examples appear after the mutation operators below.
 
-procedure: (bytevector-ieee-single-set! bytevector n x eness)
+procedure: ~(bytevector-ieee-single-set! bytevector n x eness)~
 
-procedure: (bytevector-ieee-double-set! bytevector n x eness)
+procedure: ~(bytevector-ieee-double-set! bytevector n x eness)~
 
 returns: unspecified
 
@@ -4582,7 +4635,7 @@ Symbols are written without double quotes or other bracketing characters. Parent
 
 The grammar for symbols on page 458 gives a precise definition of the syntax of symbols.
 
-procedure: (symbol=? symbol1 symbol2)
+procedure: ~(symbol=? symbol1 symbol2)~
 
 returns: #t if the two symbols are the same, #f otherwise
 
@@ -4595,7 +4648,7 @@ Symbols can also be compared with eq?, which is typically more efficient than sy
 (symbol=? 'a (string->symbol "a")) => #t
 (symbol=? 'a 'b) => #f
 
-procedure: (string->symbol string)
+procedure: ~(string->symbol string)~
 
 returns: a symbol whose name is string
 
@@ -4616,7 +4669,7 @@ The effect of modifying a string after it is used as an argument to string->symb
 
 (string->symbol "()") => \x28;\x29;
 
-procedure: (symbol->string symbol)
+procedure: ~(symbol->string symbol)~
 
 returns: a string, the name of symbol
 
@@ -4633,7 +4686,7 @@ The string returned by symbol->string should be treated as immutable. Unpredicta
 
 While every Scheme object has a truth value when used in a conditional context, with every object but #f counting as true, Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more than that it is true.
 
-procedure: (boolean=? boolean1 boolean2)
+procedure: ~(boolean=? boolean1 boolean2)~
 
 returns: #t if the two booleans are the same, #f otherwise
 
@@ -4650,9 +4703,9 @@ The boolean values #t 和 #f may also be compared with eq?, which is typically m
 
 Hashtables represent sets of associations between arbitrary Scheme values. They serve essentially the same purpose as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
 
-procedure: (make-eq-hashtable)
+procedure: ~(make-eq-hashtable)~
 
-procedure: (make-eq-hashtable size)
+procedure: ~(make-eq-hashtable size)~
 
 returns: a new mutable eq hashtable
 
@@ -4666,9 +4719,9 @@ An eq hashtable compares keys using the eq? (pointer equality) procedure 和 typ
 (define ht1 (make-eq-hashtable))
 (define ht2 (make-eq-hashtable 32))
 
-procedure: (make-eqv-hashtable)
+procedure: ~(make-eqv-hashtable)~
 
-procedure: (make-eqv-hashtable size)
+procedure: ~(make-eqv-hashtable size)~
 
 returns: a new mutable eqv hashtable
 
@@ -4679,9 +4732,9 @@ If size is provided, it must be a nonnegative exact integer indicating approxima
 
 An eqv hashtable compares keys using the eqv? procedure 和 typically employs a hash function based on object addresses for objects that are identifiable with eq?. Its hash 和 equivalence functions are suitable for any Scheme object.
 
-procedure: (make-hashtable hash equiv?)
+procedure: ~(make-hashtable hash equiv?)~
 
-procedure: (make-hashtable hash equiv? size)
+procedure: ~(make-hashtable hash equiv? size)~
 
 returns: a new mutable hashtable
 
@@ -4694,7 +4747,7 @@ The new hashtable computes hash values using hash 和 compares keys using equiv?
 
 (define ht (make-hashtable string-hash string=?))
 
-procedure: (hashtable-mutable? hashtable)
+procedure: ~(hashtable-mutable? hashtable)~
 
 returns: #t if hashtable is mutable, #f otherwise
 
@@ -4706,11 +4759,11 @@ Hashtables returned by one of the hashtable creation procedures above are mutabl
 (hashtable-mutable? (make-eq-hashtable)) => #t
 (hashtable-mutable? (hashtable-copy (make-eq-hashtable))) => #f
 
-procedure: (hashtable-hash-function hashtable)
+procedure: ~(hashtable-hash-function hashtable)~
 
 returns: the hash function associated with hashtable
 
-procedure: (hashtable-equivalence-function hashtable)
+procedure: ~(hashtable-equivalence-function hashtable)~
 
 returns: the equivalence function associated with hashtable
 
@@ -4727,13 +4780,13 @@ hashtable-hash-function returns #f for eq 和 eqv hashtables.
 (eq? (hashtable-hash-function ht) string-hash) => #t
 (eq? (hashtable-equivalence-function ht) string=?) => #t
 
-procedure: (equal-hash obj)
+procedure: ~(equal-hash obj)~
 
-procedure: (string-hash string)
+procedure: ~(string-hash string)~
 
-procedure: (string-ci-hash string)
+procedure: ~(string-ci-hash string)~
 
-procedure: (symbol-hash symbol)
+procedure: ~(symbol-hash symbol)~
 
 returns: an exact nonnegative integer hash value
 
@@ -4742,7 +4795,7 @@ libraries: (rnrs hashtables), (rnrs)
 
 These procedures are hash functions suitable for use with the appropriate Scheme predicate: equal? for equal-hash, string=? for string-hash, string-ci=? for string-ci-hash, 和 symbol=? (or eq?) for symbol-hash. The hash values returned by equal-hash, string-hash, 和 string-ci-hash are typically dependent on the current structure 和 contents of the input values 和 are thus unsuitable if keys are modified while they have associations in a hashtable.
 
-procedure: (hashtable-set! hashtable key obj)
+procedure: ~(hashtable-set! hashtable key obj)~
 
 returns: unspecified
 
@@ -4756,7 +4809,7 @@ hashtable-set! associates key with obj in hashtable, replacing the existing asso
 (define ht (make-eq-hashtable))
 (hashtable-set! ht 'a 73)
 
-procedure: (hashtable-ref hashtable key default)
+procedure: ~(hashtable-ref hashtable key default)~
 
 returns: see below
 
@@ -4780,7 +4833,7 @@ hashtable-ref returns the value associated with key in hashtable. If no value is
 (hashtable-ref equalht p1 55) => 73
 (hashtable-ref equalht p2 55) => 73
 
-procedure: (hashtable-contains? hashtable key)
+procedure: ~(hashtable-contains? hashtable key)~
 
 returns: #t if an association for key exists in hashtable, #f otherwise
 
@@ -4796,7 +4849,7 @@ key should be an appropriate key for the hashtable's hash 和 equivalence functi
 (hashtable-contains? ht p1) => #t
 (hashtable-contains? ht p2) => #f
 
-procedure: (hashtable-update! hashtable key procedure default)
+procedure: ~(hashtable-update! hashtable key procedure default)~
 
 returns: unspecified
 
@@ -4826,7 +4879,7 @@ An implementation may, however, be able to implement hashtable-update! more effi
   0)
 (hashtable-ref ht 'a 0) => 220
 
-procedure: (hashtable-delete! hashtable key)
+procedure: ~(hashtable-delete! hashtable key)~
 
 returns: unspecified
 
@@ -4847,7 +4900,7 @@ hashtable-delete! drops any association for key from hashtable.
 (hashtable-contains? ht p2) => #f
 (hashtable-delete! ht p2)
 
-procedure: (hashtable-size hashtable)
+procedure: ~(hashtable-size hashtable)~
 
 returns: number of entries in hashtable
 
@@ -4863,9 +4916,9 @@ libraries: (rnrs hashtables), (rnrs)
 (hashtable-delete! ht p1)
 (hashtable-size ht) => 0
 
-procedure: (hashtable-copy hashtable)
+procedure: ~(hashtable-copy hashtable)~
 
-procedure: (hashtable-copy hashtable mutable?)
+procedure: ~(hashtable-copy hashtable mutable?)~
 
 returns: a new hashtable containing the same entries as hashtable
 
@@ -4884,9 +4937,9 @@ If mutable? is present 和 not false, the copy is mutable; otherwise, the copy i
 (hashtable-delete! ht-copy p1) => exception: not mutable
 (hashtable-ref ht-copy p1 #f) => "c"
 
-procedure: (hashtable-clear! hashtable)
+procedure: ~(hashtable-clear! hashtable)~
 
-procedure: (hashtable-clear! hashtable size)
+procedure: ~(hashtable-clear! hashtable size)~
 
 returns: unspecified
 
@@ -4907,7 +4960,7 @@ hashtable-clear! removes all entries from hashtable. If size is provided, the ha
 (hashtable-size ht) => 0
 (hashtable-ref ht p1 #f) => #f
 
-procedure: (hashtable-keys hashtable)
+procedure: ~(hashtable-keys hashtable)~
 
 returns: a vector containing the keys in hashtable
 
@@ -4924,7 +4977,7 @@ The keys may appear in any order in the returned vector.
 (hashtable-set! ht 'q "three")
 (hashtable-keys ht) => #((a . b) q (a . b))
 
-procedure: (hashtable-entries hashtable)
+procedure: ~(hashtable-entries hashtable)~
 
 returns: two vectors: one of keys 和 a second of values
 
@@ -4966,7 +5019,7 @@ define-enumeration also defines a new syntactic form named by constructor that m
 (weather hot sunny windy) => #<enum-set>
 (enum-set->list (weather rainy cold rainy)) => (cold rainy)
 
-procedure: (make-enumeration symbol-list)
+procedure: ~(make-enumeration symbol-list)~
 
 returns: an enumeration set
 
@@ -4978,7 +5031,7 @@ This procedure creates a new enumeration type whose universe comprises the eleme
 (define positions (make-enumeration '(top bottom above top beside)))
 (enum-set->list positions) => (top bottom above beside)
 
-procedure: (enum-set-constructor enum-set)
+procedure: ~(enum-set-constructor enum-set)~
 
 returns: an enumeration-set construction procedure
 
@@ -4995,7 +5048,7 @@ This procedure returns a procedure p that may be used to create subsets of the u
 (define e3 (p2 '(one two four)))
 (enum-set->list e3) => (one two four)
 
-procedure: (enum-set-universe enum-set)
+procedure: ~(enum-set-universe enum-set)~
 
 returns: the universe of enum-set, as an enumeration set
 
@@ -5007,7 +5060,7 @@ libraries: (rnrs enums), (rnrs)
 (define e2 ((enum-set-constructor e1) '(c)))
 (enum-set->list (enum-set-universe e2)) => (a b c d)
 
-procedure: (enum-set->list enum-set)
+procedure: ~(enum-set->list enum-set)~
 
 returns: a list of the elements of enum-set
 
@@ -5021,7 +5074,7 @@ The symbols in the resulting list appear in the order given to them when the enu
 (define e2 ((enum-set-constructor e1) '(d c a b)))
 (enum-set->list e2) => (a b c d)
 
-procedure: (enum-set-subset? enum-set1 enum-set2)
+procedure: ~(enum-set-subset? enum-set1 enum-set2)~
 
 returns: #t if enum-set1 is a subset of enum-set2, #f otherwise
 
@@ -5038,7 +5091,7 @@ An enumeration set enum-set1 is a subset of an enumeration set enum-set2 if 和 
 (enum-set-subset? e3 e1) => #f
 (enum-set-subset? e3 e2) => #t
 
-procedure: (enum-set=? enum-set1 enum-set2)
+procedure: ~(enum-set=? enum-set1 enum-set2)~
 
 returns: #t if enum-set1 和 enum-set2 are equivalent, #f otherwise
 
@@ -5061,7 +5114,7 @@ enum-set=? could be defined in terms of enum-set-subset? as follows.
   (lambda (e1 e2)
     (和 (enum-set-subset? e1 e2) (enum-set-subset? e2 e1))))
 
-procedure: (enum-set-member? symbol enum-set)
+procedure: ~(enum-set-member? symbol enum-set)~
 
 returns: #t if symbol is an element of enum-set, #f otherwise
 
@@ -5073,15 +5126,15 @@ libraries: (rnrs enums), (rnrs)
 (enum-set-member? 'c e1) => #t
 (enum-set-member? 'c e2) => #f
 
-procedure: (enum-set-union enum-set1 enum-set2)
+procedure: ~(enum-set-union enum-set1 enum-set2)~
 
 returns: the union of enum-set1 和 enum-set2
 
-procedure: (enum-set-intersection enum-set1 enum-set2)
+procedure: ~(enum-set-intersection enum-set1 enum-set2)~
 
 returns: the intersection of enum-set1 和 enum-set2
 
-procedure: (enum-set-difference enum-set1 enum-set2)
+procedure: ~(enum-set-difference enum-set1 enum-set2)~
 
 returns: the difference of enum-set1 和 enum-set2
 
@@ -5100,7 +5153,7 @@ enum-set1 和 enum-set2 must have the same enumeration type. Each procedure retu
 (define e4 (make-enumeration '(b d c a)))
 (enum-set-union e1 e4) => exception: different enumeration types
 
-procedure: (enum-set-complement enum-set)
+procedure: ~(enum-set-complement enum-set)~
 
 returns: the complement of enum-set relative to its universe
 
@@ -5112,7 +5165,7 @@ libraries: (rnrs enums), (rnrs)
 (define e2 ((enum-set-constructor e1) '(a c)))
 (enum-set->list (enum-set-complement e2)) => (b d)
 
-procedure: (enum-set-projection enum-set1 enum-set2)
+procedure: ~(enum-set-projection enum-set1 enum-set2)~
 
 returns: the projection of enum-set1 into the universe of enum-set2
 
@@ -5130,7 +5183,7 @@ Any elements of enum-set1 not in the universe of enum-set2 are dropped. The resu
   (enum-set-union e3
     (enum-set-projection e4 e3))) => (a c d)
 
-procedure: (enum-set-indexer enum-set)
+procedure: ~(enum-set-indexer enum-set)~
 
 returns: a procedure that returns the index of a symbol in the universe of enum-set
 
