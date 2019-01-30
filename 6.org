@@ -2151,7 +2151,7 @@ procedure: ~(asin num)~
 
 procedure: ~(acos num)~
 
-returns: num 的 arc sine 或 arc cosine 值
+returns: ~num~ 的 arc sine 或 arc cosine 值
 
 libraries: (rnrs base), (rnrs)
 
@@ -2174,11 +2174,11 @@ returns: 参见下文
 
 libraries: (rnrs base), (rnrs)
 
-When passed a single complex argument num (the first form), atan returns the arc tangent of num. The arc tangent of a complex number z is defined as follows.
+当传入单个的复数实参 num（第一种形式），atan 返回 num 的反正切值。复数 z 的反正切定义如下：
 
 tan^-1(z) = (log(1+iz) - log(1-iz))/(2i)
 
-When passed two real arguments (the second form), atan 等价于 (lambda (y x) (angle (make-rectangular x y))).
+当传入两个实数实参（第二种形式），atan 等价于 (lambda (y x) (angle (make-rectangular x y))).
 
 #+BEGIN_SRC scheme
 (define pi (* (atan 1) 4))
@@ -2187,23 +2187,23 @@ When passed two real arguments (the second form), atan 等价于 (lambda (y x) (
 
 procedure: ~(bitwise-not exint)~
 
-returns: the bitwise not of exint
+returns: exint 的按位非
 
 procedure: ~(bitwise-and exint ...)~
 
-returns: the bitwise and of exint ...
+returns: exint ... 的按位与
 
 procedure: ~(bitwise-ior exint ...)~
 
-returns: the bitwise inclusive or of exint ...
+returns: exint ... 的按位或
 
 procedure: ~(bitwise-xor exint ...)~
 
-returns: the bitwise exclusive or of exint ...
+returns: exint ... 的按位异或
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-The inputs are treated as if represented in two's complement, even if they are not represented that way internally.
+输入被作为补码形式处理，即使它们在内部并不如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-not 0) => -1
@@ -2218,25 +2218,25 @@ The inputs are treated as if represented in two's complement, even if they are n
 
 procedure: ~(bitwise-if exint1 exint2 exint3)~
 
-returns: the bitwise "if" of its arguments
+returns: 实参的按位 if
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-The inputs are treated as if represented in two's complement, even if they are not represented that way internally.
+输入被作为补码形式处理，即使它们在内部并不如此表示。
 
-For each bit set in exint1, the corresponding bit of the result is taken from exint2, and for each bit not set in exint1, the corresponding bit of the result is taken from x3.
+对 exint1 的每个为 1 的位，结果的对应位取自 exint2, 而对 exint1 的每个为 0 的位，结果的对应位取自 exint3.
 
-(bitwise-if #b101010 #b111000 #b001100) => #b101100
+~(bitwise-if #b101010 #b111000 #b001100) => #b101100~
 
-bitwise-if might be defined as follows:
+bitwise-if 可以定义如下：
 
 #+BEGIN_SRC scheme
-(define bitwise-if
-  (lambda (exint1 exint2 exint3)
+  (define bitwise-if
+    (lambda (exint1 exint2 exint3)
+      (bitwise-ior
+       (bitwise-and exint1 exint2)
+       (bitwise-and (bitwise-not exint1) exint3))))
 #+END_SRC
-    (bitwise-ior
-      (bitwise-and exint1 exint2)
-      (bitwise-and (bitwise-not exint1) exint3))))
 
 procedure: ~(bitwise-bit-count exint)~
 
@@ -2245,6 +2245,7 @@ returns: 参见下文
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
 For nonnegative inputs, bitwise-bit-count returns the number of bits set in the two's complement representation of exint. For negative inputs, it returns a negative number whose magnitude is one greater than the number of bits not set in the two's complement representation of exint, which 等价于 (bitwise-not (bitwise-bit-count (bitwise-not exint))).
+若输入为非负值，bitwise-bit-count 返回 exint 的补码表示中为 1 的位的个数。若输入为负值，它返回一个负数，其模为 exint 的补码表示中为 0 的位的个数加 1，等价于 (bitwise-not (bitwise-bit-count (bitwise-not exint))).
 
 #+BEGIN_SRC scheme
 (bitwise-bit-count #b00000) => 0
@@ -2265,7 +2266,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-This procedure returns the number of bits of the smallest two's complement representation of exint, not including the sign bit for negative numbers. For 0 bitwise-length returns 0.
+这个过程返回 exint 的最小补码表示形式的位数，对于负数，不包括符号位。对于 0，bitwise-length 返回 0.
 
 #+BEGIN_SRC scheme
 (bitwise-length #b00000) => 0
@@ -2282,13 +2283,13 @@ This procedure returns the number of bits of the smallest two's complement repre
 
 procedure: ~(bitwise-first-bit-set exint)~
 
-returns: the index of the least significant bit set in exint
+returns: exint 为 1 的位的最低有效位的索引
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-The input is treated as if represented in two's complement, even if it is not represented that way internally.
+输入被作为补码形式处理，即使它们在内部并不如此表示。
 
-If exint is 0, bitwise-first-bit-set returns -1.
+如果 exint 为 0，bitwise-first-bit-set 返回 -1.
 
 #+BEGIN_SRC scheme
 (bitwise-first-bit-set #b00000) => -1
@@ -2304,11 +2305,11 @@ If exint is 0, bitwise-first-bit-set returns -1.
 
 procedure: ~(bitwise-bit-set? exint1 exint2)~
 
-returns: #t if bit exint2 of exint1 is set, #f otherwise
+返回: 如果 exint1 的 exint2 位为 1，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. The two's complement representation of a nonnegative number conceptually extends to the left (toward more significant bits) with an infinite number of zero bits, and the two's complement representation of a negative number conceptually extends to the left with an infinite number of one bits. Thus, exact integers can be used to represent arbitrarily large sets, where 0 is the empty set, -1 is the universe, and bitwise-bit-set? is used to test for membership.
+exint2 作为 exint1 的补码形式的基于 0 的位索引。非负数的补码形式理论是向左（趋向更高有效位）延伸无穷个 0 位，而负数的补码形式理论上向左延伸无穷个 1 位。因此，精确整数可被用于表示任意大的集合，其中 0 是空集，-1 是全集，bitwise-bit-set? 即被用来测试成员从属。
 
 #+BEGIN_SRC scheme
 (bitwise-bit-set? #b01011 0) => #t
@@ -2328,11 +2329,11 @@ exint2 is taken as a zero-based index for the bits in the two's complement repre
 
 procedure: ~(bitwise-copy-bit exint1 exint2 exint3)~
 
-returns: exint1 with bit exint2 replaced by exint3
+returns: 由 exint3 取代 exint1 的 exint2 位
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 is taken as a zero-based index for the bits in the two's complement representation of exint1. exint3 must be 0 or 1. This procedure effectively clears or sets the specified bit depending on the value of exint3. exint1 is treated as if represented in two's complement, even if it is not represented that way internally.
+exint2 作为 exint1 的补码 a 形式的基于 0 的位索引。exint3 必须是 0 或 1. 这个过程根据 exint3 的值，事实上对指定位清零或赋值。exint1 作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-copy-bit #b01110 0 1) => #b01111
@@ -2345,7 +2346,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the number represented by extracting from exint1 the sequence of bits from exint2 (inclusive) to exint3 (exclusive). exint1 is treated as if represented in two's complement, even if it is not represented that way internally.
+exint2 和 exint3 必须是非负的，且 exint2 必须不大于 exint3. 这个过程返回从 exint1 中截取的索引 exint2（包含）至 exint3（不包含）的位序列所表示的数字。exint1 被作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-bit-field #b10110 0 3) => #b00110
@@ -2360,7 +2361,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns exint1 with the n bits from exint2 (inclusive) to exint3 (exclusive) replaced by the low-order n bits of exint4. exint1 and exint4 are treated as if represented in two's complement, even if they are not represented that way internally.
+exint2 和 exint3 必须非负，且 exint2 必须不大于 exint3. 这个过程返回 exint1 中 exint2（包含）至 exint3（不包含）之间的 n 位被 exint4 中由低到高的 n 位取代后的数。exint1 和 exint4 被作为补码形式处理，即使它们在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-copy-bit-field #b10000 0 3 #b10101) => #b10101
@@ -2371,15 +2372,15 @@ exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint
 
 procedure: ~(bitwise-arithmetic-shift-right exint1 exint2)~
 
-returns: exint1 arithmetically shifted right by exint2 bits
+returns: exint1 算术右移 exint2 位
 
 procedure: ~(bitwise-arithmetic-shift-left exint1 exint2)~
 
-returns: exint1 shifted left by exint2 bits
+returns: exint1 左移 exint2 位
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 must be nonnegative. exint1 is treated as if represented in two's complement, even if it is not represented that way internally.
+exint2 必须非负。exint1 被作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-arithmetic-shift-right #b10000 3) => #b00010
@@ -2398,7 +2399,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-If exint2 is negative, bitwise-arithmetic-shift returns the result of arithmetically shifting exint1 right by -exint2 bits. Otherwise, bitwise-arithmetic-shift returns the result of shifting exint1 left by exint2 bits. exint1 is treated as if represented in two's complement, even if it is not represented that way internally.
+如果 exint2 是负数，bitwise-arithmetic-shift 返回 exint1 算术右移-exint2 位后的结果。否则，bitwise-arithmetic-shift 返回 exint1 算术左移 exint2 位的结果。exint1 被作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-arithmetic-shift #b10000 -3) => #b00010
@@ -2408,7 +2409,7 @@ If exint2 is negative, bitwise-arithmetic-shift returns the result of arithmetic
 (bitwise-arithmetic-shift -1 2) => -4
 #+END_SRC
 
-Thus, bitwise-arithmetic-shift behaves as if defined as follows.
+因此, bitwise-arithmetic-shift 的行为如同如下定义。
 
 #+BEGIN_SRC scheme
 (define bitwise-arithmetic-shift
@@ -2424,7 +2425,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2, exint3, and exint4 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the result of shifting the bits of exint1 from bit exint2 (inclusive) through bit exint3 (exclusive) left by (mod exint4 (- exint3 exint2)) bits, with the bits shifted out of the range inserted at the bottom end of the range. exint1 is treated as if represented in two's complement, even if it is not represented that way internally.
+exint2, exint3, 和 exint4 必须非负，且 exint2 必须不大于 exint3. 这个过程返回把 exint1 中 exint2（包含）位至 exint3（不包含）位左移 (mod exint4 (- exint3 exint2)) 位的结果，移动时超出范围的位，插入回范围最底端。exint1 被作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-rotate-bit-field #b00011010 0 5 3) => #b00010110
@@ -2437,7 +2438,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 and exint3 must be nonnegative, and exint2 must not be greater than exint3. This procedure returns the result of reversing the bits of exint1 from bit exint2 (inclusive) through bit exint3 (exclusive). exint1 is treated as if represented in two's complement, even if it is not represented that way internally.
+exint2 和 exint3 必须非负，且 exint2 必须不大于 exint3. 这个过程返回 exint1 中 exint2(包含）位至 exint3（不包含）位被反转后的结果。exint1 被作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-reverse-bit-field #b00011010 0 5) => #b00001011
@@ -2448,11 +2449,11 @@ procedure: ~(string->number string)~
 
 procedure: ~(string->number string radix)~
 
-returns: the number represented by string, or #f
+returns: string 所表示的数字，或#f
 
 libraries: (rnrs base), (rnrs)
 
-If string is a valid representation of a number, that number is returned, otherwise #f is returned. The number is interpreted in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix defaults to 10. Any radix specifier within string, e.g., #x, overrides the radix argument.
+如果 string 是一个数字的有效表示形式，则返回此数字，否则，返回 #f. 数字被解释时基于基数 radix，其必须是处于集合{2,8,10,16}中的精确整数。如果没有指定，radix 默认为 10. 任何 string 中的基数指示符，比如 #x, 都会覆盖参数 radix。
 
 #+BEGIN_SRC scheme
 (string->number "0") => 0
@@ -2469,26 +2470,27 @@ procedure: ~(number->string num radix)~
 
 procedure: ~(number->string num radix precision)~
 
-returns: an external representation of num as a string
+returns: num 的字符串外部表示形式
 
 libraries: (rnrs base), (rnrs)
 
-The num is expressed in radix radix, which must be an exact integer in the set {2,8,10,16}. If not specified, radix defaults to 10. In any case, no radix specifier appears in the resulting string.
+num 以基数 radix 表示，其必须是处于集合{2,8,10,16}中的精确整数。如果没有指定，radix 默认为 10. 在任何情况下，结果字符串中都不包含基数指示符。
 
 The external representation is such that, when converted back into a number using string->number, the resulting numeric value 等价于 num. That is, for all inputs:
+此外部表示形式是这样的，当使用 string->number 转换回数字时，结果的数值等于 num. 即，对所有输入：
 
 #+BEGIN_SRC scheme
-(eqv? (string->number
-        (number->string num radix)
+  (eqv? (string->number
+          (number->string num radix)
+          radix)
+        num)
 #+END_SRC
-        radix)
-      num)
 
-returns #t. An exception with condition type &implementation-restriction is raised if this is not possible.
+返回 #t. 如果这种转换不成立，会抛出一个条件类型的 &implementation-restriction 异常。
 
-If precision is provided, it must be an exact positive integer, num must be inexact, and radix must be 10. In this case, the real part and, if present, the imaginary part of the number are each printed with an explicit mantissa width m, where m is the least possible value greater than or equal to precision that makes the expression above true.
+如果指定 precision, 它必须是一个精确的正整数，num 必须是不精确的，而 radix 必须是 10. 在这种情况下，数字的实部和虚部（如果存在）分别以显式的尾数宽度 m 打印，其中 m 是大于等于 precision 且使上述表达式为真的最小可能值。
 
-If radix is 10, inexact values of num are expressed using the fewest number of significant digits possible [5] without violating the above restriction.
+如果 radix 为 10，num 的不精确值在不违反上述限制的前提下，使用可能的最少有效位数表示[5]。
 
 #+BEGIN_SRC scheme
 (number->string 3.4) => "3.4"
