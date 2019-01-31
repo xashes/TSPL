@@ -2309,7 +2309,7 @@ procedure: ~(bitwise-bit-set? exint1 exint2)~
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2 作为 exint1 的补码形式的基于 0 的位索引。非负数的补码形式理论是向左（趋向更高有效位）延伸无穷个 0 位，而负数的补码形式理论上向左延伸无穷个 1 位。因此，精确整数可被用于表示任意大的集合，其中 0 是空集，-1 是全集，bitwise-bit-set? 即被用来测试成员从属。
+exint2 作为 exint1 补码形式的基于 0 的位索引。非负数的补码形式理论是向左（趋向更高有效位）延伸无穷个 0 位，而负数的补码形式理论上向左延伸无穷个 1 位。因此，精确整数可被用于表示任意大的集合，其中 0 是空集，-1 是全集，bitwise-bit-set? 即被用来测试成员从属。
 
 #+BEGIN_SRC scheme
 (bitwise-bit-set? #b01011 0) => #t
@@ -2425,7 +2425,7 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic bitwise), (rnrs)
 
-exint2, exint3, 和 exint4 必须非负，且 exint2 必须不大于 exint3. 这个过程返回把 exint1 中 exint2（包含）位至 exint3（不包含）位左移 (mod exint4 (- exint3 exint2)) 位的结果，移动时超出范围的位，插入回范围最底端。exint1 被作为补码形式处理，即使它在内部并非如此表示。
+exint2, exint3, 和 exint4 必须非负，且 exint2 必须不大于 exint3. 这个过程返回把 exint1 中 exint2（包含）位至 exint3（不包含）位左移 (mod exint4 (- exint3 exint2)) 位的结果，移动时超出范围的位，插入回范围最末端。exint1 被作为补码形式处理，即使它在内部并非如此表示。
 
 #+BEGIN_SRC scheme
 (bitwise-rotate-bit-field #b00011010 0 5 3) => #b00010110
@@ -2502,57 +2502,61 @@ The external representation is such that, when converted back into a number usin
 
 ** Section 6.5. Fixnums
 
-Fixnums represent exact integers in the fixnum range, which is required to be a closed range [-2w-1,2w-1 - 1], where w (the fixnum width) is at least 24. The implementation-specific value of w may be determined via the procedure fixnum-width, and the endpoints of the range may be determined via the procedures least-fixnum and greatest-fixnum.
+Fixnums 表示处于 fixnum 区间的精确整数，此区间须为一个闭区间 [-2w-1,2w-1 - 1], 其中 w（fixnum 的宽度）最少是 24. 通过过程 fixnum-width 可以确定特定实现的 w 值，通过过程 least-fixnum 和 greatest-fixnum 可以确定区间的端点。
 
-The names of arithmetic procedures that operate only on fixnums begin with the prefix "fx" to set them apart from their generic counterparts.
+专用于操作 fixnum 的算术过程，名字以前缀"fx"开始，以区别于它们对应的通用版本。
 
-Procedure arguments required to be fixnums are named fx, possibly with a suffix, e.g., fx_2.
+要求为 fixnum 的过程实参命名为 fx, 可能会带有后缀，如，fx_2.
 
 Unless otherwise specified, the numeric values of fixnum-specific procedures are fixnums. If the value of a fixnum operation should be a fixnum, but the mathematical result would be outside the fixnum range, an exception with condition type &implementation-restriction is raised.
+除非另外指定，fixnum 专用过程的值也是 fixnums. 如果一个 fixnum 操作的值应该是 fixnum，但数学结果却超出了 fixnum 区间，则会抛出一个条件类型的 &implementation-restriction 异常。
 
-Bit and shift operations on fixnums assume that fixnums are represented in two's complement, even if they are not represented that way internally.
+fixnum 的位和移位操作假定 fixnum 表示为补码形式，即使它们在内部并非如此表示。
 
 procedure: ~(fixnum? obj)~
 
-returns: #t if obj is a fixnum, #f otherwise
+返回: 如果 ~obj~ 是 fixnum，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
-(fixnum? 0) => #t
-(fixnum? -1) => #t
-(fixnum? (- (expt 2 23))) => #t
-(fixnum? (- (expt 2 23) 1)) => #t
+#+begin_src scheme
+  (fixnum? 0) => #t
+  (fixnum? -1) => #t
+  (fixnum? (- (expt 2 23))) => #t
+  (fixnum? (- (expt 2 23) 1)) => #t
+#+end_src
 
 procedure: ~(least-fixnum)~
 
-returns: the least (most negative) fixnum supported by the implementation
+returns: 实现支持的最小（最大负数）fixnum
 
 procedure: ~(greatest-fixnum)~
 
-returns: the greatest (most positive) fixnum supported by the implementation
+returns: 实现支持的最大（最大正数）fixnum
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
+#+begin_src scheme
 (fixnum? (- (least-fixnum) 1)) => #f
 (fixnum? (least-fixnum)) => #t
 (fixnum? (greatest-fixnum)) => #t
 (fixnum? (+ (greatest-fixnum) 1)) => #f
+#+end_src
 
 procedure: ~(fixnum-width)~
 
-returns: the implementation-dependent fixnum width
+returns: 基于实现的 fixnum 宽度
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+如同本节引言中介绍的，fixnum 宽度决定了 fixnum 区间的大小，且必须至少为 24.
 
-As described in the lead-in to this section, the fixnum width determines the size of the fixnum range and must be at least 24.
-
+#+begin_src scheme
 (define w (fixnum-width))
 (= (least-fixnum) (- (expt 2 (- w 1)))) => #t
 (= (greatest-fixnum) (- (expt 2 (- w 1)) 1)) => #t
 (>= w 24) => #t
+#+end_src
 
 procedure: ~(fx=? fx_1 fx_2 fx3 ...)~
 
@@ -2564,13 +2568,13 @@ procedure: ~(fx<=? fx_1 fx_2 fx3 ...)~
 
 procedure: ~(fx>=? fx_1 fx_2 fx3 ...)~
 
-returns: #t if the relation holds, #f otherwise
+返回: 如果关系成立，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+谓词 fx=?在其实参相等时返回#t。谓词 fx<?在其实参单调递增时返回#t，即，每个实参都大于它前一个实参，而 fx>?在其实参单调递减时返回#t。谓词 fx<=?在其实参单调非递减时返回#t，即，每个实参不小于它前一个实参，而 fx>=?在其实参单调非递增时返回#t。
 
-The predicate fx=? returns #t if its arguments are equal. The predicate fx<? returns #t if its arguments are monotonically increasing, i.e., each argument is greater than the preceding ones, while fx>? returns #t if its arguments are monotonically decreasing. The predicate fx<=? returns #t if its arguments are monotonically nondecreasing, i.e., each argument is not less than the preceding ones, while fx>=? returns #t if its arguments are monotonically nonincreasing.
-
+#+begin_src scheme
 (fx=? 0 0) => #t
 (fx=? -1 1) => #f
 (fx<? (least-fixnum) 0 (greatest-fixnum)) => #t
@@ -2578,108 +2582,119 @@ The predicate fx=? returns #t if its arguments are equal. The predicate fx<? ret
 (fx>? 5 4 3 2 1) => #t
 (fx<=? 1 3 2) => #f
 (fx>=? 0 0 (least-fixnum)) => #t
+#+end_src
 
 procedure: ~(fxzero? fx)~
 
-returns: #t if fx is zero, #f otherwise
+返回: 如果 ~fx~ 为 0，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(fxpositive? fx)~
 
-returns: #t if fx is greater than zero, #f otherwise
+返回: 如果 ~fx~ 大于 0，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(fxnegative? fx)~
 
-returns: #t if fx is less than zero, #f otherwise
+返回: 如果 ~fx~ 小于 0，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fxzero? 等价于 (lambda (x) (fx=? x 0)), fxpositive? 等价于 (lambda (x) (fx>? x 0)), 而 fxnegative? 等价于 (lambda (x) (fx<? x 0)).
 
-fxzero? 等价于 (lambda (x) (fx=? x 0)), fxpositive? 等价于 (lambda (x) (fx>? x 0)), and fxnegative? to (lambda (x) (fx<? x 0)).
-
+#+begin_src scheme
 (fxzero? 0) => #t
 (fxzero? 1) => #f
+#+end_src
 
+#+begin_src scheme
 (fxpositive? 128) => #t
 (fxpositive? 0) => #f
 (fxpositive? -1) => #f
+#+end_src
 
+#+begin_src scheme
 (fxnegative? -65) => #t
 (fxnegative? 0) => #f
 (fxnegative? 1) => #f
+#+end_src
 
 procedure: ~(fxeven? fx)~
 
-returns: #t if fx is even, #f otherwise
+返回: 如果 ~fx~ 是偶数，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(fxodd? fx)~
 
-returns: #t if fx is odd, #f otherwise
+返回: 如果 ~fx~ 是奇数，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
+#+begin_src scheme
 (fxeven? 0) => #t
 (fxeven? 1) => #f
 (fxeven? -1) => #f
 (fxeven? -10) => #t
+#+end_src
 
+#+begin_src scheme
 (fxodd? 0) => #f
 (fxodd? 1) => #t
 (fxodd? -1) => #t
 (fxodd? -10) => #f
+#+end_src
 
 procedure: ~(fxmin fx_1 fx_2 ...)~
 
-returns: the minimum of fx_1 fx_2 ...
+returns: fx_1 fx_2 ... 的最小值
 
 procedure: ~(fxmax fx_1 fx_2 ...)~
 
-returns: the maximum of fx_1 fx_2 ...
+returns: fx_1 fx_2 ... 的最大值
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+#+begin_src scheme
+  (fxmin 4 -7 2 0 -6) => -7
 
-(fxmin 4 -7 2 0 -6) => -7
+  (let ([ls '(7 3 5 2 9 8)])
+    (apply fxmin ls)) => 2
+#+end_src
 
-(let ([ls '(7 3 5 2 9 8)])
-  (apply fxmin ls)) => 2
+#+begin_src scheme
+  (fxmax 4 -7 2 0 -6) => 4
 
-(fxmax 4 -7 2 0 -6) => 4
-
-(let ([ls '(7 3 5 2 9 8)])
-  (apply fxmax ls)) => 9
+  (let ([ls '(7 3 5 2 9 8)])
+    (apply fxmax ls)) => 9
+#+end_src
 
 procedure: ~(fx+ fx_1 fx_2)~
 
-returns: the sum of fx_1 and fx_2
+returns: fx_1 与 fx_2 的和
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
-(fx+ -3 4) => 1
+~(fx+ -3 4) => 1~
 
 procedure: ~(fx- fx)~
 
-returns: the additive inverse of fx
+returns: fx 的加法逆元
 
 procedure: ~(fx- fx_1 fx_2)~
 
-returns: the difference between fx_1 and fx_2
+returns: fx_1 和 fx_2 的差
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
+#+begin_src scheme
 (fx- 3) => -3
 (fx- -3 4) => -7
+#+end_src
 
 procedure: ~(fx* fx_1 fx_2)~
 
-returns: the product of fx_1 and fx_2
+returns: fx_1 和 fx_2 的积
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
-(fx* -3 4) => -12
+~(fx* -3 4) => -12~
 
 procedure: ~(fxdiv fx_1 fx_2)~
 
@@ -2691,9 +2706,9 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 不能为 0.这些是通用过程 div, mod, 和 div-and-mod 的 fixnum 专用版本。
 
-fx_2 must not be zero. These are fixnum-specific versions of the generic div, mod, and div-and-mod.
-
+#+begin_src scheme
 (fxdiv 17 3) => 5
 (fxmod 17 3) => 2
 (fxdiv -17 3) => -6
@@ -2702,9 +2717,12 @@ fx_2 must not be zero. These are fixnum-specific versions of the generic div, mo
 (fxmod 17 -3) => 2
 (fxdiv -17 -3) => 6
 (fxmod -17 -3) => 1
+#+end_src
 
+#+begin_src scheme
 (fxdiv-and-mod 17 3) => 5
                       2
+#+end_src
 
 procedure: ~(fxdiv0 fx_1 fx_2)~
 
@@ -2716,9 +2734,9 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 不能为 0.这些是通用过程 div0, mod0, 和 div0-and-mod0 的 fixnum 专用版本。
 
-fx_2 must not be zero. These are fixnum-specific versions of the generic div0, mod0, and div0-and-mod0.
-
+#+begin_src scheme
 (fxdiv0 17 3) => 6
 (fxmod0 17 3) => -1
 (fxdiv0 -17 3) => -6
@@ -2727,9 +2745,12 @@ fx_2 must not be zero. These are fixnum-specific versions of the generic div0, m
 (fxmod0 17 -3) => -1
 (fxdiv0 -17 -3) => 6
 (fxmod0 -17 -3) => 1
+#+end_src
 
+#+begin_src scheme
 (fxdiv0-and-mod0 17 3) => 6
                         -1
+#+end_src
 
 procedure: ~(fx+/carry fx_1 fx_2 fx3)~
 
@@ -2741,73 +2762,82 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+当常规的 fixnum 加，减，乘操作溢出时，会抛出一个异常。而这些替代过程则返回一个进位，同时也支持所进位传递到下一个操作。它们可以被用于为多精度的运算实现可移植的代码。
 
-When an ordinary fixnum addition, subtraction, or multiplication operation overflows, an exception is raised. These alternative procedures instead return a carry and also allow the carry to be propagated to the next operation. They can be used to implement portable code for multiple-precision arithmetic.
+这些过程返回下列计算得出的两个 fixnum 值。对于 fx+/carry:
 
-These procedures return the two fixnum values of the following computations. For fx+/carry:
-
+#+begin_src scheme
 (let* ([s (+ fx_1 fx_2 fx3)]
        [s0 (mod0 s (expt 2 (fixnum-width)))]
        [s1 (div0 s (expt 2 (fixnum-width)))])
   (values s0 s1))
+#+end_src
 
-for fx-/carry:
+对于 fx-/carry:
 
+#+begin_src scheme
 (let* ([d (- fx_1 fx_2 fx3)]
        [d0 (mod0 d (expt 2 (fixnum-width)))]
        [d1 (div0 d (expt 2 (fixnum-width)))])
   (values d0 d1))
+#+end_src
 
-and for fx*/carry:
+对于 fx*/carry:
 
+#+begin_src scheme
 (let* ([s (+ (* fx_1 fx_2) fx3)]
        [s0 (mod0 s (expt 2 (fixnum-width)))]
        [s1 (div0 s (expt 2 (fixnum-width)))])
   (values s0 s1))
+#+end_src
 
 procedure: ~(fxnot fx)~
 
-returns: the bitwise not of fx
+returns: fx 的按位非
 
 procedure: ~(fx and fx ...)~
 
-returns: the bitwise and of fx ...
+returns: fx 的按位与
 
 procedure: ~(fxior fx ...)~
 
-returns: the bitwise inclusive or of fx ...
+returns: fx 的按位或
 
 procedure: ~(fxxor fx ...)~
 
-returns: the bitwise exclusive or of fx ...
+returns: fx 的按位异或
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
+#+begin_src scheme
 (fxnot 0) => -1
 (fxnot 3) => -4
+#+end_src
 
+#+begin_src scheme
 (fx and #b01101 #b00111) => #b00101
 (fxior #b01101 #b00111) => #b01111
 (fxxor #b01101 #b00111) => #b01010
+#+end_src
 
 procedure: ~(fxif fx_1 fx_2 fx3)~
 
-returns: the bitwise "if" of its arguments
+returns: 实参的按位 "if"
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+对 fx_1 的每个为 1 的位，结果的对应位取自 fx_2, 而对 fx_1 的每个为 0 的位，结果的对应位取自 fx_3.
 
-For each bit set in fx_1, the corresponding bit of the result is taken from fx_2, and for each bit not set in fx_1, the corresponding bit of the result is taken from x3.
+~(fxif #b101010 #b111000 #b001100) => #b101100~
 
-(fxif #b101010 #b111000 #b001100) => #b101100
+fxif 可以定义如下：
 
-fxif might be defined as follows:
-
+#+begin_src scheme
 (define fxif
   (lambda (fx_1 fx_2 fx3)
     (fxior (fx and fx_1 fx_2)
            (fx and (fxnot fx_1) fx3))))
+#+end_src
 
 procedure: ~(fxbit-count fx)~
 
@@ -2815,17 +2845,20 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+对于非负的输入，fxbit-count 返回 fx 补码形式中为 1 的位数。对于负的输入，它返回一个负数，其模为 fx 中为 0 的位数加 1，等价于 (fxnot (fxbit-count (fxnot fx))).
 
-For nonnegative inputs, fxbit-count returns the number of bits set in the two's complement representation of fx. For negative inputs, it returns a negative number whose magnitude is one greater than the number of bits not set in fx, which 等价于 (fxnot (fxbit-count (fxnot fx))).
-
+#+begin_src scheme
 (fxbit-count #b00000) => 0
 (fxbit-count #b00001) => 1
 (fxbit-count #b00100) => 1
 (fxbit-count #b10101) => 3
+#+end_src
 
+#+begin_src scheme
 (fxbit-count -1) => -1
 (fxbit-count -2) => -2
 (fxbit-count -4) => -3
+#+end_src
 
 procedure: ~(fxlength fx)~
 
@@ -2833,64 +2866,75 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+这个过程返回 fx 的最小补码形式的位数，对于负数，不包括符号位。对于 0，fxlength 返回 0.
 
-This procedure returns the number of bits of the smallest two's complement representation of fx, not including the sign bit for negative numbers. For 0 fxlength returns 0.
-
+#+begin_src scheme
 (fxlength #b00000) => 0
 (fxlength #b00001) => 1
 (fxlength #b00100) => 3
 (fxlength #b00110) => 3
+#+end_src
 
+#+begin_src scheme
 (fxlength -1) => 0
 (fxlength -6) => 3
 (fxlength -9) => 4
+#+end_src
 
 procedure: ~(fxfirst-bit-set fx)~
 
-returns: the index of the least significant bit set in fx
+returns: fx 为 1 的位的最低有效位的索引
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+如果 fx 为 0，fxfirst-bit-set 返回 -1.
 
-If fx is 0, fxfirst-bit-set returns -1.
-
+#+begin_src scheme
 (fxfirst-bit-set #b00000) => -1
 (fxfirst-bit-set #b00001) => 0
 (fxfirst-bit-set #b01100) => 2
+#+end_src
 
+#+begin_src scheme
 (fxfirst-bit-set -1) => 0
 (fxfirst-bit-set -2) => 1
 (fxfirst-bit-set -3) => 0
+#+end_src
 
 procedure: ~(fxbit-set? fx_1 fx_2)~
 
-returns: #t if bit fx_2 of fx_1 is set, #f otherwise
+返回: 如果 fx_1 的 fx_2 位为 1，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
-
 fx_2 must be nonnegative. It is taken as a zero-based index for the bits in the two's complement representation of fx_1, with the sign bit virtually replicated an infinite number of positions to the left.
+fx_2 必须非负。它被作为 fx_1 补码形式的基于 0 的位索引。符号位事实上向左重复无穷个位置。
 
+#+begin_src scheme
 (fxbit-set? #b01011 0) => #t
 (fxbit-set? #b01011 2) => #f
+#+end_src
 
+#+begin_src scheme
 (fxbit-set? -1 0) => #t
 (fxbit-set? -1 20) => #t
 (fxbit-set? -3 1) => #f
 (fxbit-set? 0 (- (fixnum-width) 1)) => #f
 (fxbit-set? -1 (- (fixnum-width) 1)) => #t
+#+end_src
 
 procedure: ~(fxcopy-bit fx_1 fx_2 fx3)~
 
-returns: fx_1 with bit fx_2 replaced by fx3
+returns: 由 fx_3 取代 fx_1 的 fx_2 位
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 必须非负，且小于 (- (fixnum-width) 1) 的值。fx3 必须是 0 或 1.  这个过程根据 fx3 的值，事实上对指定位清零或赋值。
 
-fx_2 must be nonnegative and less than the value of (- (fixnum-width) 1). fx3 must be 0 or 1. This procedure effectively clears or sets the specified bit depending on the value of fx3.
-
+#+begin_src scheme
 (fxcopy-bit #b01110 0 1) => #b01111
 (fxcopy-bit #b01110 2 0) => #b01010
+#+end_src
 
 procedure: ~(fxbit-field fx_1 fx_2 fx3)~
 
@@ -2898,13 +2942,14 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 和 fx3 必须是非负的，且小于 (fixnum-width) 的值，而 fx_2 必须不大于 fx3. 这个过程返回从 fx_1 中截取的索引 fx_2（包含）至 fx3（不包含）的位序列所表示的数字。
 
-fx_2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx_2 must not be greater than fx3. This procedure returns the number represented by extracting from fx_1 the sequence of bits from fx_2 (inclusive) to fx3 (exclusive).
-
+#+begin_src scheme
 (fxbit-field #b10110 0 3) => #b00110
 (fxbit-field #b10110 1 3) => #b00011
 (fxbit-field #b10110 2 3) => #b00001
 (fxbit-field #b10110 3 3) => #b00000
+#+end_src
 
 procedure: ~(fxcopy-bit-field fx_1 fx_2 fx3 fx4)~
 
@@ -2912,33 +2957,37 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 和 fx3 必须非负，且小于 (fixnum-width) 的值，而 fx_2 必须不大于 fx3. 这个过程返回 fx_1 中 fx_2（包含）至 fx3（不包含）之间的 n 位被 fx4 中由低到高的 n 位取代后的数。
 
-fx_2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx_2 must not be greater than fx3. This procedure returns fx_1 with n bits from fx_2 (inclusive) to fx3 (exclusive) replaced by the low-order n bits of x4.
-
+#+begin_src scheme
 (fxcopy-bit-field #b10000 0 3 #b10101) => #b10101
 (fxcopy-bit-field #b10000 1 3 #b10101) => #b10010
 (fxcopy-bit-field #b10000 2 3 #b10101) => #b10100
 (fxcopy-bit-field #b10000 3 3 #b10101) => #b10000
+#+end_src
 
 procedure: ~(fxarithmetic-shift-right fx_1 fx_2)~
 
-returns: fx_1 arithmetically shifted right by fx_2 bits
+returns: fx_1 算术右移 fx_2 位
 
 procedure: ~(fxarithmetic-shift-left fx_1 fx_2)~
 
-returns: fx_1 shifted left by fx_2 bits
+returns: fx_1 算术左移 fx_2 位
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 必须非负，且小于 (fixnum-width) 的值。
 
-fx_2 must be nonnegative and less than the value of (fixnum-width).
-
+#+begin_src scheme
 (fxarithmetic-shift-right #b10000 3) => #b00010
 (fxarithmetic-shift-right -1 1) => -1
 (fxarithmetic-shift-right -64 3) => -8
+#+end_src
 
+#+begin_src scheme
 (fxarithmetic-shift-left #b00010 2) => #b01000
 (fxarithmetic-shift-left -1 2) => -4
+#+end_src
 
 procedure: ~(fxarithmetic-shift fx_1 fx_2)~
 
@@ -2946,22 +2995,25 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 的绝对值必须小于 (fixnum-width) 的值。如果 fx_2 是负数，bitwise-arithmetic-shift 返回 fx_1 算术右移 fx_2 位后的结果。否则，bitwise-arithmetic-shift 返回 fx_1 算术左移 fx_2 位的结果。
 
-The absolute value of fx_2 must be less than the value of (fixnum-width). If fx_2 is negative, fxarithmetic-shift returns the result of arithmetically shifting fx_1 right by fx_2 bits. Otherwise, fxarithmetic-shift returns the result of shifting fx_1 left by fx_2 bits.
-
+#+begin_src scheme
 (fxarithmetic-shift #b10000 -3) => #b00010
 (fxarithmetic-shift -1 -1) => -1
 (fxarithmetic-shift -64 -3) => -8
 (fxarithmetic-shift #b00010 2) => #b01000
 (fxarithmetic-shift -1 2) => -4
+#+end_src
 
-Thus, fxarithmetic-shift behaves as if defined as follows.
+因此, fxarithmetic-shift 的行为如同如下定义。
 
+#+begin_src scheme
 (define fxarithmetic-shift
   (lambda (fx_1 fx_2)
     (if (fx<? fx_2 0)
         (fxarithmetic-shift-right fx_1 (fx- fx_2))
         (fxarithmetic-shift-left fx_1 fx_2))))
+#+end_src
 
 procedure: ~(fxrotate-bit-field fx_1 fx_2 fx3 fx4)~
 
@@ -2969,13 +3021,14 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2, fx3, 和 fx4 必须非负，且小于 (fixnum-width) 的值，而 fx_2 必须不大于 fx3, fx4 必须不大于 fx3 和 fx_2 的差。
 
-fx_2, fx3, and fx4 must be nonnegative and less than the value of (fixnum-width), fx_2 must not be greater than fx3, and fx4 must not be greater than the difference between fx3 and fx_2.
+这个过程返回把 fx_1 中 fx_2（包含）位至 fx3（不包含）位左移 fx4 位的结果，移动时超出范围的位，插入回范围最末端。
 
-This procedure returns the result of shifting the bits of fx_1 from bit fx_2 (inclusive) through bit fx3 (exclusive) left by fx4 bits, with the bits shifted out of the range inserted at the bottom end of the range.
-
+#+begin_src scheme
 (fxrotate-bit-field #b00011010 0 5 3) => #b00010110
 (fxrotate-bit-field #b01101011 2 7 3) => #b01011011
+#+end_src
 
 procedure: ~(fxreverse-bit-field fx_1 fx_2 fx3)~
 
@@ -2983,11 +3036,12 @@ returns: 参见下文
 
 libraries: (rnrs arithmetic fixnums), (rnrs)
 
+fx_2 和 fx3 必须非负，且小于 (fixnum-width) 的值，而 fx_2 必须不大于 fx3. 这个过程返回 fx_1 中 fx_2(包含）位至 fx3（不包含）位被反转后的结果。
 
-fx_2 and fx3 must be nonnegative and less than the value of (fixnum-width), and fx_2 must not be greater than fx3. This procedure returns the result of reversing the bits of fx_1 from bit fx_2 (inclusive) through bit fx3 (exclusive).
-
+#+begin_src scheme
 (fxreverse-bit-field #b00011010 0 5) => #b00001011
 (fxreverse-bit-field #b01101011 2 7) => #b00101111
+#+end_src
 
 ** Section 6.6. Flonums
 
