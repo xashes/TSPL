@@ -3497,11 +3497,14 @@ fixnum->flonum 是 inexact 的一个受限变体。当输入是一个精确实�
 (real->flonum 1s3) => 1000.0
 #+end_src
 
+
 ** Section 6.7. Characters
 
 Characters are atomic objects representing letters, digits, special symbols such as $ or -, and certain nongraphic control characters such as space and newline. Characters are written with a #\ prefix. For most characters, the prefix is followed by the character itself. The written character representation of the letter A, for example, is #\A. The characters newline, space, and tab may be written in this manner as well, but they can be written more clearly as #\newline, #\space, and #\tab. Other character names are supported as well, as defined by the grammar for character objects on page 457. Any Unicode character may be written with the syntax #\xn, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value.
+字符是原子对象，表示字母，数字，特殊符号，如 $ 或 -，以及载此非图形控制字符，如 space 和 newline. 字符的写法带有前缀 #\. 对于多数字符，前缀后面跟着字符本身。例如，字母 A 的字符写法为 #\A. 字符 newline, space, 和 tab 也可以以这种方式书写，但是，它们也可以更清晰地写作 #\newline, #\space, 和 #\tab. 其它的字符名也支持，如同 457 页的字符对象语法所定义的。所有 unicode 字符都可以以语法形式 #\xn 书写， 其中 n 由一个或多个十六进制数字组成，表示一个有效的 Unicode 标量值。
 
 This section describes the operations that deal primarily with characters. See also the following section on strings and Chapter 7 on input and output for other operations relating to characters.
+本节介绍了主要用于处理字符的操作。参见下一节的字符串操作，以及第 7 章输入和输出，以了解其它与字符有关的操作。
 
 procedure: ~(char=? char1 char2 char3 ...)~
 
@@ -3513,11 +3516,11 @@ procedure: ~(char<=? char1 char2 char3 ...)~
 
 procedure: ~(char>=? char1 char2 char3 ...)~
 
-returns: #t if the relation holds, #f otherwise
+返回: 如果关系成立，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
-These predicates behave in a similar manner to the numeric predicates =, <, >, <=, and >=. For example, char=? returns #t when its arguments are equivalent characters, and char<? returns #t when its arguments are monotonically increasing character (Unicode scalar) values.
+这些谓词的行为方式与数字谓词 ~=~, ~<~, ~>~, ~<=~, 及 ~>=~ 类似。例如，char=? 在其实参为相等字符时返回 #t, 而 char<? 在其实参的字符值（Unicode 标量）单调递增时返回 #t.
 
 #+begin_src scheme
 (char>? #\a #\b) => #f
@@ -3539,11 +3542,11 @@ procedure: ~(char-ci<=? char1 char2 char3 ...)~
 
 procedure: ~(char-ci>=? char1 char2 char3 ...)~
 
-returns: #t if the relation holds, #f otherwise
+返回: 如果关系成立，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs unicode), (rnrs)
 
-These predicates are identical to the predicates char=?, char<?, char>?, char<=?, and char>=? except that they are case-insensitive, i.e., compare the case-folded versions of their arguments. For example, char=? considers #\a and #\A to be distinct values; char-ci=? does not.
+这些谓词和谓词 char=?, char<?, char>?, char<=?, 和 char>=? 是一样的，只是它们不区分大小写，即，比较它们的实参经过大小写折叠后的版本。例如，char=? 判定 #\a 和 #\A 是不同的值；而 char-ci=? 则不是。
 
 #+begin_src scheme
 (char-ci<? #\a #\B) => #t
@@ -3556,19 +3559,19 @@ These predicates are identical to the predicates char=?, char<?, char>?, char<=?
 
 procedure: ~(char-alphabetic? char)~
 
-returns: #t if char is a letter, #f otherwise
+返回: 如果 ~char~ 是字母，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(char-numeric? char)~
 
-returns: #t if char is a digit, #f otherwise
+返回: 如果 ~char~ 是数字，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(char-whitespace? char)~
 
-returns: #t if char is whitespace, #f otherwise
+返回: 如果 ~char~ 是空白字符，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs unicode), (rnrs)
 
-A character is alphabetic if it has the Unicode "Alphabetic" property, numeric if it has the Unicode "Numeric" property, and whitespace if has the Unicode "White_Space" property.
+如果字符带有 Unicode "Alphabetic" 属性，则它是字母；如果字符带有 Unicode "Numeric" 属性，则它是数字；如果字符带有 Unicode "White-Space" 属性，则为空白字符。
 
 #+begin_src scheme
 (char-alphabetic? #\a) => #t
@@ -3592,19 +3595,19 @@ A character is alphabetic if it has the Unicode "Alphabetic" property, numeric i
 
 procedure: ~(char-lower-case? char)~
 
-returns: #t if char is lower case, #f otherwise
+返回: 如果 ~char~ 是小写，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(char-upper-case? char)~
 
-returns: #t if char is upper case, #f otherwise
+返回: 如果 ~char~ 是大写，则为 ~#t~, 否则为 ~#f~.
 
 procedure: ~(char-title-case? char)~
 
-returns: #t if char is title case, #f otherwise
+返回: 如果 ~char~ 是首字母大写，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs unicode), (rnrs)
 
-A character is upper-case if it has the Unicode "Uppercase" property, lower-case if it has the "Lowercase" property, and title-case if it is in the Lt general category.
+如果字符带有 Unicode "Uppercase" 属性，则为大写；带有 "Lowercase" 属性，则为小写；而如果它属于 Lt 通用类别，则为首字母大写。
 
 #+begin_src scheme
 (char-lower-case? #\r) => #t
@@ -3623,11 +3626,11 @@ A character is upper-case if it has the Unicode "Uppercase" property, lower-case
 
 procedure: ~(char-general-category char)~
 
-returns: a symbol representing the Unicode general category of char
+returns: 一个用来表示 char 的 Unicode 通用类别的符号
 
 libraries: (rnrs unicode), (rnrs)
 
-The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Ps, Pe, Pi, Pf, Pd, Pc, Po, Sc, Sm, Sk, So, Zs, Zp, Zl, Cc, Cf, Cs, Co, or Cn.
+返回值是以下符号之一：Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Ps, Pe, Pi, Pf, Pd, Pc, Po, Sc, Sm, Sk, So, Zs, Zp, Zl, Cc, Cf, Cs, Co, or Cn.
 
 #+begin_src scheme
 (char-general-category #\a) => Ll
@@ -3637,17 +3640,17 @@ The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, N
 
 procedure: ~(char-upcase char)~
 
-returns: the upper-case character counterpart of char
+returns: 与 char 匹配的大写字符
 
 libraries: (rnrs unicode), (rnrs)
 
-If char is a lower- or title-case character and has a single upper-case counterpart, char-upcase returns the upper-case counterpart. Otherwise char-upcase returns char.
+如果 char 是小写或首字母大写字符，且有一个匹配的大写字符，则 char-upcase 返回与它匹配的大写字符。否则，char-upcase 返回 char.
 
 #+begin_src scheme
 (char-upcase #\g) => #\G
 (char-upcase #\G) => #\G
 (char-upcase #\7) => #\7
-(char-upcase #\=>) <graphic> #\<graphic>
+(char-upcase #\sigmaf) => #\Sigma
 #+end_src
 
 procedure: ~(char-downcase char)~
@@ -3662,7 +3665,7 @@ If char is an upper- or title-case character and has a single lower-case counter
 (char-downcase #\g) => #\g
 (char-downcase #\G) => #\g
 (char-downcase #\7) => #\7
-(char-downcase #\=>) <graphic> #\<graphic>
+(char-downcase #\sigmaf) => #\sigmaf
 #+end_src
 
 procedure: ~(char-titlecase char)~
@@ -3677,7 +3680,7 @@ If char is an upper- or lower-case character and has a single title-case counter
 (char-titlecase #\g) => #\G
 (char-titlecase #\G) => #\G
 (char-titlecase #\7) => #\7
-(char-titlecase #\=>) <graphic> #\<graphic>
+(char-titlecase #\sigmaf) => #\Sigma
 #+end_src
 
 procedure: ~(char-foldcase char)~
@@ -3692,7 +3695,7 @@ If char has a case-folded counterpart, char-foldcase returns the case-folded cou
 (char-foldcase #\g) => #\g
 (char-foldcase #\G) => #\g
 (char-foldcase #\7) => #\7
-(char-foldcase #\=>) <graphic> #\<graphic>
+(char-foldcase #\sigmaf) => #\sigma
 #+end_src
 
 procedure: ~(char->integer char)~
