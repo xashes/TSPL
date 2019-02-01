@@ -3640,11 +3640,11 @@ libraries: (rnrs unicode), (rnrs)
 
 procedure: ~(char-upcase char)~
 
-returns: 与 char 匹配的大写字符
+returns: char 对应的大写字符
 
 libraries: (rnrs unicode), (rnrs)
 
-如果 char 是小写或首字母大写字符，且有一个匹配的大写字符，则 char-upcase 返回与它匹配的大写字符。否则，char-upcase 返回 char.
+如果 char 是小写或首字母大写字符，且有一个对应的大写字符，则 char-upcase 返回它对应的大写字符。否则，char-upcase 返回 char.
 
 #+begin_src scheme
 (char-upcase #\g) => #\G
@@ -3656,10 +3656,11 @@ libraries: (rnrs unicode), (rnrs)
 procedure: ~(char-downcase char)~
 
 returns: the lower-case character equivalent of char
+returns: char 对应的小写字符
 
 libraries: (rnrs unicode), (rnrs)
 
-If char is an upper- or title-case character and has a single lower-case counterpart, char-downcase returns the lower-case counterpart. Otherwise char-downcase returns char.
+如果 char 是大写或首字母大写字符，且有一个对应的小写字符，则 char-downcase 返回它对应的小写字符。否则，char-downcase 返回 char.
 
 #+begin_src scheme
 (char-downcase #\g) => #\g
@@ -3670,11 +3671,11 @@ If char is an upper- or title-case character and has a single lower-case counter
 
 procedure: ~(char-titlecase char)~
 
-returns: the title-case character equivalent of char
+returns: 与 char 等价的首字母大写字母
 
 libraries: (rnrs unicode), (rnrs)
 
-If char is an upper- or lower-case character and has a single title-case counterpart, char-titlecase returns the title-case counterpart. Otherwise, if it is not a title-case character, has no single title-case counterpart, but does have a single upper-case counterpart, char-titlecase returns the upper-case counterpart. Otherwise char-titlecase returns char.
+如果 char 是大写或首字母小写字符，且有一个对应的首字母大写字符，则 char-titlecase 返回它对应的首字母大写字符。否则，如果 char 不是首字母大写字符，且没有一个对应的首字母大写字符，char-titlecase 返回对应的大写字符。否则，char-titlecase 返回 char.
 
 #+begin_src scheme
 (char-titlecase #\g) => #\G
@@ -3685,11 +3686,12 @@ If char is an upper- or lower-case character and has a single title-case counter
 
 procedure: ~(char-foldcase char)~
 
-returns: the case-folded character equivalent of char
+returns: 与 char 等价的大小写折叠字符
 
 libraries: (rnrs unicode), (rnrs)
 
 If char has a case-folded counterpart, char-foldcase returns the case-folded counterpart. Otherwise, char-foldcase returns char. For most characters, (char-foldcase char) 等价于 (char-downcase (char-upcase char)), but for Turkic İ and ı, char-foldcase acts as the identity.
+如果 char 有一个对应的大小写折叠字符，则 char-foldcase 返回对应的大小写折叠字符。否则，char-foldcase 返回 char. 对大多数字符，(char-foldcase char) 等价于 (char-downcase (char-upcase char)), 但对于土耳其语的 İ 和 ı, char-foldcase 返回字符自身。
 
 #+begin_src scheme
 (char-foldcase #\g) => #\g
@@ -3700,7 +3702,7 @@ If char has a case-folded counterpart, char-foldcase returns the case-folded cou
 
 procedure: ~(char->integer char)~
 
-returns: the Unicode scalar value of char as an exact integer
+returns: 一个精确的整数，为 char 的 Unicode 标量值
 
 libraries: (rnrs base), (rnrs)
 
@@ -3712,15 +3714,15 @@ libraries: (rnrs base), (rnrs)
 
 procedure: ~(integer->char n)~
 
-returns: the character corresponding to the Unicode scalar value n
+returns: Unicode 标量值 n 对应的字符
 
 libraries: (rnrs base), (rnrs)
 
-n must be an exact integer and a valid Unicode scalar value, i.e., => or <graphic>.
+n 必须是精确的整数，且为有效的 Unicode 标量值，即， ~0 \le n \le #xD7FF~ 或 ~#xE000 \le n \le 10FFFF~.
 
 #+begin_src scheme
 (integer->char 48) => #\0
-(integer->char #x3BB) => #\<graphic>
+(integer->char #x3BB) => #\lambda
 #+end_src
 
 ** Section 6.8. Strings
