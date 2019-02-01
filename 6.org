@@ -3725,13 +3725,16 @@ n 必须是精确的整数，且为有效的 Unicode 标量值，即， ~0 \le n
 (integer->char #x3BB) => #\lambda
 #+end_src
 
+
 ** Section 6.8. Strings
 
 Strings are sequences of characters and are often used as messages, character buffers, or containers for blocks of text. Scheme provides operations for creating strings, extracting characters from strings, obtaining substrings, concatenating strings, and altering the contents of strings.
+字符串是字符序列，常用作消息，字符缓冲区，或文本块的容器。Scheme 提供了用于创建字符串，从字符串中提取字符，获取子字符串，拼接字符串，以及修改字符串内容的操作。
 
 A string is written as a sequence of characters enclosed in double quotes, e.g., "hi there". A double quote may be introduced into a string by preceding it by a backward slash, e.g., "two \"quotes\" within". A backward slash may also be included by preceding it with a backward slash, e.g., "a \\slash". Various special characters can be inserted with other two-character sequences, e.g., \n for newline, \r for carriage return, and \t for tab. Any Unicode character may be inserted with the syntax #\xn;, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value. A grammar defining the precise syntax of strings is given on page 458.
+字符串写作包围在双引号中的字符序列，例如， "hi there". 可以通过前置反斜线把双引号引入一个字符串，例如， "two \"quotes\" within". 反斜线同样可以通过前置一个反斜线被包含进来，例如， "a \\". 很多特殊字符都可以以另一种双字符序列的形式插入字符串，例如，\n 是换行，\r 是回车，而 \t 是制表符。所有 Unicode 字符都可以用语法形式 #\xn; 插入字符串，其中 n 由一个或多个十六进制数字组成，表示一个有效的 Unicode 标量值。字符串的精确语法定义在 458 页给出。
 
-Strings are indexed by exact nonnegative integers, and the index of the first element of any string is 0. The highest valid index for a given string is one less than its length.
+字符串以精确非负整数为索引，任何字符串的第一个元素的索引都是 0. 一个给定字符串的最大有效索引是它的长度减 1.
 
 procedure: ~(string=? string1 string2 string3 ...)~
 
@@ -3743,15 +3746,15 @@ procedure: ~(string<=? string1 string2 string3 ...)~
 
 procedure: ~(string>=? string1 string2 string3 ...)~
 
-returns: #t if the relation holds, #f otherwise
+返回: 如果关系成立，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
-As with =, <, >, <=, and >=, these predicates express relationships among all of the arguments. For example, string>? determines if the lexicographic ordering of its arguments is monotonically decreasing.
+如同 ~=~, ~<~, ~>~, ~<=~, 和 ~>=~, 这些谓词表达了所有实参之间的关系。例如，string>? 判定它的实参是否依字母顺序单调递减。
 
-The comparisons are based on the character predicates char=? and char<?. Two strings are lexicographically equivalent if they are the same length and consist of the same sequence of characters according to char=?. If two strings differ only in length, the shorter string is considered to be lexicographically less than the longer string. Otherwise, the first character position at which the strings differ (by char=?) determines which string is lexicographically less than the other, according to char<?.
+这些比较基于字符谓词 char=? 和 char<?. 如果两个字符串长度相同，且由相同（通过 char=? 判定）的字符序列组成，则它们是依字母顺序相等的。如同它们只是长度不同，则判定长度较短的字符串依字母顺序小于较长的字符串。否则，第一个有不同（通过 char=? 判定）字符的位置决定哪个字符串依字母顺序较小（基于 char<? 判定）。
 
-Two-argument string=? may be defined without error checks as follows.
+不带错误检查的有两个参数的 string=? 可以定义如下。
 
 #+begin_src scheme
 (define string=?
@@ -3764,7 +3767,7 @@ Two-argument string=? may be defined without error checks as follows.
                       (loop (+ i 1)))))))))
 #+end_src
 
-Two-argument string<? may be defined without error checks as follows.
+不带错误检查的有两个参数的 string<? 可以定义如下。
 
 #+begin_src scheme
 (define string<?
@@ -3780,6 +3783,7 @@ Two-argument string<? may be defined without error checks as follows.
 #+end_src
 
 These definitions may be extended straightforwardly to support three or more arguments. string<=?, string>?, and string>=? may be defined similarly.
+这些定义可以直接扩展为支持三个或更多参数。string<=?, string>?, 和 string>=? 可以以类似的方法定义。
 
 #+begin_src scheme
 (string=? "mom" "mom") => #t
@@ -3799,11 +3803,11 @@ procedure: ~(string-ci<=? string1 string2 string3 ...)~
 
 procedure: ~(string-ci>=? string1 string2 string3 ...)~
 
-returns: #t if the relation holds, #f otherwise
+返回: 如果关系成立，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs unicode), (rnrs)
 
-These predicates are identical to string=?, string<?, string>?, string<=?, and string>=? except that they are case-insensitive, i.e., compare the case-folded versions of their arguments.
+这些谓词和谓词 string=?, string<?, string>?, string<=?, 和 string>=? 是一样的，只是它们不区分大小写，即，比较它们的实参经过大小写折叠后的版本。
 
 #+begin_src scheme
 (string-ci=? "Mom and Dad" "mom and dad") => #t
@@ -3814,7 +3818,7 @@ These predicates are identical to string=?, string<?, string>?, string<=?, and s
 
 procedure: ~(string char ...)~
 
-returns: a string containing the characters char ...
+returns: 一个由字符 char ... 组成的字符串
 
 libraries: (rnrs base), (rnrs)
 
@@ -3828,11 +3832,11 @@ procedure: ~(make-string n)~
 
 procedure: ~(make-string n char)~
 
-returns: a string of length n
+returns: 长度为 n 的字符串
 
 libraries: (rnrs base), (rnrs)
 
-n must be an exact nonnegative integer. If char is supplied, the string is filled with n occurrences of char, otherwise the characters contained in the string are unspecified.
+n 必须是精确的非负整数。如果指定 char, 则字符串以 n 个 char 填充，否则，字符串包含的字符则是未定义的。
 
 #+begin_src scheme
 (make-string 0) => ""
@@ -3842,11 +3846,11 @@ n must be an exact nonnegative integer. If char is supplied, the string is fille
 
 procedure: ~(string-length string)~
 
-returns: the number of characters in string
+returns: string 中的字符数量
 
 libraries: (rnrs base), (rnrs)
 
-The length of a string is always an exact nonnegative integer.
+字符串的长度总是一个精确的非负整数。
 
 #+begin_src scheme
 (string-length "abc") => 3
@@ -3857,11 +3861,11 @@ The length of a string is always an exact nonnegative integer.
 
 procedure: ~(string-ref string n)~
 
-returns: the nth character (zero-based) of string
+returns: string 中的第 n 个字符（基于 0）
 
 libraries: (rnrs base), (rnrs)
 
-n must be an exact nonnegative integer less than the length of string.
+n 必须是精确的非负整数，且小于 string 的长度。
 
 #+begin_src scheme
 (string-ref "hi there" 0) => #\h
@@ -3874,7 +3878,7 @@ returns: unspecified
 
 libraries: (rnrs mutable-strings)
 
-n must be an exact nonnegative integer less than the length of string. string-set! changes the nth element of string to char.
+n 必须是精确的非负整数，且小于 string 的长度。string-set! 把 string 的第 n 个元素修改为 char.
 
 #+begin_src scheme
 (let ([str (string-copy "hi three")])
@@ -3885,11 +3889,11 @@ n must be an exact nonnegative integer less than the length of string. string-se
 
 procedure: ~(string-copy string)~
 
-returns: a new copy of string
+returns: string 的一份拷贝
 
 libraries: (rnrs base), (rnrs)
 
-This procedure creates a new string with the same length and contents as string.
+这个过程创建一个新字符串，长度和内容与 string 相同。
 
 #+begin_src scheme
 (string-copy "abc") => "abc"
@@ -3902,7 +3906,7 @@ This procedure creates a new string with the same length and contents as string.
 
 procedure: ~(string-append string ...)~
 
-returns: a new string formed by concatenating the strings string ...
+returns: 由多个字符串 string ...拼接形成的新字符串
 
 libraries: (rnrs base), (rnrs)
 
@@ -3913,6 +3917,7 @@ libraries: (rnrs base), (rnrs)
 #+end_src
 
 The following implementation of string-append recurs down the list of strings to compute the total length, then allocates the new string, then fills it up as it unwinds the recursion.
+如下 string-append 的实现，对字符串列表进行递归，以计算总长度，然后分配新的字符串，最后在展开递归时进行填充。
 
 #+begin_src scheme
 (define string-append
@@ -3930,11 +3935,11 @@ The following implementation of string-append recurs down the list of strings to
 
 procedure: ~(substring string start end)~
 
-returns: a copy of string from start (inclusive) to end (exclusive)
+returns: string 从 start（包含）至 end（不包含）之间部分的拷贝
 
 libraries: (rnrs base), (rnrs)
 
-start and end must be exact nonnegative integers; start must be less than or equal to end, while end must be less than or equal to the length of string. If end = start, a string of length zero is returned. substring may be defined without error checks as follows.
+start 和 end 必须是精确的非负整数；start 必须小于等于 end, 同时 end 必须小于等于 string 的长度。如果 end = start, 则返回一个长度为 0 的字符串。不带错误检查的 substring 可以定义如下。
 
 #+begin_src scheme
 (define substring
@@ -3963,7 +3968,7 @@ returns: unspecified
 
 libraries: (rnrs mutable-strings)
 
-string-fill! sets every character in string to char.
+string-fill! 把 string 中的每个字符都设为 char.
 
 #+begin_src scheme
 (let ([str (string-copy "sleepy")])
@@ -3971,7 +3976,7 @@ string-fill! sets every character in string to char.
   str) => "ZZZZZZ"
 #+end_src
 
-string-fill! might be defined as follows:
+string-fill! 可以定义如下：
 
 #+begin_src scheme
 (define string-fill!
@@ -3982,29 +3987,31 @@ string-fill! might be defined as follows:
           (string-set! s i c)))))
 #+end_src
 
-An alternative definition is given on page 276.
+另一种定义方式在 276 页给出。
 
 procedure: ~(string-upcase string)~
 
-returns: the upper-case equivalent of string
+returns: string 的等价大写形式
 
 procedure: ~(string-downcase string)~
 
-returns: the lower-case equivalent of string
+returns: string 的等价小写形式
 
 procedure: ~(string-foldcase string)~
 
-returns: the case-folded equivalent of string
+returns: string 的等价大小写折叠形式
 
 procedure: ~(string-titlecase string)~
 
-returns: the title-case equivalent of string
+returns: string 的等价首字母大写形式
 
 libraries: (rnrs unicode), (rnrs)
 
 These procedures implement Unicode's locale-independent case mappings from scalar-value sequences to scalar-value sequences. These mappings do not always map single characters to single characters, so the length of the result string may differ from the length of string. If the result string is the same as string (by string=?), string or a copy of string may be returned. Otherwise, the result string is newly allocated. string-foldcase does not use the special mappings for Turkic languages.
+这些过程实现了 Unicode 不信赖于区域的从标量值序列到标量值序列的大小写映射。这些映射不总是把单个字符映射到单个字符，因此结果字符串的长度可能与 string 的长度不同。如果结果字符串与 string 相同（基于 string=? 判定），则返回 string 或 string 的拷贝。否则，结果字符串则是新分配的。对于土耳其语，string-foldcase 不使用特殊映射。
 
-string-titlecase converts the first cased character of each word in string to its title-case counterpart and converts each other character to its lower-case counterpart. Word breaks are recognized as specified in Unicode St and ard Annex #29 [8].
+string-titlecase 把 string 中每个单词的第一个字符转化为对应的首字母大写字符，并把其它所有字符转化为对应的小写字符。单词分界依 Unicode St 和 ard Annex #29 [8] 中指定的方式识别。
+converts the first cased character of each word in string to its title-case counterpart and converts each other character to its lower-case counterpart. Word breaks are recognized as specified in Unicode St and ard Annex #29 [8].
 
 #+begin_src scheme
 (string-upcase "Hi") => "HI"
@@ -4020,7 +4027,7 @@ string-titlecase converts the first cased character of each word in string to it
 #+end_src
 
 #+begin_src scheme
-(string-downcase "=>") <graphic> "<graphic>"
+(string-downcase "\Sigma") => \sigma
 #+end_src
 
 #+begin_src scheme
@@ -4032,23 +4039,23 @@ string-titlecase converts the first cased character of each word in string to it
 
 procedure: ~(string-normalize-nfd string)~
 
-returns: the Unicode normalized form D of string
+returns: string 的 Unicode 标准化形式 D
 
 procedure: ~(string-normalize-nfkd string)~
 
-returns: the Unicode normalized form KD of string
+returns: string 的 Unicode 标准化形式 KD
 
 procedure: ~(string-normalize-nfc string)~
 
-returns: the Unicode normalized form C of string
+returns: string 的 Unicode 标准化形式 C
 
 procedure: ~(string-normalize-nfkc string)~
 
-returns: the Unicode normalized form KC of string
+returns: string 的 Unicode 标准化形式 KC
 
 libraries: (rnrs unicode), (rnrs)
 
-If the result string is the same as string (by string=?), string or a copy of string may be returned. Otherwise, the result string is newly allocated.
+如果结果字符串与 string 相同（基于 string=? 判定），则返回 string 或 string 的拷贝。否则，结果字符串则是新分配的。
 
 #+begin_src scheme
 (string-normalize-nfd "\xE9;") => "e\x301;"
@@ -4059,11 +4066,11 @@ If the result string is the same as string (by string=?), string or a copy of st
 
 procedure: ~(string->list string)~
 
-returns: a list of the characters in string
+returns: string 中的字符组成的列表
 
 libraries: (rnrs base), (rnrs)
 
-string->list allows a string to be converted into a list, so that Scheme's list-processing operations may be applied to the processing of strings. string->list may be defined without error checks as follows.
+string->list 允许把一个字符串转化为一个列表，从而 Scheme 的列表处理操作可以应用于字符串处理。不带错误检查的 string->list 可以定义如下。
 
 #+begin_src scheme
 (define string->list
@@ -4082,15 +4089,15 @@ string->list allows a string to be converted into a list, so that Scheme's list-
 
 procedure: ~(list->string list)~
 
-returns: a string of the characters in list
+returns: list 中的字符组成的字符串
 
 libraries: (rnrs base), (rnrs)
 
-list must consist entirely of characters.
+list 必须完全由字符组成。
 
-list->string is the functional inverse of string->list. A program might use both procedures together, first converting a string into a list, then operating on this list to produce a new list, and finally converting the new list back into a string.
+list->string 在功能上与 string->list 相反。一段程序可以组合使用这两个过程，先把一个字符串转化为列表，然后操作此列表以生成一个新列表，最后再这个新列表转化为一个字符串。
 
-list->string may be defined without error checks as follows.
+不带错误检查的 list->string 可以定义如下。
 
 #+begin_src scheme
 (define list->string
@@ -4108,6 +4115,7 @@ list->string may be defined without error checks as follows.
   (map char-upcase
        (string->list "abc"))) => "ABC"
 #+end_src
+
 
 ** Section 6.9. Vectors
 
