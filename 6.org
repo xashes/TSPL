@@ -4303,16 +4303,22 @@ vector-sort 会调用 predicate 至多 nlog^n 次，其中 n 是 vector 的长�
 ** Section 6.10. Bytevectors
 
 Bytevectors are vectors of raw binary data. Although nominally organized as a sequence of exact unsigned 8-bit integers, a bytevector can be interpreted as a sequence of exact signed 8-bit integers, exact signed or unsigned 16-bit, 32-bit, 64-bit, or arbitrary-precision integers, IEEE single or double floating-point numbers, or arbitrary combinations of the above.
+字节向量是由纯二进制数据组成的向量。虽然名义上以精确无符号 8 位整数序列组成，但一个字节向量可以被解释为精确有符号 8 位整数序列，精确有符号或无符号的 16 位，32 位，64 位，或任意精度的整数序列，IEEE 单精度或双精度数字序列，或上述类型的任意组合。
 
 The length of a bytevector is the number of 8-bit bytes it stores, and indices into a bytevector are always given as byte offsets. Any data element may be aligned at any byte offset, regardless of the underlying hardware's alignment requirements, and may be represented using a specified endianness (参见下文) that differs from that prescribed by the hardware. Special, typically more efficient operators are provided for 16-, 32-, and 64-bit integers and single and double floats that are in their native format, i.e,. with the endianness of the underlying hardware and stored at an index that is a multiple of the size in bytes of the integer or float.
+字节向量的长度是它储存的 8 位字节的数量，而字节向量的索引总是通过字节偏移指定。所有数据元素都可以以任何字节偏移量对齐，不论底层硬件的对齐要求是什么，而且可以使用与硬件规定不同的，指定的字节序来表示（参见下文）。对于 16 位，32 位，和 64 位整数，以及原生格式（即，采用底层硬件的字节序，且以整数或浮点数字节大小的倍数为索引存储）的单精度和双精度浮点数，提供了特殊的，通常也更高效的操作。
 
 The endianness of a multi-byte data value determines how it is laid out in memory. In big-endian format, the value is laid out with the more significant bytes at lower indices, while in little-endian format, the value is laid out with the more significant bytes at higher indices. When a bytevector procedure accepts an endianness argument, the argument may be the symbol big, representing the big-endian format, or the symbol little, representing the little-endian format. Implementations may extend these procedures to accept other endianness symbols. The native endianness of the implementation may be obtained via the procedure native-endianness.
+多字节数据值的字节序决定了它在内存中的布局。在大端序格式下，值的布局是，高有效位字节存在低位；而在小端序格式下，值的布局是，高有效位字节存在高位。若一个字节向量过程接受一个字节序实参，则此实参可以是符号 big，表示大端序格式，或符号 little，表示小端序格式。实现可以扩展这些过程，以接受其它字节序符号。通过过程 native-endianness 可以获得当前实现的原生字节序。
 
 Bytevectors are written with the #vu8( prefix in place of the #( prefix for vectors, e.g., #vu8(1 2 3). The elements of a bytevector specified in this manner are always given as 8-bit unsigned exact integers, i.e., integers from 0 to 255 inclusive, written using any valid syntax for such numbers. Like strings, bytevectors are self-evaluating, so they need not be quoted.
+字节向量的字面形式以前缀 #vu8( 替代向量的前缀 #(, 例如，#vu8(1 2 3). 以这种方式指定的字节向量的元素总是 8 位无符号精确整数，即，0 至 255（两端包含）之间的整数，可以使用这种数字的任意有效语法书写。和字符串一样，字节向量是自求值的，所以它们不需要被引用。
 
-'#vu8(1 2 3) => #vu8(1 2 3)
-#vu8(1 2 3) => #vu8(1 2 3)
-#vu8(#x3f #x7f #xbf #xff) => #vu8(63 127 191 255)
+#+BEGIN_SRC scheme
+  '#vu8(1 2 3) => #vu8(1 2 3)
+  #vu8(1 2 3) => #vu8(1 2 3)
+  #vu8(#x3f #x7f #xbf #xff) => #vu8(63 127 191 255)
+#+END_SRC
 
 syntax: (endianness symbol)
 
@@ -4321,6 +4327,7 @@ returns: symbol
 libraries: (rnrs bytevectors), (rnrs)
 
 symbol must be the symbol little, the symbol big, or some other symbol recognized by the implementation as an endianness symbol. It is a syntax violation if symbol is not a symbol or if it is not recognized by the implementation as an endianness symbol.
+symbol 必须是符号 little, 符号 big， 或作为字节序符号可以被实现识别的其它符号。如果 symbol 不是符号，或不能被实现识别为一个字节序符号，则违反了语法。
 
 #+begin_src scheme
 (endianness little) => little
@@ -4330,11 +4337,11 @@ symbol must be the symbol little, the symbol big, or some other symbol recognize
 
 procedure: ~(native-endianness)~
 
-returns: a symbol naming the implementation's native endianness
+returns: 一个符号，命名了实现的原生字节序
 
 libraries: (rnrs bytevectors), (rnrs)
 
-The return value is the symbol little, the symbol big, or some other endianness symbol recognized by the implementation. It typically reflects the endianness of the underlying hardware.
+返回值是符号 little, big, 或实现可以识别的其它字节序符号。它通常反映了底层硬件的字节序。
 
 #+begin_src scheme
 (symbol? (native-endianness)) => #t
@@ -4344,11 +4351,11 @@ procedure: ~(make-bytevector n)~
 
 procedure: ~(make-bytevector n fill)~
 
-returns: a new bytevector of length n
+returns: 长度为 n 的新字节向量
 
 libraries: (rnrs bytevectors), (rnrs)
 
-If fill is supplied, each element of the bytevector is initialized to fill; otherwise, the elements are unspecified. The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255 inclusive. A negative fill value is treated as its two's complement equivalent.
+如果指定 fill, 字节向量的每个元素都被初始化为 fill; 否则，元素则是未定义的。fill 的值必须是有符号或无符号 8 位值，即，在范围 -128 至 255（两端包含）之间的值。负的填充值被视为与其等价的补码。
 
 #+begin_src scheme
 (make-bytevector 0) => #vu8()
@@ -4359,7 +4366,7 @@ If fill is supplied, each element of the bytevector is initialized to fill; othe
 
 procedure: ~(bytevector-length bytevector)~
 
-returns: the length of bytevector in 8-bit bytes
+returns: 以 8 位字节计的字节向量长度
 
 libraries: (rnrs bytevectors), (rnrs)
 
@@ -4371,11 +4378,11 @@ libraries: (rnrs bytevectors), (rnrs)
 
 procedure: ~(bytevector=? bytevector1 bytevector2)~
 
-returns: #t if the relation holds, #f otherwise
+返回: 如果关系成立，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs bytevectors), (rnrs)
 
-Two bytevectors are equal by bytevector=? if and only if they have the same length and same contents.
+当且仅当两个字节向量有相同的长度和内容时，bytevector=? 判定它们为相等。
 
 #+begin_src scheme
 (bytevector=? #vu8() #vu8()) => #t
@@ -4390,9 +4397,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255 inclusive. A negative fill value is treated as its two's complement equivalent.
+fill 的值必须是有符号或无符号 8 位值，即，在范围 -128 至 255（两端包含）之间的值。负的填充值被视为与其等价的补码。
 
-bytevector-fill! replaces each element of bytevector with fill.
+bytevector-fill! 以 fill 取代 bytevector 的每个元素。
 
 #+begin_src scheme
 (let ([v (make-bytevector 6)])
@@ -4408,11 +4415,11 @@ bytevector-fill! replaces each element of bytevector with fill.
 
 procedure: ~(bytevector-copy bytevector)~
 
-returns: a new bytevector that is a copy of bytevector
+returns: 一个新的字节向量，为 bytevector 的拷贝
 
 libraries: (rnrs bytevectors), (rnrs)
 
-bytevector-copy creates a new bytevector with the same length and contents as bytevector.
+bytevector-copy 创建一个新的字节向量，与 bytevector 的长度和内容相同。
 
 #+begin_src scheme
 (bytevector-copy #vu8(1 127 128 255)) => #vu8(1 127 128 255)
@@ -4429,9 +4436,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-src and dst must be bytevectors. src-start, dst-start, and n must be exact nonnegative integers. The sum of src-start and n must not exceed the length of src, and the sum of dst-start and n must not exceed the length of dst.
+src 和 dst 必须是字节向量。src-start, dst-start, 和 n 必须是精确的非负整数。src-start 和 n 的和一定不能超出 src 的长度，而 dst-start 和 n 的和一定不能超出 dst 的长度。
 
-bytevector-copy! overwrites the n bytes of dst starting at dst-start with the n bytes of src starting at src-start. This works even if dst is the same bytevector as src and the source and destination locations overlap. That is, the destination is filled with the bytes that appeared at the source before the operation began.
+bytevector-copy! 以 src 中始于 src-start 的 n 个字节，覆盖 dst 中始于 dst-start 的 n 个字节。即使 ~dst~ 和 ~src~ 是同一个字节向量，且源和目标位置相互重叠，这个操作也能生效。即，在操作开始时，目标位置先被源字节向量中出现的字节填充。
 
 #+begin_src scheme
 (define v1 #vu8(31 63 95 127 159 191 223 255))
@@ -4454,13 +4461,13 @@ v2 => #vu8(159 159 191 0 0 191 223 0 191 223)
 
 procedure: ~(bytevector-u8-ref bytevector n)~
 
-returns: the 8-bit unsigned byte at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 8 位无符号字节
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer less than the length of bytevector.
+n 必须是精确的非负整数，且小于 bytevector 的长度。
 
-The value is returned as an exact 8-bit unsigned integer, i.e., a value in the range 0 to 255 inclusive.
+返回值为精确的 8 位无符号整数，即，在范围 0 至 255（两端包含）之间的值。
 
 #+begin_src scheme
 (bytevector-u8-ref #vu8(1 127 128 255) 0) => 1
@@ -4470,13 +4477,15 @@ The value is returned as an exact 8-bit unsigned integer, i.e., a value in the r
 
 procedure: ~(bytevector-s8-ref bytevector n)~
 
-returns: the 8-bit signed byte at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 8 位有符号字节
 
 libraries: (rnrs bytevectors), (rnrs)
 
 n must be an exact nonnegative integer less than the length of bytevector.
+n 必须是精确的非负整数，且小于 bytevector 的长度。
 
 The value returned is an exact 8-bit signed integer, i.e., a value in the range -128 to 127 inclusive, and is the equivalent of the stored value treated as a two's complement value.
+返回值为精确的 8 位有符号整数，即，在范围 -128 至 127（两端包含）之间的值，是存储值的等价补码值。
 
 #+begin_src scheme
 (bytevector-s8-ref #vu8(1 127 128 255) 0) => 1
@@ -4492,8 +4501,9 @@ returns: unspecified
 libraries: (rnrs bytevectors), (rnrs)
 
 n must be an exact nonnegative integer less than the length of bytevector. u8 must be an 8-bit unsigned value, i.e., a value in the range 0 to 255 inclusive.
+n 必须是精确的非负整数，且小于 bytevector 的长度。u8 必须是 8 位无符号值，即，在范围 0 至 255（两端包含）之间的值。
 
-bytevector-u8-set! changes the 8-bit value at index n (zero-based) of bytevector to u8.
+bytevector-u8-set! 把 bytevector 在索引 n（基于 0）处的 8 位值修改为 u8.
 
 #+begin_src scheme
 (let ([v (make-bytevector 5 -1)])
@@ -4507,9 +4517,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer less than the length of bytevector. s8 must be an 8-bit signed value, i.e., a value in the range -128 to 127 inclusive.
+n 必须是精确的非负整数，且小于 bytevector 的长度。s8 必须是 8 位有符号值，即，在范围 -128 至 127（两端包含）之间的值。
 
-bytevector-s8-set! changes the 8-bit value at index n (zero-based) of bytevector to the two's complement equivalent of s8.
+bytevector-s8-set! 把 bytevector 在索引 n（基于 0）处的 8 位值修改为 s8 的等价补码。
 
 #+begin_src scheme
 (let ([v (make-bytevector 4 0)])
@@ -4520,7 +4530,7 @@ bytevector-s8-set! changes the 8-bit value at index n (zero-based) of bytevector
 
 procedure: ~(bytevector->u8-list bytevector)~
 
-returns: a list of the 8-bit unsigned elements of bytevector
+returns: bytevecotr 的 8 位无符号元素组成的列表
 
 libraries: (rnrs bytevectors), (rnrs)
 
@@ -4536,11 +4546,11 @@ libraries: (rnrs bytevectors), (rnrs)
 
 procedure: ~(u8-list->bytevector list)~
 
-returns: a new bytevector of the elements of list
+returns: list 的元素组成的新字节向量
 
 libraries: (rnrs bytevectors), (rnrs)
 
-list must consist entirely of exact 8-bit unsigned integers, i.e., values in the range 0 to 255 inclusive.
+list 必须完全由精确的 8 位无符号整数组成，即，在范围 0 至 255（两端包含）之间的值。
 
 #+begin_src scheme
 (u8-list->bytevector '()) => #vu8()
@@ -4555,39 +4565,39 @@ list must consist entirely of exact 8-bit unsigned integers, i.e., values in the
 
 procedure: ~(bytevector-u16-native-ref bytevector n)~
 
-returns: the 16-bit unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 16 位无符号整数
 
 procedure: ~(bytevector-s16-native-ref bytevector n)~
 
-returns: the 16-bit signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 16 位有符号整数
 
 procedure: ~(bytevector-u32-native-ref bytevector n)~
 
-returns: the 32-bit unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 32 位无符号整数
 
 procedure: ~(bytevector-s32-native-ref bytevector n)~
 
-returns: the 32-bit signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 32 位有符号整数
 
 procedure: ~(bytevector-u64-native-ref bytevector n)~
 
-returns: the 64-bit unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 64 位无符号整数
 
 procedure: ~(bytevector-s64-native-ref bytevector n)~
 
-returns: the 64-bit signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 64 位有符号整数
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the number of bytes occupied by the value: 2 for 16-bit values, 4 for 32-bit values, and 8 for 64-bit values. The sum of n and the number of bytes occupied by the value must not exceed the length of bytevector. The native endianness is assumed.
+n 必须是精确的非负整数。它索引了其值的起始字节，且必须是值所占用的字节数的倍数：16 位值是 2，32 位值是 4，64 位值是 8。n 和值所占用的字节数之和一定不能超出 bytevector 的长度。假设为原生的字节序。
 
-The return value is an exact integer in the appropriate range for the number of bytes occupied by the value. Signed values are the equivalent of the stored value treated as a two's complement value.
+返回值是一个精确整数，处于值所占用字节数的适当区间内。有符号数是把存储值视为补码的等价值。
 
 #+begin_src scheme
 (define v #vu8(#x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98))
 #+end_src
 
-If native endianness is big:
+如果原生字节序为 big:
 
 #+begin_src scheme
 (bytevector-u16-native-ref v 2) => #xfe56
@@ -4606,7 +4616,7 @@ If native endianness is big:
 (bytevector-s64-native-ref v 0) => #x_1234fe56dcba7898
 #+end_src
 
-If native endianness is little:
+如果原生字节序为 little:
 
 #+begin_src scheme
 (bytevector-u16-native-ref v 2) => #x56fe
@@ -4641,9 +4651,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the number of bytes occupied by the value: 2 for 16-bit values, 4 for 32-bit values, and 8 for 64-bit values. The sum of n and the number of bytes occupied by the value must not exceed the length bytevector. u16 must be a 16-bit unsigned value, i.e., a value in the range 0 to 216 - 1 inclusive; s16 must be a 16-bit signed value, i.e., a value in the range -215 to 215 - 1 inclusive; u32 must be a 32-bit unsigned value, i.e., a value in the range 0 to 232 - 1 inclusive; s32 must be a 32-bit signed value, i.e., a value in the range -231 to 231 - 1 inclusive; u64 must be a 64-bit unsigned value, i.e., a value in the range 0 to 264 - 1 inclusive; and s64 must be a 64-bit signed value, i.e., a value in the range -263 to 263 - 1 inclusive. The native endianness is assumed.
+n 必须是精确的非负整数。它索引了其值的起始字节，且必须是值所占用的字节数的倍数：16 位值是 2，32 位值是 4，64 位值是 8。n 和值所占用的字节数之和一定不能超出 bytevector 的长度。u16 必须是一个 16 位无符号值，即，在 0 至 2^16 - 1（两端包含）区间中的值；s16 必须是一个 16 位有符号值，即，在 -2^15 至 2^15 - 1（两端包含）区间中的值；u32 必须是一个 32 位无符号值，即，在 0 至 2^32 - 1（两端包含）区间中的值；s32 必须是一个 32 位有符号值，即，在 -2^31 至 2^31 - 1（两端包含）区间中的值；u64 必须是一个 64 位无符号值，即，在 0 至 2^64 - 1（两端包含）区间中的值；s64 必须是一个 64 位有符号值，即，在 -2^63 至 2^63 - 1（两端包含）区间中的值。假设为原生的字节序。
 
-These procedures store the given value in the 2, 4, or 8 bytes starting at index n (zero-based) of bytevector. Negative values are stored as their two's complement equivalent.
+这些过程把给定值存储到 bytevector 起始于索引 n（基于 0）处的 2, 4, 或 8 字节中。
 
 #+begin_src scheme
 (define v (make-bytevector 8 0))
@@ -4652,13 +4662,13 @@ These procedures store the given value in the 2, 4, or 8 bytes starting at index
 (bytevector-s16-native-set! v 4 #x7898)
 #+end_src
 
-If native endianness is big:
+如果原生字节序为 big:
 
-v => #vu8(#xfe #x56 #xfe #x56 #x78 #x98 #x00 #x00)
+~v => #vu8(#xfe #x56 #xfe #x56 #x78 #x98 #x00 #x00)~
 
-If native endianness is little:
+如果原生字节序为 little:
 
-v => #vu8(#x56 #xfe #x56 #xfe #x98 #x78 #x00 #x00)
+~v => #vu8(#x56 #xfe #x56 #xfe #x98 #x78 #x00 #x00)~
 
 #+begin_src scheme
 (define v (make-bytevector 16 0))
@@ -4667,15 +4677,19 @@ v => #vu8(#x56 #xfe #x56 #xfe #x98 #x78 #x00 #x00)
 (bytevector-s32-native-set! v 8 #x-23458768)
 #+end_src
 
-If native endianness is big:
+如果原生字节序为 big:
 
-v => #vu8(#x_12 #x34 #xfe #x56 #x_12 #x34 #xfe #x56
-        #xdc #xba #x78 #x98 #x00 #x00 #x00 #x00)
+#+BEGIN_SRC scheme
+  v => #vu8(#x_12 #x34 #xfe #x56 #x_12 #x34 #xfe #x56
+                  #xdc #xba #x78 #x98 #x00 #x00 #x00 #x00)
+#+END_SRC
 
-If native endianness is little:
+如果原生字节序为 little:
 
-v => #vu8(#x56 #xfe #x34 #x_12 #x56 #xfe #x34 #x_12
-        #x98 #x78 #xba #xdc #x00 #x00 #x00 #x00)
+#+BEGIN_SRC scheme
+  v => #vu8(#x56 #xfe #x34 #x_12 #x56 #xfe #x34 #x_12
+                 #x98 #x78 #xba #xdc #x00 #x00 #x00 #x00)
+#+END_SRC
 
 #+begin_src scheme
 (define v (make-bytevector 24 0))
@@ -4684,47 +4698,51 @@ v => #vu8(#x56 #xfe #x34 #x_12 #x56 #xfe #x34 #x_12
 (bytevector-s64-native-set! v 16 #x-67874523a901cbee)
 #+end_src
 
-If native endianness is big:
+如果原生字节序为 big:
 
-v => #vu8(#x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98
-        #x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98
-        #x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12)
+#+BEGIN_SRC scheme
+  v => #vu8(#x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98
+                  #x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98
+                  #x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12)
+#+END_SRC
 
-If native endianness is little:
+如果原生字节序为 little:
 
-v => #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12
-        #x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12
-        #x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98)
+#+BEGIN_SRC scheme
+  v => #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12
+                 #x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12
+                 #x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98)
+#+END_SRC
 
 procedure: ~(bytevector-u16-ref bytevector n eness)~
 
-returns: the 16-bit unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 16 位无符号整数
 
 procedure: ~(bytevector-s16-ref bytevector n eness)~
 
-returns: the 16-bit signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 16 位有符号整数
 
 procedure: ~(bytevector-u32-ref bytevector n eness)~
 
-returns: the 32-bit unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 32 位无符号整数
 
 procedure: ~(bytevector-s32-ref bytevector n eness)~
 
-returns: the 32-bit signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 32 位有符号整数
 
 procedure: ~(bytevector-u64-ref bytevector n eness)~
 
-returns: the 64-bit unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 64 位无符号整数
 
 procedure: ~(bytevector-s64-ref bytevector n eness)~
 
-returns: the 64-bit signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 64 位有符号整数
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of bytes occupied by the value (2 for 16-bit values, 4 for 32-bit values, and 8 for 32-bit values) must not exceed the length of bytevector. n need not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness symbol naming the endianness.
+n 必须是精确的非负整数，且索引了其值的起始字节。n 和值所占用的字节数（16 位值是 2，32 位值是 4，64 位值是 8。）之和一定不能超出 bytevector 的长度。n 不需要是值所占用的字节数的倍数。eness 必须是命名字节序的有效字节序符号。
 
-The return value is an exact integer in the appropriate range for the number of bytes occupied by the value. Signed values are the equivalent of the stored value treated as a two's complement value.
+返回值是一个精确整数，处于值所占用字节数的适当区间内。有符号数是把存储值视为补码的等价值。
 
 #+begin_src scheme
 (define v #vu8(#x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98 #x9a #x76))
@@ -4777,9 +4795,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of bytes occupied by the value must not exceed the length of bytevector. n need not be a multiple of the number of bytes occupied by the value. u16 must be a 16-bit unsigned value, i.e., a value in the range 0 to 216 - 1 inclusive; s16 must be a 16-bit signed value, i.e., a value in the range -215 to 215 - 1 inclusive; u32 must be a 32-bit unsigned value, i.e., a value in the range 0 to 232 - 1 inclusive; s32 must be a 32-bit signed value, i.e., a value in the range -231 to 231 - 1 inclusive; u64 must be a 64-bit unsigned value, i.e., a value in the range 0 to 264 - 1 inclusive; and s64 must be a 64-bit signed value, i.e., a value in the range -263 to 263 - 1 inclusive. eness must be a valid endianness symbol naming the endianness.
+n 必须是精确的非负整数，且索引了其值的起始字节。n 和值所占用的字节数之和一定不能超出 bytevector 的长度。n 不必是值所占用的字节数的倍数。u16 必须是一个 16 位无符号值，即，在 0 至 2^16 - 1（两端包含）区间中的值；s16 必须是一个 16 位有符号值，即，在 -2^15 至 2^15 - 1（两端包含）区间中的值；u32 必须是一个 32 位无符号值，即，在 0 至 2^32 - 1（两端包含）区间中的值；s32 必须是一个 32 位有符号值，即，在 -2^31 至 2^31 - 1（两端包含）区间中的值；u64 必须是一个 64 位无符号值，即，在 0 至 2^64 - 1（两端包含）区间中的值；s64 必须是一个 64 位有符号值，即，在 -2^63 至 2^63 - 1（两端包含）区间中的值。eness 必须是命名字节序的有效字节序符号。
 
-These procedures store the given value in the 2, 4, or 8 bytes starting at index n (zero-based) of bytevector. Negative values are stored as their two's complement equivalent.
+这些过程把给定值存储到 bytevector 起始于索引 n（基于 0）处的 2, 4, 或 8 字节中。负值存储为与它们等价的补码。
 
 #+begin_src scheme
 (define v (make-bytevector 8 0))
@@ -4811,17 +4829,17 @@ v => #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x_12 #x0 #x0
 
 procedure: ~(bytevector-uint-ref bytevector n eness size)~
 
-returns: the size-byte unsigned integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 size 位无符号整数
 
 procedure: ~(bytevector-sint-ref bytevector n eness size)~
 
-returns: the size-byte signed integer at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的 size 位有符号整数
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive integer and specifies the number of bytes occupied by the value. The sum of n and size must not exceed the length of bytevector. n need not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness symbol naming the endianness.
+n 必须是精确的非负整数，且索引了其值的起始字节。size 必须是精确的正整数，且指定了值所占用的字节数。n 和 size 之和一定不能超出 bytevector 的长度。n 不需要是值所占用的字节数的倍数。eness 必须是命名字节序的有效字节序符号。
 
-The return value is an exact integer in the appropriate range for the number of bytes occupied by the value. Signed values are the equivalent of the stored value treated as a two's complement value.
+返回值是一个精确整数，处于值所占用字节数的适当区间内。有符号数是把存储值视为补码的等价值。
 
 #+begin_src scheme
 (define v #vu8(#x_12 #x34 #xfe #x56 #xdc #xba #x78 #x98 #x9a #x76))
@@ -4852,9 +4870,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer and indexes the starting byte of the value. size must be an exact positive integer and specifies the number of bytes occupied by the value. The sum of n and size must not exceed the length of bytevector. n need not be a multiple of the number of bytes occupied by the value. uint must be an exact integer in the range 0 to 2size·8 - 1 inclusive. sint must be an exact integer in the range -2size·8-1 to 2size·8-1 - 1 inclusive. eness must be a valid endianness symbol naming the endianness.
+n 必须是精确的非负整数，且索引了其值的起始字节。size 必须是精确的正整数，且指定了值所占用的字节数。n 和 size 之和一定不能超出 bytevector 的长度。n 不需要是值所占用的字节数的倍数。uint 必须是在 0 至 2^8size - 1（两端包含）区间中的精确整数。sint 必须是在 -2^8size - 1 至 2^8size - 1（两端包含）区间中的精确整数。eness 必须是命名字节序的有效字节序符号。
 
-These procedures store the given value in the size bytes starting at index n (zero-based) of bytevector. Negative values are stored as their two's complement equivalent.
+这些过程把给定值存储到 bytevector 起始于索引 n（基于 0）处的 size 字节中。负值存储为与它们等价的补码。
 
 #+begin_src scheme
 (define v (make-bytevector 5 0))
@@ -4870,15 +4888,15 @@ v => #vu8(#xff 0 0 0 0 #x80 #xff)
 
 procedure: ~(bytevector->uint-list bytevector eness size)~
 
-returns: a new list of the size-byte unsigned elements of bytevector
+returns: bytevector 的 size 字节无符号元素组成的一个新列表
 
 procedure: ~(bytevector->sint-list bytevector eness size)~
 
-returns: a new list of the size-byte signed elements of bytevector
+returns: bytevector 的 size 字节有符号元素组成的一个新列表
 
 libraries: (rnrs bytevectors), (rnrs)
 
-eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies the number of bytes occupied by the value. It must be a value that evenly divides the length of bytevector.
+eness 必须是一个命名字节序的有效字节序符号。size 必须是精确的正整数，且指定了值所占用的字节数。它必须是一个均匀划分 bytevector 长度的值。
 
 #+begin_src scheme
 (bytevector->uint-list (make-bytevector 0) 'little 3) => ()
@@ -4902,7 +4920,7 @@ returns: a new bytevector of the elements of list
 
 libraries: (rnrs bytevectors), (rnrs)
 
-eness must be a valid endianness symbol naming the endianness. size must be an exact positive integer and specifies the number of bytes occupied by the value. For uint-list->bytevector, list must consist entirely of size-byte exact unsigned integers, i.e., values in the range 0 to 2size·8 - 1 inclusive. For sint-list->bytevector, list must consist entirely of size-byte exact signed integers, i.e., values in the range -2size·8-1 to 2size·8-1 - 1 inclusive. Each value occupies size bytes in the resulting bytevector, whose length is thus size times the length of list.
+eness 必须是命名字节序的有效字节序符号。size 必须是精确的正整数，且指定了值所占用的字节数。对于 uint-list->bytevector, list 必须完全由 size 字节的精确无符号整数组成，即，0 至 2^8size - 1（两端包含）区间中的值。对于 sint-list->bytevector, list 必须完全由 size 字节的精确有符号整数组成，即， -2^8size - 1 至 2^8size - 1（两端包含）区间中的值。在结果的字节向量中，每个值占用 size 字节，因此字节向量的长度为 size 乘以 list 的长度。
 
 #+begin_src scheme
 (uint-list->bytevector '() 'big 25) => #vu8()
@@ -4920,17 +4938,17 @@ eness must be a valid endianness symbol naming the endianness. size must be an e
 
 procedure: ~(bytevector-ieee-single-native-ref bytevector n)~
 
-returns: the single floating-point value at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的单精度浮点值
 
 procedure: ~(bytevector-ieee-double-native-ref bytevector n)~
 
-returns: the double floating-point value at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的双精度浮点值
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the number of bytes occupied by the value: 4 for single floats, 8 for double. The sum of n and the number of bytes occupied by the value must not exceed the length of bytevector. The native endianness is assumed.
+n 必须是精确的非负整数。它索引了其值的起始字节，且必须是值所占用的字节数的倍数：单精度是 4，双精度是 8. n 和值所占用的字节数之和一定不能超出 bytevector 的长度。假设为原生的字节序。
 
-The return value is an inexact real number. Examples appear after the mutation operators below.
+返回值是不精确的实数。下方的修改操作后面会有实例。
 
 procedure: ~(bytevector-ieee-single-native-set! bytevector n x)~
 
@@ -4940,9 +4958,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer. It indexes the starting byte of the value and must be a multiple of the number of bytes occupied by the value: 4 for single floats, 8 for double. The sum of n and the number of bytes occupied by the value must not exceed the length of bytevector. The native endianness is assumed.
+n 必须是精确的非负整数。它索引了其值的起始字节，且必须是值所占用的字节数的倍数：单精度是 4，双精度是 8. n 和值所占用的字节数之和一定不能超出 bytevector 的长度。假设为原生的字节序。
 
-These procedures store the given value as an IEEE-754 single or double floating-point value at index n (zero-based) of bytevector.
+这些过程把给定值作为 IEEE-754 单精度或双精度浮点值，存储到 bytevector 的索引 n（基于 0）处。
 
 #+begin_src scheme
 (define v (make-bytevector 8 0))
@@ -4960,17 +4978,17 @@ These procedures store the given value as an IEEE-754 single or double floating-
 
 procedure: ~(bytevector-ieee-single-ref bytevector n eness)~
 
-returns: the single floating-point value at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的单精度浮点值
 
 procedure: ~(bytevector-ieee-double-ref bytevector n eness)~
 
-returns: the double floating-point value at index n (zero-based) of bytevector
+returns: bytevector 的索引 n（基于 0）处的双精度浮点值
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of bytes occupied by the value (4 for a single float, 8 for a double) must not exceed the length of bytevector. n need not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness symbol naming the endianness.
+n 必须是精确的非负整数，且索引了其值的起始字节。n 和值所占用的字节数（单精度是 4，双精度是 8）之和一定不能超出 bytevector 的长度。n 不必是值所占用的字节数的倍数。eness 必须是命名字节序的有效字节序符号。
 
-The return value is an inexact real number. Examples appear after the mutation operators below.
+返回值是不精确的实数。下方的修改操作后面会有实例。
 
 procedure: ~(bytevector-ieee-single-set! bytevector n x eness)~
 
@@ -4980,9 +4998,9 @@ returns: unspecified
 
 libraries: (rnrs bytevectors), (rnrs)
 
-n must be an exact nonnegative integer and indexes the starting byte of the value. The sum of n and the number of bytes occupied by the value (4 for a single float, 8 for a double) must not exceed the length of bytevector. n need not be a multiple of the number of bytes occupied by the value. eness must be a valid endianness symbol naming the endianness.
+n 必须是精确的非负整数，且索引了其值的起始字节。n 和值所占用的字节数（单精度是 4，双精度是 8）之和一定不能超出 bytevector 的长度。n 不必是值所占用的字节数的倍数。eness 必须是命名字节序的有效字节序符号。
 
-These procedures store the given value as an IEEE-754 single or double floating-point value at index n (zero-based) of bytevector.
+这些过程把给定值作为 IEEE-754 单精度或双精度浮点值，存储到 bytevector 的索引 n（基于 0）处。
 
 #+begin_src scheme
 (define v (make-bytevector 10 #xc7))
