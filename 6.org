@@ -3,7 +3,7 @@
 
 本章介绍了针对各种对象的操作，包括列表，数字，字符，字符串，向量，字节向量，符号，布尔值，哈希表，以及枚举类型。第一节涵盖了常量对象和引用。第二节介绍了用于比较两个对象的通用等价性谓词，及判定对象类型的谓词。随后的几节介绍了主要用于处理上述某一类型对象的过程。本章中没有介绍过程操作的内容，因为唯一一个专门为过程定义的操作是 application, 而它已经在第 5 章中介绍过了。端口操作在第 7 章关于输入输出的更一般性的讨论中会介绍。定义新数据类型的机制会在第 9 章中介绍。
 
-** Section 6.1. Constants 和 Quotation
+** Section 6.1. 常量和引用
 
 syntax: constant
 
@@ -31,7 +31,6 @@ libraries: (rnrs base), (rnrs)
 
 quote 阻止了对 obj 的常规求值规则，允许 obj 被作为数据使用。虽然任何 Scheme 对象都可以被引用，但没必要引用自求值常量，即，数字，布尔值，字符，字符串和字节向量。
 
-Quoted 和 self-evaluating constants are immutable. That is, programs should not alter a constant via set-car!, string-set!, etc., 和 implementations are permitted to raise an exception with condition type &assertion if such an alteration is attempted. If an attempt to alter an immutable object is undetected, the behavior of the program is unspecified. An implementation may choose to share storage among different constants to save space.
 引用的和自求值的常量是不可变的。即，程序不应通过 set-car!, string-set! 等过程修改常量，如果尝试做出这种修改，具体实现可以抛出一个条件类型的 &assertion 异常。如果修改不可变对象的尝试没有被检测到，程序的行为就会不可知。一种实现可以选择使不同的常量共享存储以节省空间。
 
 #+BEGIN_SRC scheme
@@ -3498,7 +3497,7 @@ fixnum->flonum 是 inexact 的一个受限变体。当输入是一个精确实�
 #+end_src
 
 
-** Section 6.7. Characters
+** Section 6.7. 字符
 
 Characters are atomic objects representing letters, digits, special symbols such as $ or -, and certain nongraphic control characters such as space and newline. Characters are written with a #\ prefix. For most characters, the prefix is followed by the character itself. The written character representation of the letter A, for example, is #\A. The characters newline, space, and tab may be written in this manner as well, but they can be written more clearly as #\newline, #\space, and #\tab. Other character names are supported as well, as defined by the grammar for character objects on page 457. Any Unicode character may be written with the syntax #\xn, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value.
 字符是原子对象，表示字母，数字，特殊符号，如 $ 或 -，以及载此非图形控制字符，如 space 和 newline. 字符的写法带有前缀 #\. 对于多数字符，前缀后面跟着字符本身。例如，字母 A 的字符写法为 #\A. 字符 newline, space, 和 tab 也可以以这种方式书写，但是，它们也可以更清晰地写作 #\newline, #\space, 和 #\tab. 其它的字符名也支持，如同 457 页的字符对象语法所定义的。所有 unicode 字符都可以以语法形式 #\xn 书写， 其中 n 由一个或多个十六进制数字组成，表示一个有效的 Unicode 标量值。
@@ -3726,7 +3725,7 @@ n 必须是精确的整数，且为有效的 Unicode 标量值，即， ~0 \le n
 #+end_src
 
 
-** Section 6.8. Strings
+** Section 6.8. 字符串
 
 Strings are sequences of characters and are often used as messages, character buffers, or containers for blocks of text. Scheme provides operations for creating strings, extracting characters from strings, obtaining substrings, concatenating strings, and altering the contents of strings.
 字符串是字符序列，常用作消息，字符缓冲区，或文本块的容器。Scheme 提供了用于创建字符串，从字符串中提取字符，获取子字符串，拼接字符串，以及修改字符串内容的操作。
@@ -4117,7 +4116,7 @@ list->string 在功能上与 string->list 相反。一段程序可以组合使�
 #+end_src
 
 
-** Section 6.9. Vectors
+** Section 6.9. 向量
 
 在某些应用中，向量比列表更方便也更高效。访问列表中的任意元素需要线性遍历列表，直到所要访问的元素，而在常量时间内，即可访问任意向量元素。向量的长度是它所包含的元素数量。向量由精确非负整数索引，且任意向量的第一个元素的索引为 0. 对一个特定向量，最大有效索引为它的长度减 1.
 
@@ -4300,7 +4299,7 @@ vector-sort 会调用 predicate 至多 nlog^n 次，其中 n 是 vector 的长�
   v) => #(1 2 2 3 4 5)
 #+end_src
 
-** Section 6.10. Bytevectors
+** Section 6.10. 字节向量
 
 Bytevectors are vectors of raw binary data. Although nominally organized as a sequence of exact unsigned 8-bit integers, a bytevector can be interpreted as a sequence of exact signed 8-bit integers, exact signed or unsigned 16-bit, 32-bit, 64-bit, or arbitrary-precision integers, IEEE single or double floating-point numbers, or arbitrary combinations of the above.
 字节向量是由纯二进制数据组成的向量。虽然名义上以精确无符号 8 位整数序列组成，但一个字节向量可以被解释为精确有符号 8 位整数序列，精确有符号或无符号的 16 位，32 位，64 位，或任意精度的整数序列，IEEE 单精度或双精度数字序列，或上述类型的任意组合。
@@ -5018,7 +5017,7 @@ v => #vu8(#xc7 #x0 #x0 #x0 #x3e #xc7 #xbf #xc0 #x0 #x0)
 #+end_src
 
 
-** Section 6.11. Symbols
+** Section 6.11. 符号
 
 Symbols are used for a variety of purposes as symbolic names in Scheme programs. Strings could be used for most of the same purposes, but an important characteristic of symbols makes comparisons between symbols much more efficient. This characteristic is that two symbols with the same name are identical in the sense of eq?. The reason is that the Scheme reader (invoked by get-datum and read) and the procedure string->symbol catalog symbols in an internal symbol table and always return the same symbol whenever the same name is encountered. Thus, no character-by-character comparison is needed, as would be needed to compare two strings.
 在 Scheme 程序中，符号作为符号的名称有多种用途。字符串可以达成其中大多数目的，但符号的一个重要特性使得符号之间的比较要高效得多。这个特性是，两个相同名称的符号在 eq? 的意义上是相同的。原因是，Scheme 读取器（由 get-datum 和 read 调用）和过程 string->symbol 把符号编入一个驻留符号表，在遇到相同的名字时，总是返回相同的符号。因此，逐字符的比较就不需要了，而两个字符串间的比较则需要。
@@ -5088,7 +5087,7 @@ symbol->string 返回的字符串应被当作是不可变的。如果使用 stri
 (symbol->string (string->symbol "()")) => "()"
 #+end_src
 
-** Section 6.12. Booleans
+** Section 6.12. 布尔值
 
 虽然所有 Scheme 对象用在条件上下文中时都有一个真值，且除了 #f，所有对象都被视为真，但 Scheme 也提供了专用的真值 #t，用于当表达式的值只表达真，不表达其它任何内容时。
 
@@ -5106,7 +5105,8 @@ libraries: (rnrs base), (rnrs)
 (boolean=? #t (< 3 4)) => #t
 #+end_src
 
-** Section 6.13. Hashtables
+
+** Section 6.13. 哈希表
 
 Hashtables represent sets of associations between arbitrary Scheme values. They serve essentially the same purpose as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
 哈希表表示任意 Scheme 值之间的关联的集合。它们本质上和关联列表服务于同一个目的，但在涉及大量关联时，通常要快得多。
@@ -5437,7 +5437,7 @@ hashtable-entries 返回两个值。第一个是由 hashtable 中的键组成的
 #+end_src
 
 
-** Section 6.14. Enumerations
+** Section 6.14. 枚举
 
 Enumerations are ordered sets of symbols, typically used to name and manipulate options, as with the buffer modes and file options that may be specified when files are created.
 枚举是符号的有序集合，通常用于命名和操控选项，正如创建文件时，可以指定缓冲区模式和文件选项。
