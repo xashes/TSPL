@@ -19,7 +19,7 @@ returns: constant
   #vu8(3 4 5) => #vu8(3 4 5)
 #+END_SRC
 
-syntax: (quote obj)
+syntax: ~(quote obj)~
 
 syntax: 'obj
 
@@ -44,15 +44,15 @@ Quoted 和 self-evaluating constants are immutable. That is, programs should not
   '7 => 7
 #+END_SRC
 
-syntax: (quasiquote obj ...)
+syntax: ~(quasiquote obj ...)~
 
 syntax: `obj
 
-syntax: (unquote obj ...)
+syntax: ~(unquote obj ...)~
 
 syntax: ,obj
 
-syntax: (unquote-splicing obj ...)
+syntax: ~(unquote-splicing obj ...)~
 
 syntax: ,@obj
 
@@ -4320,7 +4320,7 @@ Bytevectors are written with the #vu8( prefix in place of the #( prefix for vect
   #vu8(#x3f #x7f #xbf #xff) => #vu8(63 127 191 255)
 #+END_SRC
 
-syntax: (endianness symbol)
+syntax: ~(endianness symbol)~
 
 returns: symbol
 
@@ -5436,19 +5436,23 @@ hashtable-entries 返回两个值。第一个是由 hashtable 中的键组成的
                         #("two" "three" "one")
 #+end_src
 
+
 ** Section 6.14. Enumerations
 
 Enumerations are ordered sets of symbols, typically used to name and manipulate options, as with the buffer modes and file options that may be specified when files are created.
+枚举是符号的有序集合，通常用于命名和操控选项，正如创建文件时，可以指定缓冲区模式和文件选项。
 
-syntax: (define-enumeration name (symbol ...) constructor)
+syntax: ~(define-enumeration name (symbol ...) constructor)~
 
 libraries: (rnrs enums), (rnrs)
 
-A define-enumeration form is a definition and can appear anywhere any other definition can appear.
+define-enumeration 语法形式是一种定义，可以出现在任何其它定义可以出现的地方。
 
-The define-enumeration syntax creates a new enumeration set with the specified symbols in the specified order forming the enumeration's universe. It defines a new syntactic form named by name that may be used to verify that a symbol is in the universe. If x is in the universe, (name x) evaluates to x. It is a syntax violation if x is not in the universe.
+define-enumeration 语法形式创建了一个新的枚举集合，以指定的符号，指定的顺序形成了此枚举的全集。它定义了一个新的由 name 命名的语法形式，可以用于检验一个符号是否在这个全集中。如果 x 在全集中，则(name x) 求值为 x. 如果 x 不在全集中，则违反语法。
+syntax creates a new enumeration set with the specified symbols in the specified order forming the enumeration's universe. It defines a new syntactic form named by name that may be used to verify that a symbol is in the universe. If x is in the universe, (name x) evaluates to x. It is a syntax violation if x is not in the universe.
 
-define-enumeration also defines a new syntactic form named by constructor that may be used to create subsets of the enumeration type. If x ... are each in the universe, (constructor x ...) evaluates to an enumeration set containing x .... Otherwise, it is a syntax violation. The same symbol may appear more than once in x ..., but the resulting set contains only one occurrence of the symbol.
+define-enumeration 同时定义了一个新的由 constructor 命名的语法形式，可以用于创建此枚举类型的子集。如果 x ... 均在全集中，(constructor x ...) 求值为一个包含 x ... 的枚举集合。否则，便是语法违规。相同的符号可以在 x ... 中出现多次，但在结果集合中符号只会出现一次。
+also defines a new syntactic form named by constructor that may be used to create subsets of the enumeration type. If x ... are each in the universe, (constructor x ...) evaluates to an enumeration set containing x .... Otherwise, it is a syntax violation. The same symbol may appear more than once in x ..., but the resulting set contains only one occurrence of the symbol.
 
 #+begin_src scheme
 (define-enumeration weather-element
@@ -5465,11 +5469,12 @@ define-enumeration also defines a new syntactic form named by constructor that m
 
 procedure: ~(make-enumeration symbol-list)~
 
-returns: an enumeration set
+returns: 一个枚举集合
 
 libraries: (rnrs enums), (rnrs)
 
 This procedure creates a new enumeration type whose universe comprises the elements of symbol-list, which must be a list of symbols, in the order of their first appearance in the list. It returns the universe of the new enumeration type as an enumeration set.
+这个过程创建一个新的枚举类型，其全集由 symbol-list 中的元素组成，symbol-list 必须是符号组成的列表，依它们第一次出现在列表中的次序排序。它以枚举集合的形式返回这个新枚举类型的全集。
 
 #+begin_src scheme
 (define positions (make-enumeration '(top bottom above top beside)))
@@ -5478,11 +5483,12 @@ This procedure creates a new enumeration type whose universe comprises the eleme
 
 procedure: ~(enum-set-constructor enum-set)~
 
-returns: an enumeration-set construction procedure
+returns: 一个 enumeration-set 构造过程
 
 libraries: (rnrs enums), (rnrs)
 
 This procedure returns a procedure p that may be used to create subsets of the universe of enum-set. p must be passed a list of symbols, and each element of the list must be an element of the universe of enum-set. The enumeration set returned by p contains all and only the symbols in the list it is passed. The value returned by p may contain elements not in enum-set if the universe of enum-set contains those elements.
+这个过程返回一个过程 p，可以用于创建 enum-set 全集的子集。p 必须被传入一个符号列表，且列表的每个元素必须是 enum-set 全集中的元素。p 返回的枚举集合包含且仅包含传入的列表中的全部符号。p 返回的值可能包含 enum-set 中没有的元素，如果 enum-set 的全集中包含这些元素。
 
 #+begin_src scheme
 (define e1 (make-enumeration '(one two three four)))
@@ -5496,7 +5502,7 @@ This procedure returns a procedure p that may be used to create subsets of the u
 
 procedure: ~(enum-set-universe enum-set)~
 
-returns: the universe of enum-set, as an enumeration set
+returns: enum-set 的全集，作为一个枚举集合
 
 libraries: (rnrs enums), (rnrs)
 
@@ -5509,11 +5515,12 @@ libraries: (rnrs enums), (rnrs)
 
 procedure: ~(enum-set->list enum-set)~
 
-returns: a list of the elements of enum-set
+returns: enum-set 中的元素组成的列表
 
 libraries: (rnrs enums), (rnrs)
 
 The symbols in the resulting list appear in the order given to them when the enumeration type of enum-set was created.
+结果列表中符号出现的顺序，与 enum-set 的枚举类型创建时给出的顺序一致。
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c a b c d)))
@@ -5524,11 +5531,12 @@ The symbols in the resulting list appear in the order given to them when the enu
 
 procedure: ~(enum-set-subset? enum-set1 enum-set2)~
 
-returns: #t if enum-set1 is a subset of enum-set2, #f otherwise
+返回: 如果 ~enum-set1~ 是 enum-set2 的子集，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs enums), (rnrs)
 
 An enumeration set enum-set1 is a subset of an enumeration set enum-set2 if and only if the universe of enum-set1 is a subset of the universe of enum-set2 and each element of enum-set1 is an element of enum-set2.
+当且仅当 enum-set1 的全集是 enum-set2 的全集的子集，且 enum-set1 中的每个元素都是 enum-set2 中的元素时，枚举集合 enum-set1 是枚举集合 enum-set2 的子集。
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c)))
@@ -5542,11 +5550,12 @@ An enumeration set enum-set1 is a subset of an enumeration set enum-set2 if and 
 
 procedure: ~(enum-set=? enum-set1 enum-set2)~
 
-returns: #t if enum-set1 and enum-set2 are equivalent, #f otherwise
+返回: 如果 enum-set1 和 enum-set2 相等，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs enums), (rnrs)
 
 Two enumeration sets enum-set1 and enum-set2 are equivalent if each is a subset of the other.
+如果两个枚举集合 enum-set1 和 enum-set2 互为子集，则它们相等。
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c d)))
@@ -5558,7 +5567,7 @@ Two enumeration sets enum-set1 and enum-set2 are equivalent if each is a subset 
 (enum-set=? e3 e2) => #f
 #+end_src
 
-enum-set=? could be defined in terms of enum-set-subset? as follows.
+enum-set=? 可以基于 enum-set-subset? 定义如下。
 
 #+begin_src scheme
 (define enum-set=?
@@ -5568,7 +5577,7 @@ enum-set=? could be defined in terms of enum-set-subset? as follows.
 
 procedure: ~(enum-set-member? symbol enum-set)~
 
-returns: #t if symbol is an element of enum-set, #f otherwise
+返回: 如果 ~symbol~ 是 enum-set 中的元素，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs enums), (rnrs)
 
@@ -5581,19 +5590,19 @@ libraries: (rnrs enums), (rnrs)
 
 procedure: ~(enum-set-union enum-set1 enum-set2)~
 
-returns: the union of enum-set1 and enum-set2
+returns: enum-set1 和 enum-set2 的并集
 
 procedure: ~(enum-set-intersection enum-set1 enum-set2)~
 
-returns: the intersection of enum-set1 and enum-set2
+returns: enum-set1 和 enum-set2 的交集
 
 procedure: ~(enum-set-difference enum-set1 enum-set2)~
 
-returns: the difference of enum-set1 and enum-set2
+returns: enum-set1 和 enum-set2 的差集
 
 libraries: (rnrs enums), (rnrs)
 
-enum-set1 and enum-set2 must have the same enumeration type. Each procedure returns a new enumeration set representing the union, intersection, or difference of the two sets.
+enum-set1 和 enum-set2 必须为相同的枚举类型。每个过程返回一个新的枚举集合，表示两个集合的并集，交集，或差集。
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c d)))
@@ -5609,7 +5618,7 @@ enum-set1 and enum-set2 must have the same enumeration type. Each procedure retu
 
 procedure: ~(enum-set-complement enum-set)~
 
-returns: the complement of enum-set relative to its universe
+returns: enum-set 相对于它的全集的补集
 
 libraries: (rnrs enums), (rnrs)
 
@@ -5622,11 +5631,12 @@ libraries: (rnrs enums), (rnrs)
 
 procedure: ~(enum-set-projection enum-set1 enum-set2)~
 
-returns: the projection of enum-set1 into the universe of enum-set2
+returns: enum-set1 到 enum-set2 的全集的投影
 
 libraries: (rnrs enums), (rnrs)
 
 Any elements of enum-set1 not in the universe of enum-set2 are dropped. The result is of the same enumeration type as enum-set2.
+enum-set1 中任何不在 enum-set2 的全集中的元素均被丢弃。结果与 enum-set2 为相同的枚举类型。
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c d)))
@@ -5641,11 +5651,12 @@ Any elements of enum-set1 not in the universe of enum-set2 are dropped. The resu
 
 procedure: ~(enum-set-indexer enum-set)~
 
-returns: a procedure that returns the index of a symbol in the universe of enum-set
+returns: 一个过程，返回 enum-set 全集中的符号的索引
 
 libraries: (rnrs enums), (rnrs)
 
-enum-set-indexer returns a procedure p that, when applied to a symbol in the universe of enum-set, returns the index of the symbol (zero-based) in the ordered set of symbols that form the universe. If applied to a symbol not in the universe, p returns #f.
+enum-set-indexer 返回一个过程 p，当应用于 enum-set 全集中的一个符号时，返回形成此全集的有序符号集合中，此符号的索引（基于 0）。如果应用于一个不在此全集中的符号上，p 返回 #f.
+returns a procedure p that, when applied to a symbol in the universe of enum-set, returns the index of the symbol (zero-based) in the ordered set of symbols that form the universe. If applied to a symbol not in the universe, p returns #f.
 
 #+begin_src scheme
 (define e1 (make-enumeration '(a b c d)))
