@@ -5091,14 +5091,15 @@ symbol->string 返回的字符串应被当作是不可变的。如果使用 stri
 ** Section 6.12. Booleans
 
 While every Scheme object has a truth value when used in a conditional context, with every object but #f counting as true, Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more than that it is true.
+虽然所有 Scheme 对象用在条件上下文中时都有一个真值，除了 #f，所有对象都被视为真，但 Scheme 也提供了专用的真值 #t，用于当表达式的值不表达其它任何意义，只想表达其为真时。
 
 procedure: ~(boolean=? boolean1 boolean2)~
 
-returns: #t if the two booleans are the same, #f otherwise
+返回: 如果两个布尔值相同，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs base), (rnrs)
 
-The boolean values #t and #f may also be compared with eq?, which is typically more efficient than boolean=?.
+布尔值 #t 和 #f 也可以用 eq? 比较，通常比使用 boolean=? 更加高效。
 
 #+begin_src scheme
 (boolean=? #t #t) => #t
