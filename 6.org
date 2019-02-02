@@ -5090,8 +5090,7 @@ symbol->string 返回的字符串应被当作是不可变的。如果使用 stri
 
 ** Section 6.12. Booleans
 
-While every Scheme object has a truth value when used in a conditional context, with every object but #f counting as true, Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more than that it is true.
-虽然所有 Scheme 对象用在条件上下文中时都有一个真值，除了 #f，所有对象都被视为真，但 Scheme 也提供了专用的真值 #t，用于当表达式的值不表达其它任何意义，只想表达其为真时。
+虽然所有 Scheme 对象用在条件上下文中时都有一个真值，且除了 #f，所有对象都被视为真，但 Scheme 也提供了专用的真值 #t，用于当表达式的值只表达真，不表达其它任何内容时。
 
 procedure: ~(boolean=? boolean1 boolean2)~
 
@@ -5110,18 +5109,20 @@ libraries: (rnrs base), (rnrs)
 ** Section 6.13. Hashtables
 
 Hashtables represent sets of associations between arbitrary Scheme values. They serve essentially the same purpose as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
+哈希表表示任意 Scheme 值之间的关联的集合。它们本质上和关联列表服务于同一个目的，但在涉及大量关联时，通常要快得多。
 
 procedure: ~(make-eq-hashtable)~
 
 procedure: ~(make-eq-hashtable size)~
 
-returns: a new mutable eq hashtable
+returns: 一个新的可变 eq hashtable
 
 libraries: (rnrs hashtables), (rnrs)
 
 If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the existing elements. Providing a nonzero size can help limit the amount of rehashing that must be done as the table is initially populated.
+如果指定了 size, 它必须是一个非负的精确整数，指示哈希表初始化时大概应包含多少元素。哈希表根据需要增长，但当哈希表增长时，它通常必须重新哈希化所有已存在的元素。提供一个非 0 的 size 时，由于初始时填充了表，因而可以帮助限制必须进行的重新哈希的次数。
 
-An eq hashtable compares keys using the eq? (pointer equality) procedure and typically employs a hash function based on object addresses. Its hash and equivalence functions are suitable for any Scheme object.
+eq hashtable 使用 eq? （指针相等）过程比较键，并且通常基于对象地址采用一个哈希方程。它的哈希和相等性方程适用于任意 Scheme 对象。
 
 #+begin_src scheme
 (define ht1 (make-eq-hashtable))
@@ -5132,25 +5133,27 @@ procedure: ~(make-eqv-hashtable)~
 
 procedure: ~(make-eqv-hashtable size)~
 
-returns: a new mutable eqv hashtable
+returns: 一个新的可变 eqv hashtable
 
 libraries: (rnrs hashtables), (rnrs)
 
 If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the existing elements. Providing a nonzero size can help limit the amount of rehashing that must be done as the table is initially populated.
+如果指定了 size, 它必须是一个非负的精确整数，指示哈希表初始化时大概应包含多少元素。哈希表根据需要增长，但当哈希表增长时，它通常必须重新哈希化所有已存在的元素。提供一个非 0 的 size 时，由于初始时填充了表，因而可以帮助限制必须进行的重新哈希的次数。
 
-An eqv hashtable compares keys using the eqv? procedure and typically employs a hash function based on object addresses for objects that are identifiable with eq?. Its hash and equivalence functions are suitable for any Scheme object.
+eqv hashtable 使用 eqv? 过程比较键，并且对于可用 eq? 识别的对象，通常基于对象地址采用一个哈希方程。它的哈希和相等性方程适用于任意 Scheme 对象。
+
 
 procedure: ~(make-hashtable hash equiv?)~
 
 procedure: ~(make-hashtable hash equiv? size)~
 
-returns: a new mutable hashtable
+returns: 一个新的可变的哈希表
 
 libraries: (rnrs hashtables), (rnrs)
 
-hash and equiv? must be procedures. If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable should initially hold. Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the existing elements. Providing a nonzero size can help limit the amount of rehashing that must be done as the table is initially populated.
+hash 和 equiv? 必须是过程。如果指定了 size, 它必须是一个非负的精确整数，指示哈希表初始化时大概应包含多少元素。哈希表根据需要增长，但当哈希表增长时，它通常必须重新哈希化所有已存在的元素。提供一个非 0 的 size 时，由于初始时填充了表，因而可以帮助限制必须进行的重新哈希的次数。
 
-The new hashtable computes hash values using hash and compares keys using equiv?, neither of which should modify the hashtable. equiv? should compare two keys and return false only if the two keys should be distinguished. hash should accept a key as an argument and return a nonnegative exact integer value that is the same each time it is called with arguments that equiv? does not distinguish. The hash and equiv? procedures need not accept arbitrary inputs as long as the hashtable is used only for keys that they do accept, and both procedures may assume that the keys are immutable as long as the keys are not modified while they have associations stored in the table. The hashtable operation may call hash and equiv? once, not at all, or multiple times for each hashtable operation.
+新的哈希表使用 hash 计算哈希值，使用 equiv? 比较键，两者都不应修改哈希表。equiv? 应当比较两个键，并仅当两个键有区别时返回假。hash 应该接受一个键作为实参，并返回一个非负的精确整数值，对于 equiv? 判定为相同的实参，则每次调用时返回的这个值都是相同的。只要哈希表只用于它们接受的键，则 hash 和 equiv? 过程就不需要接受任意输入，且只要键在其有关联值存储在表中时不被修改，则两个过程就都可以假定键是不可变的。哈希表操作可以在每次操作时调用 hash 和 equiv? 一次，完全不调用，或调用多次。
 
 #+begin_src scheme
 (define ht (make-hashtable string-hash string=?))
@@ -5158,11 +5161,11 @@ The new hashtable computes hash values using hash and compares keys using equiv?
 
 procedure: ~(hashtable-mutable? hashtable)~
 
-returns: #t if hashtable is mutable, #f otherwise
+返回: 如果 ~hashtable~ 是可变的，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs hashtables), (rnrs)
 
-Hashtables returned by one of the hashtable creation procedures above are mutable, but those created by hashtable-copy may be immutable. Immutable hashtables cannot be altered by any of the procedures hashtable-set!, hashtable-update!, hashtable-delete!, or hashtable-clear!.
+上述的任一个哈希表创建过程返回的哈希表都是可变的，但通过 hashtable-copy 创建的表可以是不可变的。不可变的哈希表不能通过任何下列过程修改：hashtable-set!, hashtable-update!, hashtable-delete!, 或 hashtable-clear!.
 
 #+begin_src scheme
 (hashtable-mutable? (make-eq-hashtable)) => #t
@@ -5171,15 +5174,15 @@ Hashtables returned by one of the hashtable creation procedures above are mutabl
 
 procedure: ~(hashtable-hash-function hashtable)~
 
-returns: the hash function associated with hashtable
+returns: 与 hashtable 关联的哈希方程
 
 procedure: ~(hashtable-equivalence-function hashtable)~
 
-returns: the equivalence function associated with hashtable
+returns: 与 hashtable 关联的相等性方程
 
 libraries: (rnrs hashtables), (rnrs)
 
-hashtable-hash-function returns #f for eq and eqv hashtables.
+对于 eq 和 eqv hashtable, hashtable-hash-function 返回 #f.
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5201,11 +5204,12 @@ procedure: ~(string-ci-hash string)~
 
 procedure: ~(symbol-hash symbol)~
 
-returns: an exact nonnegative integer hash value
+returns: 一个精确的非负整数哈希值
 
 libraries: (rnrs hashtables), (rnrs)
 
 These procedures are hash functions suitable for use with the appropriate Scheme predicate: equal? for equal-hash, string=? for string-hash, string-ci=? for string-ci-hash, and symbol=? (or eq?) for symbol-hash. The hash values returned by equal-hash, string-hash, and string-ci-hash are typically dependent on the current structure and contents of the input values and are thus unsuitable if keys are modified while they have associations in a hashtable.
+这些过程是适用于适当的 Scheme 谓词的哈希方程：equal? 对应 equal-hash, string=? 对应 string-hash, string-ci=? 对应 string-ci-hash, 而 symbol=? (或 eq?) 对应 symbol-hash. 由 equal-hash, string-hash, 和 string-ci-hash 返回的哈希值，通常依赖于当前结构和输入值的内容，因此，如果当键在哈希表中有关联值时被修改，则这些过程并不适用。
 
 procedure: ~(hashtable-set! hashtable key obj)~
 
@@ -5214,8 +5218,9 @@ returns: unspecified
 libraries: (rnrs hashtables), (rnrs)
 
 hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence functions. obj may be any Scheme object.
+hashtable 必须是可变哈希表。key 应该是适用于 hashtable 的哈希方程和相等性方程的键。obj 可以是任意 Scheme 对象。
 
-hashtable-set! associates key with obj in hashtable, replacing the existing association, if any.
+hashtable-set! 把 obj 与 hashtable 中的 key 相关联，取代已有的关联，如果存在的话。
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5228,9 +5233,9 @@ returns: 参见下文
 
 libraries: (rnrs hashtables), (rnrs)
 
-key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme object.
+key 应该是适用于 hashtable 的哈希方程和相等性方程的键。default 可以是任意 Scheme 对象。
 
-hashtable-ref returns the value associated with key in hashtable. If no value is associated with key in hashtable, hashtable-ref returns default.
+hashtable-ref 返回与 hashtable 中的 key 相关联的值。如果没有值与 hashtable 中的 key 相关联，则 hashtable-ref 返回 default.
 
 #+begin_src scheme
 (define p1 (cons 'a 'b))
@@ -5253,11 +5258,12 @@ hashtable-ref returns the value associated with key in hashtable. If no value is
 
 procedure: ~(hashtable-contains? hashtable key)~
 
-returns: #t if an association for key exists in hashtable, #f otherwise
+返回: 如果 key 在 hashtable 中存在关联值，则为 ~#t~, 否则为 ~#f~.
 
 libraries: (rnrs hashtables), (rnrs)
 
 key should be an appropriate key for the hashtable's hash and equivalence functions.
+key 应该是适用于 hashtable 的哈希方程和相等性方程的键。
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5274,11 +5280,12 @@ returns: unspecified
 
 libraries: (rnrs hashtables), (rnrs)
 
-hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme object. procedure should accept one argument, should return one value, and should not modify hashtable.
+hashtable 必须是可变的哈希表。key 应该是适用于 hashtable 的哈希方程和相等性方程的键。default 可以是任意 Scheme 对象。procedure 应当接受一个实参，返回一个值，且不应修改 hashtable.
 
-hashtable-update! applies procedure to the value associated with key in hashtable, or to default if no value is associated with key in hashtable. If procedure returns, hashtable-update! associates key with the value returned by procedure, replacing the old association, if any.
+hashtable-update! 把 procedure 应用于 hashtable 中与 key 相关联的值上，如果 hashtable 中没有值与 key 相关联，则应用于 default 上。如果 procedure 返回一个值，hashtable-update! 则把 key 与 procedure 返回的值相关联，取代旧的关联——如果存在的话。
 
 A version of hashtable-update! that does not verify that it receives arguments of the proper type might be defined as follows.
+不验证传入的实参是否为合适类型的 hashtable-update! 版本，可以定义如下。
 
 #+begin_src scheme
 (define hashtable-update!
@@ -5287,7 +5294,7 @@ A version of hashtable-update! that does not verify that it receives arguments o
       (proc (hashtable-ref ht key value)))))
 #+end_src
 
-An implementation may, however, be able to implement hashtable-update! more efficiently by avoiding multiple hash computations and hashtable lookups.
+不过，一个实现可以通过避免多次哈希计算和哈希表查找，把 hashtable-update! 实现得更高效。
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5308,8 +5315,9 @@ returns: unspecified
 libraries: (rnrs hashtables), (rnrs)
 
 hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence functions.
+hashtable 必须是可变哈希表。key 应该是适用于 hashtable 的哈希方程和相等性方程的键。
 
-hashtable-delete! drops any association for key from hashtable.
+hashtable-delete! 会丢弃 key 在 hashtable 中的所有关联。
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5325,7 +5333,7 @@ hashtable-delete! drops any association for key from hashtable.
 
 procedure: ~(hashtable-size hashtable)~
 
-returns: number of entries in hashtable
+returns: hashtable 中的条目数量
 
 libraries: (rnrs hashtables), (rnrs)
 
@@ -5344,11 +5352,12 @@ procedure: ~(hashtable-copy hashtable)~
 
 procedure: ~(hashtable-copy hashtable mutable?)~
 
-returns: a new hashtable containing the same entries as hashtable
+returns: 一个新的哈希表，包含与 hashtable 相同的条目
 
 libraries: (rnrs hashtables), (rnrs)
 
-If mutable? is present and not false, the copy is mutable; otherwise, the copy is immutable.
+如果传入 mutable?，且不为假，则拷贝是可变的；否则，拷贝是不可变的。
+is present and not false, the copy is mutable; otherwise, the copy is immutable.
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5370,9 +5379,11 @@ returns: unspecified
 
 libraries: (rnrs hashtables), (rnrs)
 
-hashtable must be a mutable hashtable. If size is provided, it must be a nonnegative exact integer.
+hashtable 必须是可变的哈希表。如果指定 size，其必须是一个非负的精确整数。
+must be a mutable hashtable. If size is provided, it must be a nonnegative exact integer.
 
-hashtable-clear! removes all entries from hashtable. If size is provided, the hashtable is reset to the given size, as if newly created by one of the hashtable creation operations with size argument size.
+hashtable-clear! 从 hashtable 中移除所有条目。如果指定 size，则哈希表被重置为指定的大小，如同通过一个带有实参 size 的哈希表创建操作重新创建一样。
+removes all entries from hashtable. If size is provided, the hashtable is reset to the given size, as if newly created by one of the hashtable creation operations with size argument size.
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5388,11 +5399,12 @@ hashtable-clear! removes all entries from hashtable. If size is provided, the ha
 
 procedure: ~(hashtable-keys hashtable)~
 
-returns: a vector containing the keys in hashtable
+returns: hashtable 中的键组成的向量
 
 libraries: (rnrs hashtables), (rnrs)
 
 The keys may appear in any order in the returned vector.
+返回的向量中的键可以是任意顺序。
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
@@ -5406,11 +5418,12 @@ The keys may appear in any order in the returned vector.
 
 procedure: ~(hashtable-entries hashtable)~
 
-returns: two vectors: one of keys and a second of values
+returns: 两个向量：一个由键组成，另一个由值组成
 
 libraries: (rnrs hashtables), (rnrs)
 
-hashtable-entries returns two values. The first is a vector containing the keys in hashtable, and the second is a vector containing the corresponding values. The keys and values may appear in any order, but the order is the same for the keys and for the corresponding values.
+hashtable-entries 返回两个值。第一个是由 hashtable 中的键组成的向量，第二个是由相应的值组成的向量。键和值可以是任意顺序，但对于相应的键和值，顺序是一样的。
+，returns two values. The first is a vector containing the keys in hashtable, and the second is a vector containing the corresponding values. The keys and values may appear in any order, but the order is the same for the keys and for the corresponding values.
 
 #+begin_src scheme
 (define ht (make-eq-hashtable))
