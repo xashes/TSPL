@@ -32,64 +32,65 @@ eol 风格对输入和输出操作的影响是不同的。对于输入，除了 
 
 ** Section 7.1. Transcoders
 
-As described above, transcoders encapsulate three values: a codec, an eol style, and an error-handling mode. This section describes the procedures that create or operate on transcoders and the values that transcoders encapsulate.
+如上所述，代码转换器封装了三个值：编码解码器，eol 风格，和错误处理模式。本节介绍了创建和操作代码转换器的过程，以及代码转换器封装的值。
 
 procedure: ~(make-transcoder codec)~
 procedure: ~(make-transcoder codec eol-style)~
 procedure: ~(make-transcoder codec eol-style error-handling-mode)~
-returns: a transcoder encapsulating codec, eol-style, and error-handling-mode
+returns: 封装了编码解码器，eol 风格，和错误处理模式的代码转换器
 libraries: (rnrs io ports), (rnrs)
 
-eol-style must be a valid eol-style symbol (lf, cr, nel, ls, crlf, crnel, or none); it defaults to the native eol-style for the platform. error-handling-mode must be a valid error-handling-mode symbol (ignore, raise, or replace) and defaults to replace.
+eol-style 必须是一个有效的 eol 风格符号 (lf, cr, nel, ls, crlf, crnel, 或 none); 它默认为平台的原生 eol 风格。error-handling-mode 必须是一个有效的错误处理模式符号 (ignore, raise, 或 replace)，默认值为 replace.
 
 procedure: ~(transcoder-codec transcoder)~
-returns: the codec encapsulated in transcoder
+returns: transcoder 封装的编码解码器
 procedure: ~(transcoder-eol-style transcoder)~
-returns: the eol-style symbol encapsulated in transcoder
+returns: transcoder 封装的 eol 风格符号
 procedure: ~(transcoder-error-handling-mode transcoder)~
-returns: the error-handling-mode symbol encapsulated in transcoder
+returns: transcoder 封装的错误处理模式符号
 libraries: (rnrs io ports), (rnrs)
 
 procedure: ~(native-transcoder)~
-returns: the native transcoder
+returns: 原生的代码转换器
 libraries: (rnrs io ports), (rnrs)
 
-The native transcoder is implementation-dependent and may vary by platform or locale.
+原生的代码转换器是依赖于实现的，且可能根据平台或区域设置有所变化。
 
 procedure: ~(latin-1-codec)~
-returns: a codec for ISO 8859-1 (Latin 1) character encodings
+returns: ISO 8859-1 (Latin 1) 字符编码的编码解码器
 procedure: ~(utf-8-codec)~
-returns: a codec for Unicode UTF-8 character encodings
+returns: Unicode UTF-8 字符编码的编码解码器
 procedure: ~(utf-16-codec)~
-returns: a codec for Unicode UTF-16 character encodings
+returns: Unicode UTF-16 字符编码的编码解码器
 libraries: (rnrs io ports), (rnrs)
 
 syntax: ~(eol-style symbol)~
 returns: symbol
 libraries: (rnrs io ports), (rnrs)
 
-symbol must be one of the symbols lf, cr, nel, ls, crlf, crnel, or none. The expression (eol-style symbol) is equivalent to the expression (quote symbol) except the former checks at expansion time that symbol is one of the eol-style symbols. The eol-style syntax provides useful documentation as well.
+symbol 必须是以下符号之一：lf, cr, nel, ls, crlf, crnel, 或 none. 表达式 (eol-style symbol) 等价于表达式 (quote symbol), 除了前者在展开期会检查 symbol 是否是 eol 风格符号之一。eol-style 语法也提供了有用的文档。
+except the former checks at expansion time that symbol is one of the eol-style symbols. The eol-style syntax provides useful documentation as well.
 
 #+begin_src scheme
-(eol-style crlf) <graphic> crlf
-(eol-style lfcr) <graphic> syntax violation
+(eol-style crlf) => crlf
+(eol-style lfcr) => syntax violation
 #+end_src
 
 procedure: ~(native-eol-style)~
-returns: the native eol style
+returns: 原生的 eol 风格
 libraries: (rnrs io ports), (rnrs)
 
-The native eol style is implementation-dependent and may vary by platform or locale.
+原生的 eol 风格是依赖于实现的，且可能根据平台或区域设置有所变化。
 
 syntax: ~(error-handling-mode symbol)~
 returns: symbol
 libraries: (rnrs io ports), (rnrs)
 
-symbol must be one of the symbols ignore, raise, or replace. The expression (error-handling-mode symbol) is equivalent to the expression (quote symbol) except that the former checks at expansion time that symbol is one of the error-handling-mode symbols. The error-handling-mode syntax provides useful documentation as well.
+symbol 必须是以下符号之一：ignore, raise, 或 replace. 表达式 (error-handling-mode symbol) 等价于表达式 (quote symbol), 除了前者在展开期会检查 symbol 是否是错误处理模式符号之一。error-handling-mode 语法也提供了有用的文档。
 
 #+begin_src scheme
-  (error-handling-mode replace) <graphic> replace
-  (error-handling-mode relpace) <graphic> syntax violation
+  (error-handling-mode replace) => replace
+  (error-handling-mode relpace) => syntax violation
 #+end_src
 
 ** Section 7.2. Opening Files
@@ -118,11 +119,11 @@ syntax: ~(buffer-mode symbol)~
 returns: symbol
 libraries: (rnrs io ports), (rnrs)
 
-symbol must be one of the symbols block, line, or none. The expression (buffer-mode symbol) is equivalent to the expression (quote symbol) except that the former checks at expansion time that symbol is one of the buffer-mode symbols. The buffer-mode syntax provides useful documentation as well.
+symbol must be one of the symbols block, line, or none. The expression (buffer-mode symbol) 等价于 the expression (quote symbol) except that the former checks at expansion time that symbol is one of the buffer-mode symbols. The buffer-mode syntax provides useful documentation as well.
 
 #+begin_src scheme
-(buffer-mode block) <graphic> block
-(buffer-mode cushion) <graphic> syntax violation
+(buffer-mode block) => block
+(buffer-mode cushion) => syntax violation
 #+end_src
 
 syntax: ~(buffer-mode? obj)~
@@ -130,10 +131,10 @@ returns: #t if obj is a valid buffer mode, #f otherwise
 libraries: (rnrs io ports), (rnrs)
 
 #+begin_src scheme
-(buffer-mode? 'block) <graphic> #t
-(buffer-mode? 'line) <graphic> #t
-(buffer-mode? 'none) <graphic> #t
-(buffer-mode? 'something-else) <graphic> #f
+(buffer-mode? 'block) => #t
+(buffer-mode? 'line) => #t
+(buffer-mode? 'none) => #t
+(buffer-mode? 'something-else) => #f
 #+end_src
 
 procedure: ~(open-file-input-port path)~
@@ -207,7 +208,7 @@ The effect of modifying bytevector after this procedure is called is unspecified
 #+begin_src scheme
 (let ([ip (open-bytevector-input-port #vu8(1 2))])
   (let* ([x1 (get-u8 ip)] [x2 (get-u8 ip)] [x3 (get-u8 ip)])
-    (list x1 x2 (eof-object? x3)))) <graphic> (1 2 #t)
+    (list x1 x2 (eof-object? x3)))) => (1 2 #t)
 #+end_src
 
 There is no need to close a bytevector port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open bytevector port does not tie up any operating system resources.
@@ -219,7 +220,7 @@ libraries: (rnrs io ports), (rnrs)
 The effect of modifying string after this procedure is called is unspecified. The new port may or may not have a transcoder, and if it does, the transcoder is implementation-dependent. While not required, implementations are encouraged to support port-position and set-port-position! for string ports.
 
 #+begin_src scheme
-(get-line (open-string-input-port "hi.\nwhat's up?\n")) <graphic> "hi."
+(get-line (open-string-input-port "hi.\nwhat's up?\n")) => "hi."
 #+end_src
 
 There is no need to close a string port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open string port does not tie up any operating system resources.
@@ -241,7 +242,7 @@ The extraction procedure is a procedure that, when called without arguments, cre
   (set-port-position! op 2)
   (let ([bv1 (g)])
     (put-u8 op 27)
-    (list bv1 (g)))) <graphic> (#vu8(15 73 115) #vu8(27))
+    (list bv1 (g)))) => (#vu8(15 73 115) #vu8(27))
 #+end_src
 
 There is no need to close a bytevector port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open bytevector port does not tie up any operating system resources.
@@ -257,7 +258,7 @@ The extraction procedure is a procedure that, when called without arguments, cre
   (put-string op "some data")
   (let ([str1 (g)])
     (put-string op "new stuff")
-    (list str1 (g)))) <graphic> ("some data" "new stuff")
+    (list str1 (g)))) => ("some data" "new stuff")
 #+end_src
 
 There is no need to close a string port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open string port does not tie up any operating system resources.
@@ -274,7 +275,7 @@ If ?transcoder is present and not #f, it must be a transcoder, and procedure is 
             (error-handling-mode replace))])
   (call-with-bytevector-output-port
     (lambda (p) (put-string p "abc"))
-    tx)) <graphic> #vu8(97 98 99)
+    tx)) => #vu8(97 98 99)
 #+end_src
 
 procedure: ~(call-with-string-output-port procedure)~
@@ -292,7 +293,7 @@ call-with-string-output-port can be used along with put-datum to define a proced
 #+end_src
 
 #+begin_src scheme
-(object->string (cons 'a '(b c))) <graphic> "(a b c)"
+(object->string (cons 'a '(b c))) => "(a b c)"
 #+end_src
 
 ** Section 7.5. Opening Custom Ports
@@ -456,7 +457,7 @@ returns: the eof object
 libraries: (rnrs io ports), (rnrs io simple), (rnrs)
 
 #+begin_src scheme
-(eof-object? (eof-object)) <graphic> #t
+(eof-object? (eof-object)) => #t
 #+end_src
 
 procedure: ~(get-u8 binary-input-port)~
@@ -563,7 +564,7 @@ get-string-n! may be used to implement string-set! and string-fill!, as illustra
   (string-fill! x #\-)
   (string-set! x 2 #\))
   (string-set! x 0 #\;)
-  x) <graphic> ";-)"
+  x) => ";-)"
 #+end_src
 
 procedure: ~(get-string-all textual-input-port)~
@@ -581,13 +582,13 @@ If textual-input-port is at end of file, the eof object is returned. Otherwise, 
 #+begin_src scheme
 (let ([sip (open-string-input-port "one\ntwo\n")])
   (let* ([s1 (get-line sip)] [s2 (get-line sip)])
-    (list s1 s2 (port-eof? sip)))) <graphic> ("one" "two" #t)
+    (list s1 s2 (port-eof? sip)))) => ("one" "two" #t)
 #+end_src
 
 #+begin_src scheme
 (let ([sip (open-string-input-port "one\ntwo")])
   (let* ([s1 (get-line sip)] [s2 (get-line sip)])
-    (list s1 s2 (port-eof? sip)))) <graphic> ("one" "two" #t)
+    (list s1 s2 (port-eof? sip)))) => ("one" "two" #t)
 #+end_src
 
 procedure: ~(get-datum textual-input-port)~
@@ -603,7 +604,7 @@ Otherwise, get-datum reads as many characters as necessary, and no more, to pars
   (let* ([x1 (get-datum sip)]
          [c1 (lookahead-char sip)]
          [x2 (get-datum sip)])
-    (list x1 c1 x2 (port-eof? sip)))) <graphic> (one #\space (two) #f)
+    (list x1 c1 x2 (port-eof? sip)))) => (one #\space (two) #f)
 #+end_src
 
 procedure: ~(port-eof? input-port)~
@@ -877,7 +878,7 @@ This operation, at least in effect, creates a bytevector input port with the spe
 #+begin_src scheme
 (let ([tx (make-transcoder (utf-8-codec) (eol-style lf)
             (error-handling-mode replace))])
-  (bytevector->string #vu8(97 98 99) tx)) <graphic> "abc"
+  (bytevector->string #vu8(97 98 99) tx)) => "abc"
 #+end_src
 
 procedure: ~(string->bytevector string transcoder)~
@@ -889,7 +890,7 @@ This operation, at least in effect, creates a bytevector output port with the sp
 #+begin_src scheme
 (let ([tx (make-transcoder (utf-8-codec) (eol-style none)
             (error-handling-mode raise))])
-  (string->bytevector "abc" tx)) <graphic> #vu8(97 98 99)
+  (string->bytevector "abc" tx)) => #vu8(97 98 99)
 #+end_src
 
 procedure: ~(string->utf8 string)~
