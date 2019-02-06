@@ -9,9 +9,9 @@
 
 端口或是二进制，或是文本的。二进制端口支持程序从其所代表的流中，读取或写入 8 位无符号字节，或称 "octets"。文本端口支持程序读取或写入字符。
 
-很多情况下，底层的流被组织为一个字节序列，但这些字节应当被作为字符编码处理。在这种情况下，可以通过代码转换器创建一个文本端口，把字节解码为字符（对于输入端口），或把字符编码为字节（对于输出端口）。代码转换器封装了一个编码解码器，它决定了字符如何表示为字节。Scheme 提供了三种标准编码解码器：latin-1 编码解码器，Unicode utf-8 编码解码器，以及 Unicode utf-16 编码解码器。在 latin-1 编码中，每个字符以正好一个字节表示。在 utf-8 编码中，每个字符以一至四个字节表示，而在 utf-16 编码中，每个字符以二或四个字节表示。
+很多情况下，底层的流被组织为一个字节序列，但这些字节应当被作为字符编码处理。在这种情况下，可以通过编码转换器创建一个文本端口，把字节解码为字符（对于输入端口），或把字符编码为字节（对于输出端口）。编码转换器封装了一个编码解码器，它决定了字符如何表示为字节。Scheme 提供了三种标准编码解码器：latin-1 编码解码器，Unicode utf-8 编码解码器，以及 Unicode utf-16 编码解码器。在 latin-1 编码中，每个字符以正好一个字节表示。在 utf-8 编码中，每个字符以一至四个字节表示，而在 utf-16 编码中，每个字符以二或四个字节表示。
 
-代码转换器同时封装了 eol 风格，它决定了是否以及如何识别行尾。如果 eol 风格为 none，则不识别行尾。另外六种标准 eol 风格如下所示：
+编码转换器同时封装了 eol 风格，它决定了是否以及如何识别行尾。如果 eol 风格为 none，则不识别行尾。另外六种标准 eol 风格如下所示：
 
 #+begin_quote
 lf: 	line-feed character（换行字符）
@@ -24,20 +24,20 @@ crnel: 	carriage return followed by next line（回车加新行字符）
 
 eol 风格对输入和输出操作的影响是不同的。对于输入，除了 none 以外的任何 eol 风格，会把每种行尾字符或双字符序列转换为一个单个的换行字符。对于输出，除了 none 以外的任何 eol 风格，会把换行字符转换为与 eol 风格相关联的特定单个字符或双字符序列。在输入方向上，除了 none 以外的所有 eol 风格都是等价的，而在输出方向上，eol 风格 none 和 lf 是等价的。
 
-除了编码解码器和 eol 风格，代码转换器只封装了另外一种信息：一个错误处理模式，它决定了在解码或编码错误出现时会发生什么，即，如果通过封装的编码解码器，在输入方向上，无法把一个字节序列转换成一个字符，或在输出方向上，无法把一个字符转换成一个字节序列。错误处理模式为 ignore, raise, 或 replace. 如果错误处理模式为 ignore, 则忽略出错的字节序列或字符。如果错误处理模式为 raise, 则抛出条件类型的 i/o-decoding 或 i/o-encoding 异常；在输入方向上，端口的位置在字节序列前面。如果错误处理模式为 replace, 会生成一个替换字符或字符编码：在输入方向上，替换字符是 U+FFFD, 而在输出方向上，则替换编码为 utf-8 和 utf-16 编码解码器的 U+FFFD 的编码，或是 latin-1 编码解码器的问号字符（?）的编码。
+除了编码解码器和 eol 风格，编码转换器只封装了另外一种信息：一个错误处理模式，它决定了在解码或编码错误出现时会发生什么，即，如果通过封装的编码解码器，在输入方向上，无法把一个字节序列转换成一个字符，或在输出方向上，无法把一个字符转换成一个字节序列。错误处理模式为 ignore, raise, 或 replace. 如果错误处理模式为 ignore, 则忽略出错的字节序列或字符。如果错误处理模式为 raise, 则抛出条件类型的 i/o-decoding 或 i/o-encoding 异常；在输入方向上，端口的位置在字节序列前面。如果错误处理模式为 replace, 会生成一个替换字符或字符编码：在输入方向上，替换字符是 U+FFFD, 而在输出方向上，则替换编码为 utf-8 和 utf-16 编码解码器的 U+FFFD 的编码，或是 latin-1 编码解码器的问号字符（?）的编码。
 
 为了提高效率，可以缓冲端口，以减少为每个字节或字符进行系统调用的开销。Scheme 支持三种标准缓冲模式：block, line, 和 none. 在 block 缓冲模式中，是以块的形式从流中读取输入或向流发送输出，块的大小与实现相关。在 line 缓冲模式中，缓冲以行为基础，或以其它某些实现相关的基础进行。Line 缓冲通常只在文本输出端口中与 block 缓冲有区别；在二进制端口中没有行划分，而输入常常是在它可用时即从流中读取。在 none 缓冲模式中，不进行缓冲，所以输出会立即发送到流，而输入则只在需要时读取。
 
-本章的其余部分包含了代码转换器操作，文件端口，标准端口，输出操作，快捷 I/O, 文件系统操作，字节向量和字符串之间的转换。
+本章的其余部分包含了编码转换器操作，文件端口，标准端口，输出操作，快捷 I/O, 文件系统操作，字节向量和字符串之间的转换。
 
 ** Section 7.1. Transcoders
 
-如上所述，代码转换器封装了三个值：编码解码器，eol 风格，和错误处理模式。本节介绍了创建和操作代码转换器的过程，以及代码转换器封装的值。
+如上所述，编码转换器封装了三个值：编码解码器，eol 风格，和错误处理模式。本节介绍了创建和操作编码转换器的过程，以及编码转换器封装的值。
 
 procedure: ~(make-transcoder codec)~
 procedure: ~(make-transcoder codec eol-style)~
 procedure: ~(make-transcoder codec eol-style error-handling-mode)~
-returns: 封装了编码解码器，eol 风格，和错误处理模式的代码转换器
+returns: 封装了编码解码器，eol 风格，和错误处理模式的编码转换器
 libraries: (rnrs io ports), (rnrs)
 
 eol-style 必须是一个有效的 eol 风格符号 (lf, cr, nel, ls, crlf, crnel, 或 none); 它默认为平台的原生 eol 风格。error-handling-mode 必须是一个有效的错误处理模式符号 (ignore, raise, 或 replace)，默认值为 replace.
@@ -51,10 +51,10 @@ returns: transcoder 封装的错误处理模式符号
 libraries: (rnrs io ports), (rnrs)
 
 procedure: ~(native-transcoder)~
-returns: 原生的代码转换器
+returns: 原生的编码转换器
 libraries: (rnrs io ports), (rnrs)
 
-原生的代码转换器是依赖于实现的，且可能根据平台或区域设置有所变化。
+原生的编码转换器是依赖于实现的，且可能根据平台或区域设置有所变化。
 
 procedure: ~(latin-1-codec)~
 returns: ISO 8859-1 (Latin 1) 字符编码的编码解码器
@@ -98,29 +98,34 @@ symbol 必须是以下符号之一：ignore, raise, 或 replace. 表达式 (erro
 本节中的过程用于打开文件端口。用于打开其它类型端口的过程，例如，字符串端口，或自定义端口，将在后面的章节中介绍。
 
 Each of the file-open operations accepts a path argument that names the file to be opened. It must be a string or some other implementation-dependent value that names a file.
-每个文件打开操作接受一个路径实参，命名了要打开的文件。它必须是一个字符串或其它某些平台相关的命名了一个文件的值。
+每个文件打开操作接受一个路径实参，命名了要打开的文件。它必须是命名了一个文件的字符串或其它某些平台相关的值。
 
-Some of the file-open procedures accept optional options, b-mode, and ?transcoder arguments. options must be an enumeration set over the symbols constituting valid file options described in the file-options entry below, and it defaults to the value of (file-options). b-mode must be a valid buffer mode described in the buffer-mode entry below, and it defaults to block. ?transcoder must be a transcoder or #f; if it is a transcoder, the open operation returns a transcoded port for the underlying binary file, while if it is #f (the default), the open operation returns a binary port.
+某些文件打开操作接受可选的 options, b-mode, 和 ?transcoder 实参。options 必须是一个枚举集合，由下文 file-options 条目中介绍的有效文件选项符号组成，默认值为 (file-options) 的值。b-mode 必须是下文 buffer-mode 条目中介绍的有效缓冲模式，默认值为 block. ?transcoder 必须是一个编码转换器，或 #f; 如果它是一个编码转换器，则打开操作返回底层二进制文件的编码转换后的端口，如果它是 #f（默认值），则打开操作返回一个二进制端口。
 
-Binary ports created by the procedures in this section support the port-position and set-port-position! operations. Whether textual ports created by the procedures in this section support these operations is implementation-dependent.
+由本节中的过程创建的二进制端口，支持 port-position 和 set-port-position! 操作。而由本节中的过程创建的文本端口，是否支持这些操作则依赖于实现。
 
 syntax: ~(file-options symbol ...)~
-returns: a file-options enumeration set
+returns: 一个文件选项的枚举集合
 libraries: (rnrs io ports), (rnrs)
 
 File-options enumeration sets may be passed to file-open operations to control aspects of the open operation. There are three standard file options: no-create, no-fail, and no-truncate, which affect only file-open operations that create output (including input/output) ports.
+文件选项枚举集合可以传入文件打开操作，以从多方面控制打开操作。有三种标准文件选项：no-create, no-fail, 以及 no-truncate, 这些选项只影响创建输出（包括输入/输出）端口的文件打开操作。
 
 With the default file options, i.e., the value of (file-options), when a program attempts to open a file for output, an exception is raised with condition type i/o-file-already-exists if the file already exists, and the file is created if it does not already exist. If the no-fail option is included, no exception is raised if the file already exists; instead, the file is opened and truncated to zero length. If the no-create option is included, the file is not created if it does not exist; instead, an exception is raised with condition type i/o-file-does-not-exist. The no-create option implies the no-fail option. The no-truncate option is relevant only if the no-fail option is included or implied, in which case if an existing file is opened, it is not truncated, but the port's position is still set to the beginning of the file.
+文件选项为默认值时，即 (file-option) 的值，当程序尝试打开一个文件作为输出时，如果此文件已经存在，则会抛出一个条件类型的 i/o-file-already-exists 异常，如果文件不存在，则会创建此文件。如果包含 no-fail 选项，则在文件已经存在时不会抛出异常；而是打开此文件，并把它的长度截短为 0. 如果包含 no-create 选项，则文件不存在时不会创建此文件；而是抛出一个条件类型的 i/o-file-dose-not-exist 异常。no-create 选项暗含了 no-fail 选项。只在包含或暗含 no-fail 选项时，no-truncate 选项才有意义，此时如果打开一个已经存在的文件，它不会被截短，但是，端口的位置仍然被设定于文件的起始处。
 
 It is perhaps easier to imagine that the default file options are the imaginary option symbols create, fail-if-exists, and truncate; no-create removes create, no-fail removes fail-if-exists, and no-truncate removes truncate.
+可能不难想象，默认的文件选项是虚构的选项符号 create, fail-if-exists, 和 truncate; no-create 移除了 create, no-fail 移除了 fail-if-exists, 而 no-truncate 移除了 truncate.
 
 Implementations may support additional file option symbols. Chez Scheme, for example, supports options that control whether the file is or should be compressed, whether it is locked for exclusive access, and what permissions are given to the file if it is created [9].
+具体实现可能支持额外的文件选项符号。例如，Chez Scheme 支持选项控制文件是否应被压缩，是否为独有的访问锁定，以及当文件创建时被给予什么权限。
 
 syntax: ~(buffer-mode symbol)~
 returns: symbol
 libraries: (rnrs io ports), (rnrs)
 
 symbol must be one of the symbols block, line, or none. The expression (buffer-mode symbol) 等价于 the expression (quote symbol) except that the former checks at expansion time that symbol is one of the buffer-mode symbols. The buffer-mode syntax provides useful documentation as well.
+symbol 必须是以下符号之一：block, line, 或 none. 表达式 (buffer-mode symbol) 等价于表达式 (quote symbol), 除了前者在展开期会检查 symbol 是否是缓冲模式符号之一。buffer-mode 语法也提供了有用的文档。
 
 #+begin_src scheme
 (buffer-mode block) => block
@@ -128,7 +133,7 @@ symbol must be one of the symbols block, line, or none. The expression (buffer-m
 #+end_src
 
 syntax: ~(buffer-mode? obj)~
-returns: #t if obj is a valid buffer mode, #f otherwise
+返回: 如果 ~obj~ 是一个有效的缓冲模式，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs)
 
 #+begin_src scheme
@@ -142,10 +147,11 @@ procedure: ~(open-file-input-port path)~
 procedure: ~(open-file-input-port path options)~
 procedure: ~(open-file-input-port path options b-mode)~
 procedure: ~(open-file-input-port path options b-mode ?transcoder)~
-returns: a new input port for the named file
+returns: 指定文件的一个新的输入端口
 libraries: (rnrs io ports), (rnrs)
 
 If ?transcoder is present and not #f, it must be a transcoder, and this procedure returns a textual input port whose transcoder is ?transcoder. Otherwise, this procedure returns a binary input port. See the lead-in to this section for a description of the constraints on and effects of the other arguments.
+如果指定了 ?transcoder, 且不为 #f, 则它必须是一个编码转换器，而这个过程返回一个文本输入端口，它的编码转换器为 ?transcoder. 否则，这个过程返回一个二进制输入端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
 procedure: ~(open-file-output-port path)~
 procedure: ~(open-file-output-port path options)~
@@ -155,6 +161,7 @@ returns: a new output port for the named file
 libraries: (rnrs io ports), (rnrs)
 
 If ?transcoder is present and not #f, it must be a transcoder, and this procedure returns a textual output port whose transcoder is ?transcoder. Otherwise, this procedure returns a binary output port. See the lead-in to this section for a description of the constraints on and effects of the other arguments.
+如果指定了 ?transcoder, 且不为 #f, 则它必须是一个编码转换器，而这个过程返回一个文本输出端口，它的编码转换器为 ?transcoder. 否则，这个过程返回一个二进制输出端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
 procedure: ~(open-file-input/output-port path)~
 procedure: ~(open-file-input/output-port path options)~
@@ -164,6 +171,7 @@ returns: a new input/output port for the named file
 libraries: (rnrs io ports), (rnrs)
 
 If ?transcoder is present and not #f, it must be a transcoder, and this procedure returns a textual input/output port whose transcoder is ?transcoder. Otherwise, this procedure returns a binary input/output port. See the lead-in to this section for a description of the constraints on and effects of the other arguments.
+如果指定了 ?transcoder, 且不为 #f, 则它必须是一个编码转换器，而这个过程返回一个文本输入/输出端口，它的编码转换器为 ?transcoder. 否则，这个过程返回一个二进制输入/输出端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
 ** Section 7.3. Standard Ports
 
