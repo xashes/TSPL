@@ -323,63 +323,79 @@ call-with-string-output-port can be used along with put-datum to define a proced
 (object->string (cons 'a '(b c))) => "(a b c)"
 #+end_src
 
-** Section 7.5. Opening Custom Ports
+** Section 7.5. 开启自定义端口 Opening Custom Ports
 
 procedure: ~(make-custom-binary-input-port id r! gp sp! close)~
-returns: a new custom binary input port
+returns: 一个新的自定义二进制输入端口
 procedure: ~(make-custom-binary-output-port id w! gp sp! close)~
-returns: a new custom binary output port
+returns: 一个新的自定义二进制输出端口
 procedure: ~(make-custom-binary-input/output-port id r! w! gp sp! close)~
-returns: a new custom binary input/output port
+returns: 一个新的自定义二进制输入/输出端口
 libraries: (rnrs io ports), (rnrs)
 
 These procedures allow programs to create ports from arbitrary byte streams. id must be a string naming the new port; the name is used for informational purposes only, and an implementation may choose to include it in the printed syntax, if any, of a custom port. r! and w! must be procedures, while gp, sp!, and close must each be a procedure or #f. These arguments are described below.
+这些过程允许程序通过任意字节流创建端口。id 必须是一个命名新端口的字符串；名字只是用于信息用途，而一个实现可以选择把它包含在自定义端口的打印语法形式（如果存在的话）中。r! 和 w! 必须是过程，而 gp, sp! 和 close 均必须为过程或 #f. 这些实参介绍如下。
 
-r!
-    is called to draw input from the custom port, e.g., to support get-u8 or get-bytevector-n. It is called with three arguments: bytevector, start, and n. start will be a nonnegative exact integer, n will be a positive exact integer, and the sum of start and n will not exceed the length of bytevector. If the byte stream is at end of file, r! should return exact 0. Otherwise, it should read at least one and at most n bytes from the stream, store these bytes in consecutive locations of bytevector starting at start, and return as an exact positive integer the number of bytes actually read.
+~r!~
+    为了从自定义端口获取输入而调用，例如，为了支持 get-u8 或 get-bytevector-n. 调用时传入三个实参：bytevector, start, 和 n. start 会是一个非负精确整数，n 会是一个正的精确整数，而 start 和 n 的和不能超过 bytevector 的长度。如果字节流在文件的结尾，r! 应该返回精确的 0. 否则，它应该从流中读入最小 1 个，最多 n 个字节，把这些字节存储在 bytevector 起始于 start 的连续位置上，并把实际读入的字节数作为一个精确的正整数返回。
 
-w!
-    is called to send output to the port, e.g., to support put-u8 or put-bytevector. It is called with three arguments: bytevector, start, and n. start and n will be nonnegative exact integers, and the sum of start and n will not exceed the length of bytevector. w! should write up to n consecutive bytes from bytevector starting at start and return, as an exact nonnegative integer, the number of bytes actually written.
+~w!~
+    为了向端口发送输出而调用，例如，为了支持 put-u8 或 put-bytevector. 调用时传入三个实参：bytevector, start, 和 n. start 和 n 会是非负精确整数，而 start 和 n 的和不能超过 bytevector 的长度。w!应当写入 bytevector 中始于 start 的至多 n 个连续字节，并把实际写入的字节数作为一个精确的非负整数返回。
+It is called with three arguments: bytevector, start, and n. start and n will be nonnegative exact integers, and the sum of start and n will not exceed the length of bytevector. w! should write up to n consecutive bytes from bytevector starting at start and return, as an exact nonnegative integer, the number of bytes actually written.
 
-gp
+~gp~
     is called to query the port's position. If it is #f, the port will not support port-position. If it is not #f, it will be passed zero arguments and should return the current position as a displacement in bytes from the start of the byte stream as an exact nonnegative integer.
+    为了查询端口位置而调用。如是它为 #f, 则端口不会支持 port-position. 如果它不为 #f, 它会被传入 0 个实参，并把字节流从开始位置起的字节偏移量作为当前位置，返回为一个精确的非负整数。
 
-sp!
-    is called to set the port's position. If it is #f, the port will not support set-port-position!. If it is not #f, it will be passed one argument, an exact nonnegative integer representing the new position as a displacement in bytes from the start of the byte stream, and it should set the position to this value.
+~sp!~
+    为了设置端口位置而调用。如果它为 #f, 则端口不会支持 set-port-position!. 如果它不为 #f, 它会被传入 1 个实参——一个精确的非负整数，以字节流从开始位置起的字节偏移量表示的新位置，而它应当把位置设为这个值。
+    If it is not #f, it will be passed one argument, an exact nonnegative integer representing the new position as a displacement in bytes from the start of the byte stream, and it should set the position to this value.
 
-close
-    is called to close the byte stream. If it is #f, no action will be taken to close the byte stream when the new port is closed. If it is not #f, it will be passed zero arguments and should take whatever actions are necessary to close the byte stream. 
+~close~
+    为了关闭字节流而调用。如果它为 #f, 当新端口关闭时，不会采取任何动作以关闭字节流。如果它不为 #f, 它会被传入 0 个实参， 并会采取一切必要的动作以关闭字节流。
+is called to close the byte stream. If it is #f, no action will be taken to close the byte stream when the new port is closed. If it is not #f, it will be passed zero arguments and should take whatever actions are necessary to close the byte stream. 
 
 If the new port is an input/output port and does not provide either a gp or sp! procedure, it may not be possible for the implementation to position the port properly if an output operation occurs after an input operation, due to input buffering that must be done to support lookahead-u8 and is often done anyway for efficiency. For the same reason, a call to port-position after an input operation may not return an accurate position if the sp! procedure is not provided. Thus, programs that create custom binary input/output ports should generally provide both gp and sp! procedures.
+如果新端口是一个输入/输出端口，而且未提供 gp 或 sp! 过程，则当一个输出操作发生在一个输入操作之后时，实现很可能无法正确定位端口，因为，为了支持 lookahead-u8 而必须完成的输入缓冲，为了效率经常会无条件完成。基于同样的原因，在一个输入操作之后调用 port-position，如果没有提供 sp!过程，则可能无法返回一个精确的位置。因此，创建自定义二进制输入/输出端口的程序，通常应当提供 gp 和 sp! 过程。
 
 procedure: ~(make-custom-textual-input-port id r! gp sp! close)~
-returns: a new custom textual input port
+returns: 一个新的自定义文本输入端口
 procedure: ~(make-custom-textual-output-port id w! gp sp! close)~
-returns: a new custom textual output port
+returns: 一个新的自定义文本输出端口
 procedure: ~(make-custom-textual-input/output-port id r! w! gp sp! close)~
-returns: a new custom textual input/output port
+returns: 一个新的自定义文本输入/输出端口
 libraries: (rnrs io ports), (rnrs)
 
 These procedures allow programs to create ports from arbitrary character streams. id must be a string naming the new port; the name is used for informational purposes only, and an implementation may choose to include it in the printed syntax, if any, of a custom port. r! and w! must be procedures, while gp, sp!, and close must each be a procedure or #f. These arguments are described below.
+这些过程允许程序通过任意字符流创建端口。id 必须是一个命名新端口的字符串；名字只是用于信息用途，而一个实现可以选择把它包含在自定义端口的打印语法形式（如果存在的话）中。r! 和 w! 必须是过程，而 gp, sp! 和 close 均必须为过程或 #f. 这些实参介绍如下。
 
 r!
     is called to draw input from the port, e.g., to support get-char or get-string-n. It is called with three arguments: string, start, and n. start will be a nonnegative exact integer, n will be a positive exact integer, and the sum of start and n will not exceed the length of string. If the character stream is at end of file, r! should return exact 0. Otherwise, it should read at least one and at most n characters from the stream, store these characters in consecutive locations of string starting at start, and return as an exact positive integer the number of characters actually read.
+    为了从端口获取输入而调用，例如，为了支持 get-char 或 get-string-n. 调用时传入三个实参：string, start, 和 n. start 会是一个非负精确整数，n 会是一个正的精确整数，而 start 和 n 的和不能超过 string 的长度。如果字符流在文件的结尾，r! 应该返回精确的 0. 否则，它应该从流中读入最小 1 个，最多 n 个字符，把这些字符存储在 string 起始于 start 的连续位置上，并把实际读入的字符数作为一个精确的正整数返回。
 
 w!
     is called to send output to the port, e.g., to support put-char or put-string. It is called with three arguments: string, start, and n. start and n will be nonnegative exact integers, and the sum of start and n will not exceed the length of string. w! should write up to n consecutive characters from string starting at start and return, as an exact nonnegative integer, the number of characters actually written.
+    为了向端口发送输出而调用，例如，为了支持 put-char 或 put-string. 调用时传入三个实参：string, start, 和 n. start 和 n 会是非负精确整数，而 start 和 n 的和不能超过 string 的长度。w!应当写入 string 中始于 start 的至多 n 个连续字符，并把实际写入的字符数作为一个精确的非负整数返回。
 
 gp
     is called to query the port's position. If it is #f, the port will not support port-position. If it is not #f, it will be passed zero arguments and should return the current position, which may be an arbitrary value.
+    为了查询端口位置而调用。如是它为 #f, 则端口不会支持 port-position. 如果它不为 #f, 它会被传入 0 个实参，并返回当前位置，其可能为任意值。
 
-sp!
+~sp!~
     is called to set the port's position. If it is #f, the port will not support set-port-position!. If it is not #f, it will be passed one argument, pos, a value representing the new position. If pos is the result of a previous call to gp, sp! should set the position to pos.
+    为了设置端口位置而调用。如果它为 #f, 则端口不会支持 set-port-position!. 如果它不为 #f, 它会被传入 1 个实参——pos, 一个表示新位置的值。如果 pos 是之前对 gp 的一个调用的结果，则 sp! 应当把位置设为 pos.
 
 close
     is called to close the character stream. If it is #f, no action will be taken to close the character stream when the new port is closed. If it is not #f, it will be passed zero arguments and should take whatever actions are necessary to close the character stream. 
+~close~
+    为了关闭字符流而调用。如果它为 #f, 当新端口关闭时，不会采取任何动作以关闭字符流。如果它不为 #f, 它会被传入 0 个实参， 并会采取一切必要的动作以关闭字符流。
 
 If the new port is an input/output port, it may not be possible for the implementation to position the port properly if an output operation occurs after an input operation, even if the gp and sp! procedures are provided, due to input buffering that must be done to support lookahead-char and is often done anyway for efficiency. Since the representations of port positions are not specified, it is not possible for the implementation to adjust the gp return value to account for the number of buffered characters. For the same reason, a call to port-position after an input operation may not return an accurate position, even if the sp! procedure is provided.
+如果新端口是一个输入/输出端口，则当一个输出操作发生在一个输入操作之后时，即使提供了 gp 或 sp! 过程，实现也很可能无法正确定位端口，因为，为了支持 lookahead-char 而必须完成的输入缓冲，为了效率经常会无条件完成。由于没有指定端口位置的表示形式，实现无法调整 gp 的返回值，以计入缓冲的字符数。基于同样的原因，在一个输入操作之后调用 port-position，即使提供了 sp!过程，也可能无法返回一个精确的位置。
 
 It should, however, be possible to perform output reliably after reading if the position is reset to the starting position. Thus, programs that create custom textual input/output ports should generally provide both gp and sp! procedures, and consumers of these ports should obtain the starting position via port-position before any input operations and reset the position back to the starting position before doing any output operations.
+然而，如果位置被重置为起始位置，则应该能够在读取后可靠地执行输出。因此，创建自定义文本输入/输出端口的程序，通常应当提供 gp 和 sp! 过程，而这些端口的使用者应当在任何输入操作之前，通过 port-position 获取起始位置，并在进行任何输出操作之前，把位置重置回起始位置。
+
 
 ** Section 7.6. Port Operations
 
