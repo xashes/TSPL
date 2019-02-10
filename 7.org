@@ -400,21 +400,22 @@ It should, however, be possible to perform output reliably after reading if the 
 ** Section 7.6. Port Operations
 
 This section describes a variety of operations on ports that do not directly involve either reading from or writing to a port. The input and output operations are described in subsequent sections.
+本节介绍了多种不直接涉及读写端口的端口操作。输入和输出操作会在后续章节中介绍。
 
 procedure: ~(port? obj)~
-returns: #t if obj is a port, #f otherwise
+返回: 如果 ~obj~ 是端口，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs)
 
 procedure: ~(input-port? obj)~
-returns: #t if obj is an input or input/output port, #f otherwise
+返回: 如果 ~obj~ 是输入端口或输入/输出端口，则为 ~#t~, 否则为 ~#f~.
 procedure: ~(output-port? obj)~
-returns: #t if obj is an output or input/output port, #f otherwise
+返回: 如果 ~obj~ 是输出端口或输入/输出端口，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs io simple), (rnrs)
 
 procedure: ~(binary-port? obj)~
-returns: #t if obj is a binary port, #f otherwise
+返回: 如果 ~obj~ 是二进制端口，则为 ~#t~, 否则为 ~#f~.
 procedure: ~(textual-port? obj)~
-returns: #t if obj is a textual port, #f otherwise
+返回: 如果 ~obj~ 是文本端口，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs)
 
 procedure: ~(close-port port)~
@@ -422,48 +423,57 @@ returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
 If port is not already closed, close-port closes it, first flushing any buffered bytes or characters to the underlying stream if the port is an output port. Once a port has been closed, no more input or output operations may be performed on the port. Because the operating system may place limits on the number of file ports open at one time or restrict access to an open file, it is good practice to close any file port that will no longer be used for input or output. If the port is an output port, closing the port explicitly also ensures that buffered data is written to the underlying stream. Some Scheme implementations close file ports automatically after they become inaccessible to the program or when the Scheme program exits, but it is best to close file ports explicitly whenever possible. Closing a port that has already been closed has no effect.
+如果端口尚未关闭，则 close-port 会关闭它，如果端口是输出端口，首先要把任何缓存的字节或字符 flush 进底层的流。一旦端口被关闭，就不可以在端口上再进行任何的输入或输出操作。由于操作系统可能会对同时开启的文件端口数量设限，或对打开文件的访问设限，因此，关闭任何不再用于输入或输出的文件端口是个好的习惯。如果端口是输出端口，显式关闭端口同样确保了缓冲数据会被写入底层的流。某些 Scheme 实现，在文件端口对程序变得不可访问，或在 Scheme 程序退出后，会自动关闭文件端口，但最好还是尽可能显式关闭文件端口。关闭一个已经关闭的端口不会产生任何影响。
 
 procedure: ~(transcoded-port binary-port transcoder)~
-returns: a new textual port with the same byte stream as binary-port
+returns: 一个新的文本端口，有着和 binary-port 一样的字节流 a new textual port with the same byte stream as binary-port
 libraries: (rnrs io ports), (rnrs)
 
 This procedure returns a new textual port with transcoder transcoder and the same underlying byte stream as binary-port, positioned at the current position of binary-port.
+这个过程返回一个新的文本端口，编码转换器为 transcoder, 底层字节流和 binary-port 一样，定位于 binary-port 的当前位置。
 
 As a side effect of creating the textual port, binary-port is closed to prevent read or write operations on binary-port from interfering with read and write operations on the new textual port. The underlying byte stream remains open, however, until the textual port is closed.
+作为创建文本端口的副作用，binary-port 会被关闭，以防止在 binary-port 上的读写操作和在新的文本端口上的读写操作会互相干扰。不过，底层字节流会保持开启，直到此文本端口被关闭。
 
 procedure: ~(port-transcoder port)~
-returns: the transcoder associated with port if any, #f otherwise
+returns: 与 port 相关联的编码转换器（如果存在的话），否则为 #f
 libraries: (rnrs io ports), (rnrs)
 
 This procedure always returns #f for binary ports and may return #f for some textual ports.
+这个过程对二进制端口总是返回 #f, 而对某些文本端口可能返回 #f.
 
 procedure: ~(port-position port)~
-returns: the port's current position
+returns: port 的当前位置
 procedure: ~(port-has-port-position? port)~
-returns: #t if the port supports port-position, #f otherwise
+返回: 如果 ~port~ 支持 port-position，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs)
 
 A port may allow queries to determine its current position in the underlying stream of bytes or characters. If so, the procedure port-has-port-position? returns #t and port-position returns the current position. For binary ports, the position is always an exact nonnegative integer byte displacement from the start of the byte stream. For textual ports, the representation of a position is unspecified; it may not be an exact nonnegative integer and, even if it is, it may not represent either a byte or character displacement in the underlying stream. The position may be used at some later time to reset the position if the port supports set-port-position!. If port-position is called on a port that does not support it, an exception with condition type &assertion is raised.
+端口可能支持查询以确定它的底层字节或字符流中的当前位置。如果是这样，过程 port-has-port-position? 返回 #t, 而 port-position 返回当前位置。对于二进制端口，位置总是一个精确的非负整数的，从字节流起始位置起的字节偏移量。对于文本端口，位置的表示形式是未定义的；它可能不是一个精确的非负整数，而即使它是，它可能也不表示底层流的字节或字符偏移量。如果端口支持 set-port-position!, 位置可以在之后用于重置位置。如果在一个不支持 port-position 的端口上调用它，会抛出一个条件类型的 &assertion 异常。
 
 procedure: ~(set-port-position! port pos)~
 returns: unspecified
 procedure: ~(port-has-set-port-position!? port)~
-returns: #t if the port supports set-port-position!, #f otherwise
+返回: 如果 ~port~ 支持 set-port-position!，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs)
 
 A port may allow its current position to be moved directly to a different position in the underlying stream of bytes or characters. If so, the procedure port-has-set-port-position!? returns #t and set-port-position! changes the current position. For binary ports, the position pos must be an exact nonnegative integer byte displacement from the start of the byte stream. For textual ports, the representation of a position is unspecified, as described in the entry for port-position above, but pos must be an appropriate position for the textual port, which is usually guaranteed to be the case only if it was obtained from a call to port-position on the same port. If set-port-position! is called on a port that does not support it, an exception with condition type &assertion is raised.
+一个端口可能允许把它的当前位置直接移动到底层字节或字符流中的一个不同位置。如果这样的话，过程 port-has-set-port-position!? 返回 #t, 而 set-port-position! 改变当前位置。对于二进制端口，位置 pos 必须是一个精确非负整数的，从字节流起始位置起的字节偏移量。对于文本端口，位置的表示形式是未定义的，如同上面 port-position 条目中所介绍的，但 pos 必须是文本端口的一个适当的位置，通常只有在它是从相同端口上对 port-position 的调用中获得时，才能确保如此。如果在不支持 set-port-position! 的端口上调用它，会抛出一个条件类型的 &assertion 异常。
 
 If port is a binary output port and the position is set beyond the current end of the data in the underlying stream, the stream is not extended until new data is written at that position. If new data is written at that position, the contents of each intervening position is unspecified. Binary ports created with open-file-output-port and open-file-input/output-port can always be extended in this manner within the limits of the underlying operating system. In other cases, attempts to set the port beyond the current end of data in the underlying object may result in an exception with condition type &i/o-invalid-position.
+如果端口是二进制输出端口，而设定的位置超过了底层流中数据的当前末尾，则直到向那个位置写入新数据时，流才会扩展。如果向那个位置写入新数据，则每个中间位置的内容为未定义的。通过 open-file-output-port 和 open-file-input/output-port 创建的二进制端口，总是能以这种方式扩展，只要不超出底层操作系统的限制。在其它情况下，尝试把端口设定到超出底层对象中数据的当前末尾的位置时，可能会引起条件类型的&i/o-invalid-position 异常。
 
 procedure: ~(call-with-port port procedure)~
-returns: the values returned by procedure
+returns: procedure 返回的值
 libraries: (rnrs io ports), (rnrs)
 
-call-with-port calls procedure with port as the only argument. If procedure returns, call-with-port closes the port and returns the values returned by procedure.
+call-with-port 以 port 作为唯一实参调用 procedure. 如果 procedure 返回， 则 call-with-port 关闭端口，并返回 procedure 返回的值。
 
-call-with-port does not automatically close the port if a continuation created outside of procedure is invoked, since it is possible that another continuation created inside of procedure will be invoked at a later time, returning control to procedure. If procedure does not return, an implementation is free to close the port only if it can prove that the output port is no longer accessible.
+如果一个创建于 procedure 之外的 continuation 被调用，则 call-with-port 不会自动关闭端口，因为之后可能会有另一个创建于 procedure 之内的 continuation 被调用，并把控制权返还给 procedure. 如果 procedure 没有返回，则只有在实现可以确认此输出端口不再可以被访问时，才可以自由地关闭此端口。
+does not automatically close the port if a continuation created outside of procedure is invoked, since it is possible that another continuation created inside of procedure will be invoked at a later time, returning control to procedure. If procedure does not return, an implementation is free to close the port only if it can prove that the output port is no longer accessible.
 
 The example below copies the contents of infile to outfile, overwriting outfile if it exists. Unless an error occurs, the ports are closed after the copy has been completed.
+以下的例子，把输入文件的内容复制到输出文件，如果输出文件已存在，则被覆盖。除非发生错误，不然在复制结束后端口即被关闭。
 
 #+begin_src scheme
 (call-with-port (open-file-input-port "infile" (file-options)
@@ -480,9 +490,10 @@ The example below copies the contents of infile to outfile, overwriting outfile 
 #+end_src
 
 A definition of call-with-port is given on page 135.
+call-with-port 的定义在 135 页给出。
 
 procedure: ~(output-port-buffer-mode port)~
-returns: the symbol representing the buffer mode of port
+returns: 表示 port 缓冲模式的符号
 libraries: (rnrs io ports), (rnrs)
 
 ** Section 7.7. Input Operations
