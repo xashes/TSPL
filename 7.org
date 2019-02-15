@@ -499,15 +499,17 @@ libraries: (rnrs io ports), (rnrs)
 ** Section 7.7. Input Operations
 
 Procedures whose primary purpose is to read data from an input port are described in this section, along with related procedures for recognizing or creating end-of-file (eof) objects.
+本节介绍了主要目的为从输入端口读取数据的过程，以及识别或创建文件结尾（eof）对象的相关过程。
 
 procedure: ~(eof-object? obj)~
-returns: #t if obj is an eof object, #f otherwise
+返回: 如果 ~obj~ 是 eof 对象，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs io simple), (rnrs)
 
 The end-of-file object is returned by input operations, e.g., get-datum, when an input port has reached the end of input.
+当抵达一个输入端口中输入的末尾，则输入操作，如，get-datum, 会返回文件结尾对象。
 
 procedure: ~(eof-object)~
-returns: the eof object
+returns: eof 对象
 libraries: (rnrs io ports), (rnrs io simple), (rnrs)
 
 #+begin_src scheme
@@ -515,56 +517,66 @@ libraries: (rnrs io ports), (rnrs io simple), (rnrs)
 #+end_src
 
 procedure: ~(get-u8 binary-input-port)~
-returns: the next byte from binary-input-port, or the eof object
+returns: binary-input-port 中的下一个字节，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, the next available byte is returned as an unsigned 8-bit quantity, i.e., an exact unsigned integer less than or equal to 255, and the port's position is advanced one byte.
+如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，会把下一个可用字节作为无符号 8 位数返回，即，一个精确的无符号整数，小于等于 255，而端口位置会增加一个字节。
 
 procedure: ~(lookahead-u8 binary-input-port)~
-returns: the next byte from binary-input-port, or the eof object
+returns: binary-input-port 中的下一个字节，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, the next available byte is returned as an unsigned 8-bit quantity, i.e., an exact unsigned integer less than or equal to 255. In contrast to get-u8, lookahead-u8 does not consume the byte it reads from the port, so if the next operation on the port is a call to lookahead-u8 or get-u8, the same byte is returned.
+如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，会把下一个可用字节作为无符号 8 位数返回，即，一个精确的无符号整数，小于等于 255. 与 get-u8 相比，lookahead-u8 不消耗它从端口读取的字节，所以，如果下一个端口上的操作是对 lookahead-u8 或 get-u8 的调用，则会返回相同的字节。
 
 procedure: ~(get-bytevector-n binary-input-port n)~
-returns: a nonempty bytevector containing up to n bytes, or the eof object
+returns: 一个非空字节向量，包含至多 n 字节，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
-n must be an exact nonnegative integer. If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-n reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, and returns a new (nonempty) bytevector containing these bytes. The port's position is advanced past the bytes read.
+n 必须是精确的非负整数。如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-n 读取（和 get-u8 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字节，并返回一个新的（非空）的包含这些字节的字节向量。端口位置移动到所读字节的后面。
+reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, and returns a new (nonempty) bytevector containing these bytes. The port's position is advanced past the bytes read.
 
 procedure: ~(get-bytevector-n! binary-input-port bytevector start n)~
-returns: the count of bytes read or the eof object
+returns: 读取的字节数，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 start and n must be exact nonnegative integers, and the sum of start and n must not exceed the length of bytevector.
+start 和 n 必须是精确的非负整数，且 start 和 n 的和一定不能超过 bytevector 的长度。
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-n! reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, stores the bytes in consecutive locations of bytevector starting at start, and returns the count of bytes read as an exact positive integer. The port's position is advanced past the bytes read.
+如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-n! 读取（和 get-u8 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字节，把这些字节存储在 bytevector 起始于 start 的连续位置上，并把读取的字节数作为一个精确的正整数返回。端口位置被移动到读取的字节之后。
 
 procedure: ~(get-bytevector-some binary-input-port)~
-returns: a nonempty bytevector or the eof object
+returns: 一个非空字节向量，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-some reads (as if with get-u8) at least one byte and possibly more, and returns a bytevector containing these bytes. The port's position is advanced past the bytes read. The maximum number of bytes read by this operation is implementation-dependent.
+如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-some 读取（和 get-u8 一样）至少一个，也可能多个字节，并返回一个包含这些字节的字节向量。端口位置被移动到读取的字节之后。通过这个操作读取的最大字节数是与实现相关的。
 
 procedure: ~(get-bytevector-all binary-input-port)~
-returns: a nonempty bytevector or the eof object
+returns: 一个非空字节向量，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-all reads (as if with get-u8) all of the bytes available before the port is at end of file and returns a bytevector containing these bytes. The port's position is advanced past the bytes read.
+如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-all 读取（和 get-u8 一样）在端口到达文件末尾前可用的所有字节，并返回一个包含这些字节的字节向量。端口位置被移动到读取的字节之后。
 
 procedure: ~(get-char textual-input-port)~
-returns: the next character from textual-input-port, or the eof object
+returns: textual-input-port 中的下一个字符，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, the next available character is returned and the port's position is advanced one character. If textual-input-port is a transcoded port, the position in the underlying byte stream may advance by more than one byte.
+如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，会返回下一个可用字符，且端口位置会后移一个字符。如果 textual-input-port 是一个经过编码转换的端口，则底层字节流中的位置可能后移多于一个字节。
 
 procedure: ~(lookahead-char textual-input-port)~
-returns: the next character from textual-input-port, or the eof object
+returns: textual-input-port 中的下一个字符，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, the next available character is returned. In contrast to get-char, lookahead-char does not consume the character it reads from the port, so if the next operation on the port is a call to lookahead-char or get-char, the same character is returned.
+如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，会返回下一个可用字符。与 get-char 相比，lookahead-char 不消耗它从端口读取的字符，所以，如果下一个端口上的操作是对 lookahead-char 或 get-char 的调用，则会返回相同的字符。
 
-lookahead-char is provided for applications requiring one character of lookahead. The procedure get-word defined below returns the next word from a textual input port as a string, where a word is defined to be a sequence of alphabetic characters. Since get-word does not know until it sees one character beyond the word that it has read the entire word, it uses lookahead-char to determine the next character and get-char to consume the character.
+lookahead-char 是为需要预知后一个字符的应用而提供的。下方定义的 get-word 过程，把文本输入端口中的下一个单词作为字符串返回，其中单词定义为一个字母字符的序列。由于 get-word 在看到单词的后一个字符之前，它并不知道它读入了整个单词，因此它使用 lookahead-char 以确定下一个字符，而使用 get-char 以读入下一个字符。
+is provided for applications requiring one character of lookahead. The procedure get-word defined below returns the next word from a textual input port as a string, where a word is defined to be a sequence of alphabetic characters. Since get-word does not know until it sees one character beyond the word that it has read the entire word, it uses lookahead-char to determine the next character and get-char to consume the character.
 
 #+begin_src scheme
 (define get-word
@@ -579,20 +591,23 @@ lookahead-char is provided for applications requiring one character of lookahead
 #+end_src
 
 procedure: ~(get-string-n textual-input-port n)~
-returns: a nonempty string containing up to n characters, or the eof object
+returns: 一个包含至多 n 个字符的非空字符串，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 n must be an exact nonnegative integer. If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-n reads (as if with get-char) as many characters, up to n, as are available before the port is at end of file, and returns a new (nonempty) string containing these characters. The port's position is advanced past the characters read.
+n 必须是精确的非负整数。如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-string-n 读取（和 get-char 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字节，并返回一个新的（非空）的包含这些字符的字符串。端口位置被移动到读取的字符之后。
 
 procedure: ~(get-string-n! textual-input-port string start n)~
-returns: the count of characters read or the eof object
+returns: 读入的字符数，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 start and n must be exact nonnegative integers, and the sum of start and n must not exceed the length of string.
+start 和 n 必须是精确的非负整数，且 start 和 n 的和一定不能超过 string 的长度。
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-n! reads (as if with get-char) as many characters, up to n, as are available before the port is at end of file, stores the characters in consecutive locations of string starting at start, and returns the count of characters read as an exact positive integer. The port's position is advanced past the characters read.
+如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-string-n! 读取（和 get-char 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字符，把这些字符存储在 string 起始于 start 的连续位置上，并把读取的字符数作为一个精确的正整数返回。端口位置被移动到读取的字符之后。
 
-get-string-n! may be used to implement string-set! and string-fill!, as illustrated below, although this is not its primary purpose.
+get-string-n! 可被用于实现 string-set! 和 string-fill!, 如下所示，不过，这并不是它的主要用途。
 
 #+begin_src scheme
 (define string-set!
@@ -622,16 +637,18 @@ get-string-n! may be used to implement string-set! and string-fill!, as illustra
 #+end_src
 
 procedure: ~(get-string-all textual-input-port)~
-returns: a nonempty string or the eof object
+returns: 一个非空字符串，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-all reads (as if with get-char) all of the characters available before the port is at end of file and returns a string containing these characters. The port's position is advanced past the characters read.
+如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-string-all 读取（和 get-char 一样）在端口到达文件末尾前可用的所有字符，并返回一个包含这些字符的字符串。端口位置被移动到读取的字符之后。
 
 procedure: ~(get-line textual-input-port)~
-returns: a string or the eof object
+returns: 一个字符串，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, get-line reads (as if with get-char) all of the characters available before the port is at end of file or a line-feed character has been read and returns a string containing all but the line-feed character of the characters read. The port's position is advanced past the characters read.
+如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-line 读取（和 get-char 一样）在端口到达文件末尾前或读到换行字符时可用的所有字符，并返回一个包含除了换行字符以外的所有读入字符的字符串。端口位置被移动到读取的字符之后。
 
 #+begin_src scheme
 (let ([sip (open-string-input-port "one\ntwo\n")])
