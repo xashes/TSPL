@@ -687,15 +687,18 @@ libraries: (rnrs io ports), (rnrs)
 This procedure is similar to lookahead-u8 on a binary input port or lookahead-char on a textual input port, except that instead of returning the next byte/character or eof object, it returns a boolean value to indicate whether the value would be the eof object.
 这个过程类似于二进制输入端口上的 lookahead-u8 过程，或文本输入端口上的 lookahead-char 过程，只是它并非返回下一个字节/字符或 eof 对象，而是返回一个布尔值，以指示值是否为 eof 对象。
 
+
 ** Section 7.8. Output Operations
 
 Procedures whose primary purpose is to send data to an output port are described in this section.
+本节介绍了主要用途为向输出端口发送数据的过程。
 
 procedure: ~(put-u8 binary-output-port octet)~
 returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
-octet must be an exact nonnegative integer less than or equal to 255. This procedure writes octet to binary-output-port, advancing the port's position by one byte.
+octet 必须是一个精确的非负整数，且小于等于 255. 这个过程把 octet 写入 binary-output-port, 并把端口位置后移一个节字。
+must be an exact nonnegative integer less than or equal to 255. This procedure writes octet to binary-output-port, advancing the port's position by one byte.
 
 procedure: ~(put-bytevector binary-output-port bytevector)~
 procedure: ~(put-bytevector binary-output-port bytevector start)~
@@ -703,15 +706,18 @@ procedure: ~(put-bytevector binary-output-port bytevector start n)~
 returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
-start and n must be nonnegative exact integers, and the sum of start and n must not exceed the length of bytevector. If not supplied, start defaults to zero and n defaults to the difference between the length of bytevector and start.
+start 和 n 必须是非负的精确整数，且 start 和 n 的和一定不能超过 bytevector 的长度。如果不指定，则 start 默认为 0，而 n 默认为 bytevector 的长度与 start 的差。
+must be nonnegative exact integers, and the sum of start and n must not exceed the length of bytevector. If not supplied, start defaults to zero and n defaults to the difference between the length of bytevector and start.
 
 This procedure writes the n bytes of bytevector starting at start to the port and advances the its position past the end of the bytes written.
+这个过程把 bytevector 始于 start 的 n 个字节写入端口，并把端口位置移动到写入字节的后面。
 
 procedure: ~(put-char textual-output-port char)~
 returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
 This procedure writes char to textual-output-port, advancing the port's position by one character. If textual-output-port is a transcoded port, the position in the underlying byte stream may advance by more than one byte.
+这个过程把 char 写入 textual-output-port, 并把端口位置前进一个节符。如果 textual-output-port 是一个经过编码转换的端口，则底层字节流中的位置可能后移多于一个字节。
 
 procedure: ~(put-string textual-output-port string)~
 procedure: ~(put-string textual-output-port string start)~
@@ -720,20 +726,25 @@ returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
 start and n must be nonnegative exact integers, and the sum of start and n must not exceed the length of string. If not supplied, start defaults to zero and n defaults to the difference between the length of string and start.
+start 和 n 必须是非负的精确整数，且 start 和 n 的和一定不能超过 string 的长度。如果不指定，则 start 默认为 0，而 n 默认为 string 的长度与 start 的差。
 
 This procedure writes the n characters of string starting at start to the port and advances the its position past the end of the characters written.
+这个过程把 string 始于 start 的 n 个字符写入端口，并把端口位置移动到写入字符的后面。
 
 procedure: ~(put-datum textual-output-port obj)~
 returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
 This procedure writes an external representation of obj to textual-output-port. If obj does not have an external representation as a datum, the behavior is unspecified. The precise external representation is implementation-dependent, but when obj does have an external representation as a datum, put-datum should produce a sequence of characters that can later be read by get-datum as an object equivalent (in the sense of equal?) to obj. See Section 12.5 for an implementation of put-datum, write, and display.
+这个过程把 obj 的外部表示形式写入 textual-output-port. 如果 obj 没有作为 datum 的外部表示形式，则过程的行为是未定义的。精确的外部表示形式是依赖于实现的，但是当 obj 确实有一个作为 datum 的外部表示形式时，则 put-datum 应当生成一个字符序列，此字符序列能够在之后被 get-datum 读取为一个与 obj 等价（基于 equal?）的对象。put-datum, write, 和 display 的实现可参见 12.5 节。
 
 procedure: ~(flush-output-port output-port)~
 returns: unspecified
 libraries: (rnrs io ports), (rnrs)
 
 This procedure forces any bytes or characters in the buffer associated with output-port to be sent immediately to the underlying stream.
+这个过程强制把缓冲区中与 output-port 相关联的任何字节或字符立即发送到底层的流。
+
 
 ** Section 7.9. Convenience I/O
 
@@ -921,6 +932,7 @@ libraries: (rnrs io simple), (rnrs)
 
 close-input-port closes an input port, and close-output-port closes an output port. These procedures are provided for backward compatibility with the Revised5 Report; they are not actually more convenient to use than close-port.
 
+
 ** Section 7.10. Filesystem Operations
 
 Scheme has two standard operations, beyond file input/output, for interacting with the filesystem: file-exists? and delete-file. Most implementations support additional operations.
@@ -936,6 +948,7 @@ returns: unspecified
 libraries: (rnrs files), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. delete-file removes the file named by path if it exists and can be deleted, otherwise it raises an exception with condition type &i/o-filename. Whether delete-file follows symbolic links is unspecified.
+
 
 ** Section 7.11. Bytevector/String Conversions
 
