@@ -663,12 +663,14 @@ If textual-input-port is at end of file, the eof object is returned. Otherwise, 
 #+end_src
 
 procedure: ~(get-datum textual-input-port)~
-returns: a Scheme datum object or the eof object
+returns: 一个 Scheme datum 对象，或 eof 对象
 libraries: (rnrs io ports), (rnrs)
 
 This procedure scans past whitespace and comments to find the start of the external representation of a datum. If textual-input-port reaches end of file before the start of the external representation of a datum is found, the eof object is returned.
+这个过程扫描时略过空白和注释，寻找一个 datum 外部表示形式的起始点。如果在找到一个 datum 外部表示形式的起始点之前，textual-input-port 就到达了文件末尾，则返回 eof 对象。
 
 Otherwise, get-datum reads as many characters as necessary, and no more, to parse a single datum, and returns a newly allocated object whose structure is determined by the external representation. The port's position is advanced past the characters read. If an end-of-file is reached before the external representation of the datum is complete, or an unexpected character is read, an exception is raised with condition types &lexical and i/o-read.
+否则，get-datum 根据需要读取尽可能多，却不过多的字符，以解析一个单个的 datum, 并返回一个新分配的对象，其结构由外部表示形式决定。端口位置被移动到读取的字符之后。如果在 datum 的外部表示形式完成之前就到达了文件末尾，或读取到一个意外的字符，则会抛出条件类型的 &lexical 和 i/o-read 异常。
 
 #+begin_src scheme
 (let ([sip (open-string-input-port "; a\n\n one (two)\n")])
@@ -679,10 +681,11 @@ Otherwise, get-datum reads as many characters as necessary, and no more, to pars
 #+end_src
 
 procedure: ~(port-eof? input-port)~
-returns: #t if input-port is at end-of-file, #f otherwise
+返回: 如果 ~input-port~ 处于文件末尾，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs io ports), (rnrs)
 
 This procedure is similar to lookahead-u8 on a binary input port or lookahead-char on a textual input port, except that instead of returning the next byte/character or eof object, it returns a boolean value to indicate whether the value would be the eof object.
+这个过程类似于二进制输入端口上的 lookahead-u8 过程，或文本输入端口上的 lookahead-char 过程，只是它并非返回下一个字节/字符或 eof 对象，而是返回一个布尔值，以指示值是否为 eof 对象。
 
 ** Section 7.8. Output Operations
 
