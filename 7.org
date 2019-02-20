@@ -747,36 +747,45 @@ This procedure forces any bytes or characters in the buffer associated with outp
 
 
 ** Section 7.9. Convenience I/O
+   :LOGBOOK:
+   CLOCK: [2019-02-20 Wed 20:39]--[2019-02-20 Wed 20:40] =>  0:01
+   :END:
 
 The procedures in this section are referred to as "convenience" I/O operators because they present a somewhat simplified interface for creating and interacting with textual ports. They also provide backward compatibility with the Revised5 Report, which did not support separate binary and textual I/O.
+本节中的过程被称为“便捷”的 I/O 操作，因为它们为创建文本端口及与文本端口交互提供了一种稍微简化的接口。它们也提供了对 R^{5}RS（不支持独立的二进制和文本 I/O）的向后兼容。
 
 The convenience input/output procedures may be called with or without an explicit port argument. If called without an explicit port argument, the current input or output port is used, as appropriate. For example, (read-char) and (read-char (current-input-port)) both return the next character from the current input port.
+调用便捷的输入/输出过程时，可以传入或不传入显式的端口实参。如果调用时不带有显式的端口实参，则酌情使用当前的输入或输出端口。例如， (read-char) 和 (read-char (current-input-port)) 均返回当前输入端口的下一个字符。
 
 procedure: ~(open-input-file path)~
-returns: a new input port
+returns: 一个新的输入端口
 libraries: (rnrs io simple), (rnrs)
 
-path must be a string or some other implementation-dependent value that names a file. open-input-file creates a new textual input port for the file named by path, as if by open-file-input-port with default options, an implementation-dependent buffer mode, and an implementation-dependent transcoder.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。open-input-file 为 path 命名的文件创建了一个新的文本输入端口，和以默认选项，一个与实现相关的缓冲模式，及一个与实现相关的编码转换器调用 open-file-input-port 一样。
+creates a new textual input port for the file named by path, as if by open-file-input-port with default options, an implementation-dependent buffer mode, and an implementation-dependent transcoder.
 
 The following shows the use of open-input-file, read, and close-port in an expression that gathers a list of objects from the file named by "myfile.ss."
+以下代码在一个表达式中展示了 open-input-file, read, 以及 close-port 的用法，这个表达式从名为 "myfile.ss" 的文件中收集了一个对象列表。
 
 #+begin_src scheme
-(let ([p (open-input-file "myfile.ss")])
-  (let f ([x (read p)])
-    (if (eof-object? x)
-        (begin
-          (close-port p)
-          '())
-        (cons x (f (read p))))))
+  (let ([p (open-input-file "myfile.ss")])
+    (let f ([x (read p)])
+      (if (eof-object? x)
+          (begin
+            (close-port p)
+            '())
+          (cons x (f (read p))))))
 #+end_src
 
 procedure: ~(open-output-file path)~
-returns: a new output port
+returns: 一个新的输出端口
 libraries: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. open-output-file creates a new output port for the file named by path, as if by open-file-output-port with default options, an implementation-dependent buffer mode, and an implementation-dependent transcoder.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。open-output-file 为 path 命名的文件创建了一个新的文本输出端口，和以默认选项，一个与实现相关的缓冲模式，及一个与实现相关的编码转换器调用 open-file-output-port 一样。
 
 The following shows the use of open-output-file to write a list of objects (the value of list-to-be-printed), separated by newlines, to the file named by "myfile.ss."
+以下代码展示了如何使用 open-output-file 把一个对象列表（list-to-be-printed 的值）写入名为 "myfile.ss" 的文件中，对象之间以换行符分隔。
 
 #+begin_src scheme
 (let ([p (open-output-file "myfile.ss")])
@@ -790,16 +799,19 @@ The following shows the use of open-output-file to write a list of objects (the 
 #+end_src
 
 procedure: ~(call-with-input-file path procedure)~
-returns: the values returned by procedure
+returns: procedure 的返回值
 libraries: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. procedure should accept one argument.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。procedure 应当接受一个参数。
 
-call-with-input-file creates a new input port for the file named by path, as if with open-input-file, and passes this port to procedure. If procedure returns, call-with-input-file closes the input port and returns the values returned by procedure.
+call-with-input-file 为 path 命名的文件创建了一个新的输入端口，和 open-input-file 一样，并把这个端口传入 procedure. 如果 procedure 返回，则 call-with-input-file 关闭输入端口，并返回 procedure 的返回值。
 
 call-with-input-file does not automatically close the input port if a continuation created outside of procedure is invoked, since it is possible that another continuation created inside of procedure will be invoked at a later time, returning control to procedure. If procedure does not return, an implementation is free to close the input port only if it can prove that the input port is no longer accessible. As shown in Section 5.6, dynamic-wind may be used to ensure that the port is closed if a continuation created outside of procedure is invoked.
+如果一个创建于 procedure 之外的 continuation 被调用，则 call-with-input-file 不会自动关闭输入端口，因为之后可能会有另一个创建于 procedure 之内的 continuation 被调用，并把控制权返还给 procedure. 如果 procedure 没有返回，则只有在可以确认此输入端口不再可以被访问时，实现才可以自由地关闭此输入端口。如 5.6 节中所示，一个创建于 procedure 之外的 continuation 被调用时，可以使用 dynamic-wind 来确保端口被关闭。
 
 The following example shows the use of call-with-input-file in an expression that gathers a list of objects from the file named by "myfile.ss." It is functionally equivalent to the example given for open-input-file above.
+以下例子在一个表达式中展示了 call-with-input-file 的用法，这个表达式从名为 "myfile.ss" 的文件中收集了一个对象列表。它在功能上等价于上文中为 open-input-file 给出的示例。
 
 #+begin_src scheme
 (call-with-input-file "myfile.ss"
@@ -810,7 +822,7 @@ The following example shows the use of call-with-input-file in an expression tha
           (cons x (f (read p)))))))
 #+end_src
 
-call-with-input-file might be defined without error checking as follows.
+不带错误检查的 call-with-input-file 可以定义如下。
 
 #+begin_src scheme
 (define call-with-input-file
@@ -822,16 +834,20 @@ call-with-input-file might be defined without error checking as follows.
 #+end_src
 
 procedure: ~(call-with-output-file path procedure)~
-returns: the values returned by procedure
+returns: procedure 的返回值
 libraries: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. procedure should accept one argument.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。procedure 应当接受一个参数。
 
 call-with-output-file creates a new output port for the file named by path, as if with open-output-file, and passes this port to procedure. If procedure returns, call-with-output-file closes the output port and returns the values returned by procedure.
+call-with-output-file 为 path 命名的文件创建了一个新的输出端口，和 open-output-file 一样，并把这个端口传入 procedure. 如果 procedure 返回，则 call-with-output-file 关闭输出端口，并返回 procedure 的返回值。
 
 call-with-output-file does not automatically close the output port if a continuation created outside of procedure is invoked, since it is possible that another continuation created inside of procedure will be invoked at a later time, returning control to procedure. If procedure does not return, an implementation is free to close the output port only if it can prove that the output port is no longer accessible. As shown in Section 5.6, dynamic-wind may be used to ensure that the port is closed if a continuation created outside of procedure is invoked.
+如果一个创建于 procedure 之外的 continuation 被调用，则 call-with-output-file 不会自动关闭输出端口，因为之后可能会有另一个创建于 procedure 之内的 continuation 被调用，并把控制权返还给 procedure. 如果 procedure 没有返回，则只有在可以确认此输出端口不再可以被访问时，实现才可以自由地关闭此输出端口。如 5.6 节中所示，一个创建于 procedure 之外的 continuation 被调用时，可以使用 dynamic-wind 来确保端口被关闭。
 
 The following shows the use of call-with-output-file to write a list of objects (the value of list-to-be-printed), separated by newlines, to the file named by "myfile.ss." It is functionally equivalent to the example given for open-output-file above.
+以下代码展示了如何使用 call-with-output-file 把一个对象列表（list-to-be-printed 的值）写入名为 "myfile.ss" 的文件中，对象之间以换行符分隔。它在功能上等价于上文中为 open-output-file 给出的示例。
 
 #+begin_src scheme
 (call-with-output-file "myfile.ss"
@@ -843,7 +859,7 @@ The following shows the use of call-with-output-file to write a list of objects 
         (f (cdr ls))))))
 #+end_src
 
-call-with-output-file might be defined without error checking as follows.
+不带错误检查的 call-with-output-file 可以定义如下。
 
 #+begin_src scheme
 (define call-with-output-file
@@ -855,45 +871,53 @@ call-with-output-file might be defined without error checking as follows.
 #+end_src
 
 procedure: ~(with-input-from-file path thunk)~
-returns: the values returned by thunk
+returns: thunk 的返回值
 libraries: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. thunk must be a procedure and should accept zero arguments.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。thunk 必须是一个过程，且应当接受 0 个参数。
 
-with-input-from-file temporarily changes the current input port to be the result of opening the file named by path, as if with open-input-file, during the application of thunk. If thunk returns, the port is closed and the current input port is restored to its old value.
+with-input-from-file 在应用 thunk 期间，把当前输入端口临时更改为打开 path 命名的文件的结果，如同调用 open-input-file. 如果 thunk 返回，则端口被关闭，并把当前输入端口恢复为它先前的值。temporarily changes the current input port to be the result of opening the file named by path, as if with open-input-file, during the application of thunk. If thunk returns, the port is closed and the current input port is restored to its old value.
 
 The behavior of with-input-from-file is unspecified if a continuation created outside of thunk is invoked before thunk returns. An implementation may close the port and restore the current input port to its old value---but it may not.
+如果在 thunk 返回之前调用一个在 thunk 之外创建的 continuation, 则 with-input-from-file 的行为是未定义的。一个实现可能会关闭端口，并把当前输入端口恢复为它先前的值——但它也可能不会这样做。
 
 procedure: ~(with-output-to-file path thunk)~
-returns: the values returned by thunk
+returns: thunk 的返回值
 libraries: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. thunk must be a procedure and should accept zero arguments.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。thunk 必须是一个过程，且应当接受 0 个参数。
 
 with-output-to-file temporarily rebinds the current output port to be the result of opening the file named by path, as if with open-output-file, during the application of thunk. If thunk returns, the port is closed and the current output port is restored to its old value.
+with-output-to-file 在应用 thunk 期间，把当前输出端口临时更改为打开 path 命名的文件的结果，如同调用 open-output-file. 如果 thunk 返回，则端口被关闭，并把当前输出端口恢复为它先前的值。
+temporarily changes the current output port to be the result of opening the file named by path, as if with open-output-file, during the application of thunk. If thunk returns, the port is closed and the current output port is restored to its old value.
 
 The behavior of with-output-to-file is unspecified if a continuation created outside of thunk is invoked before thunk returns. An implementation may close the port and restore the current output port to its old value---but it may not.
+如果在 thunk 返回之前调用一个在 thunk 之外创建的 continuation, 则 with-output-to-file 的行为是未定义的。一个实现可能会关闭端口，并把当前输出端口恢复为它先前的值——但它也可能不会这样做。
 
 procedure: ~(read)~
 procedure: ~(read textual-input-port)~
-returns: a Scheme datum object or the eof object
+returns: 一个 Scheme datum 对象，或 eof 对象
 libraries: (rnrs io simple), (rnrs)
 
-If textual-input-port is not supplied, it defaults to the current input port. This procedure is otherwise equivalent to get-datum.
+如果不提供 textual-input-port, 则默认为当前输入端口。其它情况下，这个过程等价于 get-datum.
 
 procedure: ~(read-char)~
 procedure: ~(read-char textual-input-port)~
-returns: the next character from textual-input-port
+returns: textual-input-port 中的下一个字符
 libraries: (rnrs io simple), (rnrs)
 
 If textual-input-port is not supplied, it defaults to the current input port. This procedure is otherwise equivalent to get-char.
+如果不提供 textual-input-port, 则默认为当前输入端口。其它情况下，这个过程等价于 get-char.
 
 procedure: ~(peek-char)~
 procedure: ~(peek-char textual-input-port)~
-returns: the next character from textual-input-port
+returns: textual-input-port 中的下一个字符
 libraries: (rnrs io simple), (rnrs)
 
 If textual-input-port is not supplied, it defaults to the current input port. This procedure is otherwise equivalent to lookahead-char.
+如果不提供 textual-input-port, 则默认为当前输入端口。其它情况下，这个过程等价于 lookahead-char.
 
 procedure: ~(write obj)~
 procedure: ~(write obj textual-output-port)~
@@ -901,6 +925,7 @@ returns: unspecified
 libraries: (rnrs io simple), (rnrs)
 
 If textual-output-port is not supplied, it defaults to the current output port. This procedure is otherwise equivalent to put-datum, with the arguments reversed. See Section 12.5 for an implementation of put-datum, write, and display.
+如果不提供 textual-output-port, 则默认为当前输出端口。其它情况下，这个过程等价于参数顺序相反的 put-datum. put-datum, write, 和 display 的实现可参见 12.5 节。
 
 procedure: ~(display obj)~
 procedure: ~(display obj textual-output-port)~
@@ -908,8 +933,10 @@ returns: unspecified
 libraries: (rnrs io simple), (rnrs)
 
 If textual-output-port is not supplied, it defaults to the current output port.
+如果不提供 textual-output-port, 则默认为当前输出端口。
 
 display is similar to write or put-datum but prints strings and characters found within obj directly. Strings are printed without quotation marks or escapes for special characters, as if by put-string, and characters are printed without the #\ notation, as if by put-char. With display, the three-element list (a b c) and the two-element list ("a b" c) both print as (a b c). Because of this, display should not be used to print objects that are intended to be read with read. display is useful primarily for printing messages, with obj most often being a string. See Section 12.5 for an implementation of put-datum, write, and display.
+display 和 write 或 put-datum 类似，但是直接打印在 obj 中出现的字符串和字符。字符串打印时不带有引号或特殊字符的转义符，和使用 put-string 时一样，而字符打印时不带有 #\ 标记，和使用 put-char 时一样。使用 display 时，三元素列表 (a b c) 和两元素列表 ("a b" c) 均打印为 (a b c). 因此，display 不应被用于打印将被 read 读取的对象。display 主要用于打印消息，其中 obj 多为字符串。put-datum, write, 和 display 的实现可参见 12.5 节。
 
 procedure: ~(write-char char)~
 procedure: ~(write-char char textual-output-port)~
@@ -917,20 +944,21 @@ returns: unspecified
 libraries: (rnrs io simple), (rnrs)
 
 If textual-output-port is not supplied, it defaults to the current output port. This procedure is otherwise equivalent to put-char, with the arguments reversed.
+如果不提供 textual-output-port, 则默认为当前输出端口。其它情况下，这个过程等价于参数顺序相反的 put-char.
 
 procedure: ~(newline)~
 procedure: ~(newline textual-output-port)~
 returns: unspecified
 libraries: (rnrs io simple), (rnrs)
 
-If textual-output-port is not supplied, it defaults to the current output port. newline sends a line-feed character to the port.
+如果不提供 textual-output-port, 则默认为当前输出端口。newline 向端口发送一个换行字符。
 
 procedure: ~(close-input-port input-port)~
 procedure: ~(close-output-port output-port)~
 returns: unspecified
 libraries: (rnrs io simple), (rnrs)
 
-close-input-port closes an input port, and close-output-port closes an output port. These procedures are provided for backward compatibility with the Revised5 Report; they are not actually more convenient to use than close-port.
+close-input-port 关闭一个输入端口，而 close-output-port 关闭一个输出端口。提供这些过程是为了向后兼容 R^{5}RS; 使用它们实际上并不比使用 close-port 更便捷。
 
 
 ** Section 7.10. Filesystem Operations
