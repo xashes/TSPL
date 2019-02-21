@@ -985,14 +985,17 @@ path 必须是命名了一个文件的字符串或其它某些依赖于实现的
 ** Section 7.11. Bytevector/String Conversions
 
 The procedures described in this section encode or decode character sequences, converting from strings to bytevectors or bytevectors to strings. They do not necessarily involve input/output, though they might be implemented using bytevector input and output ports.
+本节中介绍的过程编码或解码字符序列，把字符串转换为字节向量，或把字节向量转换为字符串。虽然它们可能使用字节向量输入和输出端口来实现，但它们不一定要涉及输入/输出，。
 
-The first two procedures, bytevector->string and string->bytevector, take an explicit transcoder argument that determines the character encodings, eol styles, and error-handling modes. The others perform specific Unicode conversions with an implicit eol-style of none and error-handling mode of replace.
+前两个过程，bytevector->string 和 string->bytevector, 要传入一个显式的编码转换器实参，以决定字符编码，eol 风格，和错误处理模式。其它过程以隐含的 eol 风格 none 和错误处理模式 replace 执行特定的 Unicode 转换。
+take an explicit transcoder argument that determines the character encodings, eol styles, and error-handling modes. The others perform specific Unicode conversions with an implicit eol-style of none and error-handling mode of replace.
 
 procedure: ~(bytevector->string bytevector transcoder)~
-returns: a string containing the characters encoded in bytevector
+returns: 一个字符串，包含 bytevector 中编码的字符
 libraries: (rnrs io ports), (rnrs)
 
 This operation, at least in effect, creates a bytevector input port with the specified transcoder from which all of the available characters are read, as if by get-string-all, and placed into the output string.
+这个操作，至少在效果上，以指定的 transcoder 创建了一个字节向量输入端口，从中读取所有可用的字符，如同使用 get-string-all, 并把这些字符放入输出的字符串中。
 
 #+begin_src scheme
 (let ([tx (make-transcoder (utf-8-codec) (eol-style lf)
@@ -1001,10 +1004,11 @@ This operation, at least in effect, creates a bytevector input port with the spe
 #+end_src
 
 procedure: ~(string->bytevector string transcoder)~
-returns: a bytevector containing the encodings of the characters in string
+returns: 一个字节向量，包含 string 中的字符编码
 libraries: (rnrs io ports), (rnrs)
 
 This operation, at least in effect, creates a bytevector output port with the specified transcoder to which all of the characters of string are written, then extracts a bytevector containing the accumulated bytes.
+这个操作，至少在效果上，以指定的 transcoder 创建了一个字节向量输出端口，向其中写入字符串中的所有字符，然后提取一个包含所累积字节的字节向量。
 
 #+begin_src scheme
 (let ([tx (make-transcoder (utf-8-codec) (eol-style none)
@@ -1013,32 +1017,34 @@ This operation, at least in effect, creates a bytevector output port with the sp
 #+end_src
 
 procedure: ~(string->utf8 string)~
-returns: a bytevector containing the UTF-8 encoding of string
+returns: 一个字节向量，包含 string 的 UTF-8 编码
 libraries: (rnrs bytevectors), (rnrs)
 
 procedure: ~(string->utf16 string)~
 procedure: ~(string->utf16 string endianness)~
 procedure: ~(string->utf32 string)~
 procedure: ~(string->utf32 string endianness)~
-returns: a bytevector containing the specified encoding of string
+returns: 一个字节向量，包含 string 的指定编码
 libraries: (rnrs bytevectors), (rnrs)
 
-endianness must be one of the symbols big or little. If endianness is not provided or is the symbol big, string->utf16 returns the UTF-16BE encoding of string and string->utf32 returns the UTF-32BE encoding of string. If endianness is the symbol little, string->utf16 returns the UTF-16LE encoding of string and string->utf32 returns the UTF-32LE encoding of string. No byte-order mark is included in the encoding.
+endianness 必须是符号 big 或 little 之一。如果 endianness 没有指定，或为符号 big, 则 string->utf16 返回 string 的 UTF-16BE 编码，而 string->utf32 返回 string 的 UTF-32BE 编码。如果 endianness 为符号 little, 则 string->utf16 返回 string 的 UTF-16LE 编码，而 string->utf32 返回 string 的 UTF-32LE 编码。编码中不包含字节序标记。
+. If endianness is not provided or is the symbol big, string->utf16 returns the UTF-16BE encoding of string and string->utf32 returns the UTF-32BE encoding of string. If endianness is the symbol little, string->utf16 returns the UTF-16LE encoding of string and string->utf32 returns the UTF-32LE encoding of string. No byte-order mark is included in the encoding.
 
 procedure: ~(utf8->string bytevector)~
-returns: a string containing the UTF-8 decoding of bytevector
+returns: 一个字符串，包含 bytevector 的 UTF-8 解码
 libraries: (rnrs bytevectors), (rnrs)
 
 procedure: ~(utf16->string bytevector endianness)~
 procedure: ~(utf16->string bytevector endianness endianness-mandatory?)~
 procedure: ~(utf32->string bytevector endianness)~
 procedure: ~(utf32->string bytevector endianness endianness-mandatory?)~
-returns: a string containing the specified decoding of bytevector
+returns: 一个字符串，包含 bytevector 的指定解码
 libraries: (rnrs bytevectors), (rnrs)
 
 endianness must be one of the symbols big or little. These procedures return a UTF-16 or UTF-32 decoding of bytevector, with the endianness of the representation determined from the endianness argument or byte-order mark (BOM). If endianness-mandatory? is not provided or is #f, the endianness is determined by a BOM at the front of bytevector or, if no BOM is present, by endianness. If endianness-mandatory? is #t, the endianness is determined by endianness, and, if a BOM appears at the front of bytevector, it is treated as a regular character encoding.
+endianness 必须是符号 big 或 little 之一。这些过程返回 bytevector 的 UTF-16 或 UTF-32 解码，其表示形式的字节序由实参 endianness 或字节序标记（BOM）决定。如果 endianness-mandatory? 没有提供或为 #f, 则字节序由字节向量前面的 BOM 决定，如果没有 BOM，则由 endianness 决定。如果 endianness-mandatory? 为 #t, 则字节序由 endianness 决定，并且，如果一个 BOM 出现在 bytevector 的前面，则它被视为一个普通的字符编码。
 
-The UTF-16 BOM is the two-byte sequence #xFE, #xFF specifying "big" or the two-byte sequence #xFF, #xFE specifying "little." The UTF-32 BOM is the four-byte sequence #x00, #x00, #xFE, #xFF specifying "big" or the four-byte sequence #xFF, #xFE, #x00, #x00 specifying "little."
+UTF-16 BOM 为双字节序列 #xFE, #xFF, 表示 "big"; 或为双字节序列 #xFF, #xFE, 表示 "little". UTF-32 BOM 为四字节序列 #x00, #x00, #xFE, #xFF, 表示 "big";  或为四字节序列 #xFF, #xFE, #x00, #x00, 表示 "little".
 
 R. Kent Dybvig / The Scheme Programming Language, Fourth Edition
 Copyright © 2009 The MIT Press. Electronically reproduced by permission.
