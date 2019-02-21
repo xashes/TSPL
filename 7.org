@@ -964,18 +964,22 @@ close-input-port 关闭一个输入端口，而 close-output-port 关闭一个�
 ** Section 7.10. Filesystem Operations
 
 Scheme has two standard operations, beyond file input/output, for interacting with the filesystem: file-exists? and delete-file. Most implementations support additional operations.
+对于和文件系统的交互，除了文件输入/输出，Scheme 还有两个标准操作：file-exists? and delete-file. 大多数实现还支持更多的操作。
 
 procedure: ~(file-exists? path)~
 returns: #t if the file named by path exists, #f otherwise
+返回: 如果 ~path~ 指定的文件存在，则为 ~#t~, 否则为 ~#f~.
 libraries: (rnrs files), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. Whether file-exists? follows symbolic links is unspecified.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。file-exists? 是否指向符号链接是未定义的。
 
 procedure: ~(delete-file path)~
 returns: unspecified
 libraries: (rnrs files), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. delete-file removes the file named by path if it exists and can be deleted, otherwise it raises an exception with condition type &i/o-filename. Whether delete-file follows symbolic links is unspecified.
+path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。如果 path 指定的文件存在，且可以被删除，则 delete-file 移除此文件，否则，它抛出一个条件类型的 &i/o-filename 异常。delete-file 是否指向符号链接是未定义的。
 
 
 ** Section 7.11. Bytevector/String Conversions
