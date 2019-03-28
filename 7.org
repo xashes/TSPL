@@ -165,10 +165,9 @@ libraries: (rnrs io ports), (rnrs)
 如果指定了 /?transcoder/, 且不为 ~#f~, 则它必须是一个编码转换器，而这个过程返回一个文本输入/输出端口，它的编码转换器为 /?transcoder/. 否则，这个过程返回一个二进制输入/输出端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
 
-** Section 7.3. Standard Ports
+** 7.3. 标准端口
 
-The procedures described in this section return ports that are attached to a process's standard input, standard output, and standard error streams. The first set returns "ready-made" textual ports with implementation-dependent transcoders (if any) and buffer modes. The second set creates fresh binary ports and can be used either for binary input/output or, with the help of transcoded-port, for textual input/output with program-supplied transcoders and buffer modes.
-本节介绍的过程返回附着于一个进程的标准输入，标准输出，和标准错误流上的端口。第一个过程集返回 "ready mode" 文本端口，带有依赖于实现的编码转换器（如果存在的话）和缓冲模式。第二个过程集创建新的二进制端口，可用于二进制输入/输出，或在 transcoded-port 的帮助下，用于带有程序提供的编码转换器和缓冲模式的文本输入/输出。
+本节介绍的过程返回附加到进程的标准输入，标准输出，和标准错误流上的端口。第一组过程返回“现成的”文本端口，带有依赖于实现的编码转换器（如果存在的话）和缓冲模式。第二组过程集创建新的二进制端口，可用于二进制输入/输出，或在 ~transcoded-port~ 的帮助下，用于带有程序提供的编码转换器和缓冲模式的文本输入/输出。
 
 procedure: ~(current-input-port)~
 returns: 当前输入端口
@@ -178,11 +177,9 @@ procedure: ~(current-error-port)~
 returns: 当前错误端口
 libraries: (rnrs io ports), (rnrs io simple), (rnrs)
 
-The current-input, current-output, and current-error ports return pre-built textual ports that are initially associated with a process's standard input, standard output, and standard error streams.
-当前输入，当前输出，和当前错误端口返回预设的文本端口，初始关联于进程的标准输入，标准输出，和标准错误流。
+当前输入，当前输出，和当前错误端口返回预设的文本端口，这些端口最初与进程的标准输入，标准输出，和标准错误流相关联。
 
-The values returned by current-input-port and current-output-port can be altered temporarily by the convenience I/O procedures with-input-from-file and with-output-to-file (Section 7.9).
-可以通过便捷的 I/O 过程 with-input-from-file 和 with-output-to-file（7.9 节）临时替代 current-input-port 和 current-output-port 返回的值。
+可以通过快捷 I/O 过程 ~with-input-from-file~ 和 ~with-output-to-file~ （7.9 节）临时替代 ~current-input-port~ 和 ~current-output-port~ 返回的值。
 
 procedure: ~(standard-input-port)~
 returns: 连接到标准输入流的一个全新的二进制输入端口
@@ -192,8 +189,8 @@ procedure: ~(standard-error-port)~
 returns: 连接到标准错误流的一个全新的二进制输出端口
 libraries: (rnrs io ports), (rnrs)
 
-Because ports may be buffered, confusion can result if operations on more than one port attached to one of a process's standard streams are interleaved. Thus, these procedures are typically appropriate only when a program no longer needs to use any existing ports attached to the standard streams.
-由于端口可以缓存，如果在进程的一个标准流连接的多个端口上交叉操作，就可能会导致混淆。因此，这些过程通常只适用于程序不再需要使用标准流上连接的任何已有端口时。
+由于端口可能是缓冲的，因此如果连接到某个进程标准流的多个端口上的操作是交错的，则会导致混淆。 因此，这些过程通常仅在程序不再需要使用附加到标准流的任何现有端口时才适用。
+
 
 ** Section 7.4. String and Bytevector Ports
 
