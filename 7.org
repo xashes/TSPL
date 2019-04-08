@@ -34,39 +34,39 @@ eol 风格对输入和输出操作的影响是不同的。对于输入，除了 
 
 如上所述，编码转换器封装了三个值：编码解码器，eol 风格，和错误处理模式。本节介绍了创建和操作编码转换器的过程，以及编码转换器封装的值。
 
-procedure: ~(make-transcoder codec)~
-procedure: ~(make-transcoder codec eol-style)~
-procedure: ~(make-transcoder codec eol-style error-handling-mode)~
-returns: 封装了编码解码器，eol 风格，和错误处理模式的编码转换器
-libraries: (rnrs io ports), (rnrs)
+过程: ~(make-transcoder codec)~
+过程: ~(make-transcoder codec eol-style)~
+过程: ~(make-transcoder codec eol-style error-handling-mode)~
+返回: 封装了编码解码器，eol 风格，和错误处理模式的编码转换器
+库: (rnrs io ports), (rnrs)
 
 /eol-style/ 必须是一个有效的 eol 风格符号 (~lf~, ~cr~ , ~nel~ , ~ls~ , ~crlf~ , ~crnel~ , 或 ~none~); 它默认为平台的原生 eol 风格。 /error-handling-mode/ 必须是一个有效的错误处理模式符号 (~ignore~, ~raise~ , 或 ~replace~)，默认值为 ~replace~ .
 
-procedure: ~(transcoder-codec transcoder)~
-returns: transcoder 封装的编码解码器
-procedure: ~(transcoder-eol-style transcoder)~
-returns: transcoder 封装的 eol 风格符号
-procedure: ~(transcoder-error-handling-mode transcoder)~
-returns: transcoder 封装的错误处理模式符号
-libraries: (rnrs io ports), (rnrs)
+过程: ~(transcoder-codec transcoder)~
+返回: transcoder 封装的编码解码器
+过程: ~(transcoder-eol-style transcoder)~
+返回: transcoder 封装的 eol 风格符号
+过程: ~(transcoder-error-handling-mode transcoder)~
+返回: transcoder 封装的错误处理模式符号
+库: (rnrs io ports), (rnrs)
 
-procedure: ~(native-transcoder)~
-returns: 原生的编码转换器
-libraries: (rnrs io ports), (rnrs)
+过程: ~(native-transcoder)~
+返回: 原生的编码转换器
+库: (rnrs io ports), (rnrs)
 
 原生的编码转换器是依赖于实现的，且可能根据平台或区域设置有所变化。
 
-procedure: ~(latin-1-codec)~
-returns: ISO 8859-1 (Latin 1) 字符编码的编码解码器
-procedure: ~(utf-8-codec)~
-returns: Unicode UTF-8 字符编码的编码解码器
-procedure: ~(utf-16-codec)~
-returns: Unicode UTF-16 字符编码的编码解码器
-libraries: (rnrs io ports), (rnrs)
+过程: ~(latin-1-codec)~
+返回: ISO 8859-1 (Latin 1) 字符编码的编码解码器
+过程: ~(utf-8-codec)~
+返回: Unicode UTF-8 字符编码的编码解码器
+过程: ~(utf-16-codec)~
+返回: Unicode UTF-16 字符编码的编码解码器
+库: (rnrs io ports), (rnrs)
 
 syntax: ~(eol-style symbol)~
-returns: /symbol/
-libraries: (rnrs io ports), (rnrs)
+返回: /symbol/
+库: (rnrs io ports), (rnrs)
 
 /symbol/ 必须是以下符号之一： ~lf~ , ~cr~ , ~nel~ , ~ls~ , ~crlf~ , ~crnel~ , 或 ~none~ . 表达式 ~(eol-style symbol)~ 等价于表达式 ~(quote symbol)~, 只是前者在展开期会检查 /symbol/ 是否是 eol 风格符号之一。 ~eol-style~ 语法也提供了有用的文档。
 
@@ -75,15 +75,15 @@ libraries: (rnrs io ports), (rnrs)
 (eol-style lfcr) => syntax violation
 #+end_src
 
-procedure: ~(native-eol-style)~
-returns: 原生的 eol 风格
-libraries: (rnrs io ports), (rnrs)
+过程: ~(native-eol-style)~
+返回: 原生的 eol 风格
+库: (rnrs io ports), (rnrs)
 
 原生的 eol 风格是依赖于实现的，且可能根据平台或区域设置有所变化。
 
 syntax: ~(error-handling-mode symbol)~
-returns: /symbol/
-libraries: (rnrs io ports), (rnrs)
+返回: /symbol/
+库: (rnrs io ports), (rnrs)
 
 /symbol/ 必须是以下符号之一： ~ignore~ , ~raise~ , 或 ~replace~ . 表达式 ~(error-handling-mode symbol)~ 等价于表达式 ~(quote symbol)~, 除了前者在展开期会检查 /symbol/ 是否是错误处理模式符号之一。 ~error-handling-mode~ 语法也提供了有用的文档。
 
@@ -104,8 +104,8 @@ libraries: (rnrs io ports), (rnrs)
 由本节中的过程创建的二进制端口，支持 ~port-position~ 和 ~set-port-position!~ 操作。而由本节中的过程创建的文本端口，是否支持这些操作则依赖于实现。
 
 syntax: ~(file-options symbol ...)~
-returns: 一个文件选项的枚举集合
-libraries: (rnrs io ports), (rnrs)
+返回: 一个文件选项的枚举集合
+库: (rnrs io ports), (rnrs)
 
 文件选项枚举集合可以传入文件打开操作，以从多方面控制打开操作。有三种标准文件选项： ~no-create~ , ~no-fail~ , 以及 ~no-truncate~ , 这些选项只影响创建输出（包括输入/输出）端口的文件打开操作。
 
@@ -116,8 +116,8 @@ libraries: (rnrs io ports), (rnrs)
 具体实现可能支持额外的文件选项符号。例如，Chez Scheme 支持选项控制文件是否应被压缩，是否被锁定以进行独占访问，以及文件创建时被给予什么权限[9]。
 
 syntax: ~(buffer-mode symbol)~
-returns: /symbol/
-libraries: (rnrs io ports), (rnrs)
+返回: /symbol/
+库: (rnrs io ports), (rnrs)
 
 /symbol/ 必须是以下符号之一： ~block~ , ~line~ , 或 ~none~ . 表达式 ~(buffer-mode symbol)~ 等价于表达式 ~(quote symbol)~, 只是前者在展开期会检查 /symbol/ 是否是缓冲模式符号之一。 ~buffer-mode~ 语法也提供了有用的文档。
 
@@ -128,7 +128,7 @@ libraries: (rnrs io ports), (rnrs)
 
 syntax: ~(buffer-mode? obj)~
 返回: 如果 ~obj~ 是一个有效的缓冲模式，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs)
+库: (rnrs io ports), (rnrs)
 
 #+begin_src scheme
 (buffer-mode? 'block) => #t
@@ -137,30 +137,30 @@ libraries: (rnrs io ports), (rnrs)
 (buffer-mode? 'something-else) => #f
 #+end_src
 
-procedure: ~(open-file-input-port path)~
-procedure: ~(open-file-input-port path options)~
-procedure: ~(open-file-input-port path options b-mode)~
-procedure: ~(open-file-input-port path options b-mode ?transcoder)~
-returns: 指定文件的新输入端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-file-input-port path)~
+过程: ~(open-file-input-port path options)~
+过程: ~(open-file-input-port path options b-mode)~
+过程: ~(open-file-input-port path options b-mode ?transcoder)~
+返回: 指定文件的新输入端口
+库: (rnrs io ports), (rnrs)
 
 如果指定了 /?transcoder/, 且不为 ~#f~, 则它必须是一个编码转换器，而这个过程返回一个文本输入端口，它的编码转换器为 /?transcoder/. 否则，这个过程返回一个二进制输入端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
-procedure: ~(open-file-output-port path)~
-procedure: ~(open-file-output-port path options)~
-procedure: ~(open-file-output-port path options b-mode)~
-procedure: ~(open-file-output-port path options b-mode ?transcoder)~
-returns: 指定文件的新输出端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-file-output-port path)~
+过程: ~(open-file-output-port path options)~
+过程: ~(open-file-output-port path options b-mode)~
+过程: ~(open-file-output-port path options b-mode ?transcoder)~
+返回: 指定文件的新输出端口
+库: (rnrs io ports), (rnrs)
 
 如果指定了 /?transcoder/, 且不为 ~#f~, 则它必须是一个编码转换器，而这个过程返回一个文本输出端口，它的编码转换器为 /?transcoder/. 否则，这个过程返回一个二进制输出端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
-procedure: ~(open-file-input/output-port path)~
-procedure: ~(open-file-input/output-port path options)~
-procedure: ~(open-file-input/output-port path options b-mode)~
-procedure: ~(open-file-input/output-port path options b-mode ?transcoder)~
-returns: a new input/output port for the named file
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-file-input/output-port path)~
+过程: ~(open-file-input/output-port path options)~
+过程: ~(open-file-input/output-port path options b-mode)~
+过程: ~(open-file-input/output-port path options b-mode ?transcoder)~
+返回: a new input/output port for the named file
+库: (rnrs io ports), (rnrs)
 
 如果指定了 /?transcoder/, 且不为 ~#f~, 则它必须是一个编码转换器，而这个过程返回一个文本输入/输出端口，它的编码转换器为 /?transcoder/. 否则，这个过程返回一个二进制输入/输出端口。关于其它实参的约束条件和影响，请参见本节引言中的介绍。
 
@@ -169,45 +169,43 @@ libraries: (rnrs io ports), (rnrs)
 
 本节介绍的过程返回附加到进程的标准输入，标准输出，和标准错误流上的端口。第一组过程返回“现成的”文本端口，带有依赖于实现的编码转换器（如果存在的话）和缓冲模式。第二组过程集创建新的二进制端口，可用于二进制输入/输出，或在 ~transcoded-port~ 的帮助下，用于带有程序提供的编码转换器和缓冲模式的文本输入/输出。
 
-procedure: ~(current-input-port)~
-returns: 当前输入端口
-procedure: ~(current-output-port)~
-returns: 当前输出端口
-procedure: ~(current-error-port)~
-returns: 当前错误端口
-libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+过程: ~(current-input-port)~
+返回: 当前输入端口
+过程: ~(current-output-port)~
+返回: 当前输出端口
+过程: ~(current-error-port)~
+返回: 当前错误端口
+库: (rnrs io ports), (rnrs io simple), (rnrs)
 
 当前输入，当前输出，和当前错误端口返回预设的文本端口，这些端口最初与进程的标准输入，标准输出，和标准错误流相关联。
 
 可以通过快捷 I/O 过程 ~with-input-from-file~ 和 ~with-output-to-file~ （7.9 节）临时替代 ~current-input-port~ 和 ~current-output-port~ 返回的值。
 
-procedure: ~(standard-input-port)~
-returns: 连接到标准输入流的一个全新的二进制输入端口
-procedure: ~(standard-output-port)~
-returns: 连接到标准输出流的一个全新的二进制输出端口
-procedure: ~(standard-error-port)~
-returns: 连接到标准错误流的一个全新的二进制输出端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(standard-input-port)~
+返回: 连接到标准输入流的一个全新的二进制输入端口
+过程: ~(standard-output-port)~
+返回: 连接到标准输出流的一个全新的二进制输出端口
+过程: ~(standard-error-port)~
+返回: 连接到标准错误流的一个全新的二进制输出端口
+库: (rnrs io ports), (rnrs)
 
 由于端口可能是缓冲的，因此如果连接到某个进程标准流的多个端口上的操作是交错的，则会导致混淆。 因此，这些过程通常仅在程序不再需要使用附加到标准流的任何现有端口时才适用。
 
 
-** Section 7.4. String and Bytevector Ports
+** 7.4. 字符串和字节向量端口
 
-本节的过程支持把字节向量和字符串用作输入和输出流。
+本节中的过程允许把字节向量和字符串用作输入和输出流。
 
-本节中的过程创建的二进制端口，支持 port-position 和 set-port-position! 操作。本节中的过程创建的文本端口是否支持这些操作，则是依赖于具体实现的。
+本节中的过程创建的二进制端口，支持 ~port-position~ 和 ~set-port-position!~ 操作。本节中的过程创建的文本端口是否支持这些操作，则依赖于实现。
 
-procedure: ~(open-bytevector-input-port bytevector)~
-procedure: ~(open-bytevector-input-port bytevector ?transcoder)~
-returns: 从 bytevector 获取输入的一个新的输入端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-bytevector-input-port bytevector)~
+过程: ~(open-bytevector-input-port bytevector ?transcoder)~
+返回: 从 /bytevector/ 获取输入的新输入端口
+库: (rnrs io ports), (rnrs)
 
-如果传入 ?transcoder, 且其值不是 #f, 则它必须是一个编码转换器， 而这个过程返回一个文本输入端口，端口的编码转换器为 ?transcoder. 否则，这个过程返回一个二进制输入端口。
-。is present and not #f, it must be a transcoder, and this procedure returns a textual input port whose transcoder is ?transcoder. Otherwise, this procedure returns a binary input port.
+如果传入 /?transcoder/, 且其值不是 ~#f~, 则它必须是一个编码转换器，而此过程返回一个文本输入端口，端口的编码转换器为 /?transcoder/. 否则，此过程返回一个二进制输入端口。
 
-The effect of modifying bytevector after this procedure is called is unspecified.
-在调用这个过程之后修改 bytevector 的效果是未定义的。
+在调用这个过程之后修改 /bytevector/ 的效果是未定义的。
 
 #+begin_src scheme
 (let ([ip (open-bytevector-input-port #vu8(1 2))])
@@ -215,32 +213,27 @@ The effect of modifying bytevector after this procedure is called is unspecified
     (list x1 x2 (eof-object? x3)))) => (1 2 #t)
 #+end_src
 
-There is no need to close a bytevector port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open bytevector port does not tie up any operating system resources.
 没有必要关闭一个字节向量端口；当不再需要时，它的存储会被自动回收，和对任何其它对象一样。而且，一个打开的字节向量端口不会绑定任何操作系统资源。
 
-procedure: ~(open-string-input-port string)~
-returns: 从 string 获取输入的一个新的文本输入端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-string-input-port string)~
+返回: 从 /string/ 获取输入的新文本输入端口
+库: (rnrs io ports), (rnrs)
 
-The effect of modifying string after this procedure is called is unspecified. The new port may or may not have a transcoder, and if it does, the transcoder is implementation-dependent. While not required, implementations are encouraged to support port-position and set-port-position! for string ports.
-在调用这个过程之后修改 string 的效果是未定义的。新端口可能有也可能没有编码转换器，而如果它有的话，此编码转换器是与实现相关的。虽然不是强制要求，但实现最好支持字符串端口的 port-position 和 set-port-position! 操作。
+在调用这个过程之后修改 string 的效果是未定义的。新端口可能有也可能没有编码转换器，而如果它有的话，此编码转换器是依赖于实现的。虽然不是强制要求，但实现最好支持字符串端口的 ~port-position~ 和 ~set-port-position!~ 操作。
 
 #+begin_src scheme
 (get-line (open-string-input-port "hi.\nwhat's up?\n")) => "hi."
 #+end_src
 
-There is no need to close a string port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open string port does not tie up any operating system resources.
 没有必要关闭一个字符串端口；当不再需要时，它的存储会被自动回收，和对任何其它对象一样。而且，一个打开的字符串端口不会绑定任何操作系统资源。
 
-procedure: ~(open-bytevector-output-port)~
-procedure: ~(open-bytevector-output-port ?transcoder)~
-returns: 两个值——一个新的输出端口和一个提取过程
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-bytevector-output-port)~
+过程: ~(open-bytevector-output-port ?transcoder)~
+返回: 两个值——一个新的输出端口和一个提取过程
+库: (rnrs io ports), (rnrs)
 
-If ?transcoder is present and not #f, it must be a transcoder, and the port value is a textual output port whose transcoder is ?transcoder. Otherwise, the port value is a binary output port.
-如果传入 ?transcoder, 且其值不是 #f, 则它必须是一个编码转换器，且端口值是一个文本输出端口，其编码转换器为 ?transcoder. 否则，端口值为一个二进制输出端口。
+如果传入 /?transcoder/, 且其值不是 ~#f~, 则它必须是一个编码转换器，且端口值是一个文本输出端口，其编码转换器为 /?transcoder/. 否则，端口值为一个二进制输出端口。
 
-The extraction procedure is a procedure that, when called without arguments, creates a bytevector containing the accumulated bytes in the port, clears the port of its accumulated bytes, resets its position to zero, and returns the bytevector. The accumulated bytes include any bytes written beyond the end of the current position, if the position has been set back from its maximum extent.
 提取过程是一个过程，当不带实参调用时，创建一个字节向量，其中包含端口中累积的字节，然后把端口累积的字节清空，把它的位置重置为 0, 并返回它创建的字节向量。如果当前位置被设回它的最大范围以内，累积的字节也包括当前位置后面写入的所有字节。
 
 #+begin_src scheme
@@ -254,16 +247,13 @@ The extraction procedure is a procedure that, when called without arguments, cre
     (list bv1 (g)))) => (#vu8(15 73 115) #vu8(27))
 #+end_src
 
-There is no need to close a bytevector port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open bytevector port does not tie up any operating system resources.
 没有必要关闭一个字节向量端口；当不再需要时，它的存储会被自动回收，和对任何其它对象一样。而且，一个打开的字节向量端口不会绑定任何操作系统资源。
 
-procedure: ~(open-string-output-port)~
-returns: two values, a new textual output port and an extraction procedure
-returns: 两个值——一个新的文本输出端口和一个提取过程
-libraries: (rnrs io ports), (rnrs)
+过程: ~(open-string-output-port)~
+返回: 两个值——一个新的文本输出端口和一个提取过程
+库: (rnrs io ports), (rnrs)
 
-The extraction procedure is a procedure that, when called without arguments, creates a string containing the accumulated characters in the port, clears the port of its accumulated characters, resets its position to zero, and returns the string. The accumulated characters include any characters written beyond the end of the current position, if the position has been set back from its maximum extent. While not required, implementations are encouraged to support port-position and set-port-position! for string ports.
-提取过程是一个过程，当不带实参调用时，创建一个字符串，其中包含端口中累积的字符，然后把端口累积的字符清空，把它的位置重置为 0, 并返回它创建的字符串。如果当前位置被设回它的最大范围以内，累积的字符也包括当前位置后面写入的所有字符。虽然不是强制要求，但实现最好支持字符串端口的 port-position 和 set-port-position! 操作。
+提取过程是一个过程，当不带实参调用时，创建一个字符串，其中包含端口中累积的字符，然后把端口累积的字符清空，把它的位置重置为 0, 并返回它创建的字符串。如果当前位置被设回它的最大范围以内，累积的字符也包括当前位置后面写入的所有字符。虽然不是强制要求，但实现最好支持字符串端口的 ~port-position~ 和 ~set-port-position!~ 操作。
 
 #+begin_src scheme
 (let-values ([(op g) (open-string-output-port)])
@@ -273,18 +263,14 @@ The extraction procedure is a procedure that, when called without arguments, cre
     (list str1 (g)))) => ("some data" "new stuff")
 #+end_src
 
-There is no need to close a string port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, and an open string port does not tie up any operating system resources.
 没有必要关闭一个字符串端口；当不再需要时，它的存储会被自动回收，和对任何其它对象一样。而且，一个打开的字符串端口不会绑定任何操作系统资源。
 
-procedure: ~(call-with-bytevector-output-port procedure)~
-procedure: ~(call-with-bytevector-output-port procedure ?transcoder)~
-returns: 一个字节向量，包含累积的字节
-libraries: (rnrs io ports), (rnrs)
+过程: ~(call-with-bytevector-output-port procedure)~
+过程: ~(call-with-bytevector-output-port procedure ?transcoder)~
+返回: 包含累积字节的字节向量
+库: (rnrs io ports), (rnrs)
 
-If ?transcoder is present and not #f, it must be a transcoder, and procedure is called with a textual bytevector output port whose transcoder is ?transcoder. Otherwise, procedure is called with a binary bytevector output port. 
-If procedure returns, a bytevector containing the bytes accumulated in the port is created, the accumulated bytes are cleared from the port, the port's position is reset to zero, and the bytevector is returned from call-with-bytevector-output-port. These actions occur each time procedure returns, if it returns multiple times due to the invocation of a continuation created while procedure is active.
-如果传入 ?transcoder, 且其值不为 #f, 则它必须是一个编码转换器，而 procedure 以一个文本字节向量输出端口调用，它的编码转换器为 ?transcoder. 否则，procedure 以一个二进制字节向量输出端口调用。当 procedure 返回，会创建一个包含端口中累积字节的字节向量，从端口中清除累积的字节，把端口的位置重置为 0, 并从 call-with-bytevector-output-port 中返回字节向量。TODO
-在每次 procedure 返回时，这些动作发生一遍。
+如果传入 /?transcoder/, 且其值不为 ~#f~, 则它必须是一个编码转换器，而 /procedure/ 由一个文本字节向量输出端口调用，它的编码转换器为 /?transcoder/. 否则， /procedure/ 由一个二进制字节向量输出端口调用。如果 /procedure/ 返回，则创建包含端口中累积的字节的字节向量，从端口清除累积的字节，将端口的位置重置为零，并由 ~call-with-bytevector-output-port~ 返回字节向量。如果由于在 /procedure/ 处于活动状态时调用创建的 continuation 而多次返回，则每次 procedure 返回时都会发生这些操作。
 
 #+begin_src scheme
 (let ([tx (make-transcoder (latin-1-codec) (eol-style lf)
@@ -294,13 +280,15 @@ If procedure returns, a bytevector containing the bytes accumulated in the port 
     tx)) => #vu8(97 98 99)
 #+end_src
 
-procedure: ~(call-with-string-output-port procedure)~
-returns: a string containing the accumulated characters
-libraries: (rnrs io ports), (rnrs)
+过程: ~(call-with-string-output-port procedure)~
+返回：包含累积字符的字符串
+库: (rnrs io ports), (rnrs)
 
 procedure is called with one argument, a string output port. If procedure returns, a string containing the characters accumulated in the port is created, the accumulated characters are cleared from the port, the port's position is reset to zero, and the string is returned from call-with-string-output-port. These actions occur each time procedure returns, if it returns multiple times due to the invocation of a continuation created while procedure is active.
+/procedure/ 调用时需要一个参数——一个字符串输出端口。如果 /procedure/ 返回，则创建包含端口中累积的字符的字符串，从端口清除累积的字符，将端口的位置重置为零，并从 ~call-with-string-output-port~ 返回该字符串。如果由于在 /procedure/ 处于活动状态时调用创建的 continuation 而多次返回，则每次 /procedure/ 返回时都会发生这些操作。
 
 call-with-string-output-port can be used along with put-datum to define a procedure, object->string, that returns a string containing the printed representation of an object.
+~call-with-string-output-port~ 可以与 ~put-datum~ 一起使用来定义一个过程 ~object->string~, 它返回一个包含对象打印表示形式的字符串。
 
 #+begin_src scheme
 (define (object->string x)
@@ -312,15 +300,16 @@ call-with-string-output-port can be used along with put-datum to define a proced
 (object->string (cons 'a '(b c))) => "(a b c)"
 #+end_src
 
+
 ** Section 7.5. 开启自定义端口 Opening Custom Ports
 
-procedure: ~(make-custom-binary-input-port id r! gp sp! close)~
-returns: 一个新的自定义二进制输入端口
-procedure: ~(make-custom-binary-output-port id w! gp sp! close)~
-returns: 一个新的自定义二进制输出端口
-procedure: ~(make-custom-binary-input/output-port id r! w! gp sp! close)~
-returns: 一个新的自定义二进制输入/输出端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(make-custom-binary-input-port id r! gp sp! close)~
+返回: 一个新的自定义二进制输入端口
+过程: ~(make-custom-binary-output-port id w! gp sp! close)~
+返回: 一个新的自定义二进制输出端口
+过程: ~(make-custom-binary-input/output-port id r! w! gp sp! close)~
+返回: 一个新的自定义二进制输入/输出端口
+库: (rnrs io ports), (rnrs)
 
 These procedures allow programs to create ports from arbitrary byte streams. id must be a string naming the new port; the name is used for informational purposes only, and an implementation may choose to include it in the printed syntax, if any, of a custom port. r! and w! must be procedures, while gp, sp!, and close must each be a procedure or #f. These arguments are described below.
 这些过程允许程序通过任意字节流创建端口。id 必须是一个命名新端口的字符串；名字只是用于信息用途，而一个实现可以选择把它包含在自定义端口的打印语法形式（如果存在的话）中。r! 和 w! 必须是过程，而 gp, sp! 和 close 均必须为过程或 #f. 这些实参介绍如下。
@@ -347,13 +336,13 @@ is called to close the byte stream. If it is #f, no action will be taken to clos
 If the new port is an input/output port and does not provide either a gp or sp! procedure, it may not be possible for the implementation to position the port properly if an output operation occurs after an input operation, due to input buffering that must be done to support lookahead-u8 and is often done anyway for efficiency. For the same reason, a call to port-position after an input operation may not return an accurate position if the sp! procedure is not provided. Thus, programs that create custom binary input/output ports should generally provide both gp and sp! procedures.
 如果新端口是一个输入/输出端口，而且未提供 gp 或 sp! 过程，则当一个输出操作发生在一个输入操作之后时，实现很可能无法正确定位端口，因为，为了支持 lookahead-u8 而必须完成的输入缓冲，为了效率经常会无条件完成。基于同样的原因，在一个输入操作之后调用 port-position，如果没有提供 sp!过程，则可能无法返回一个精确的位置。因此，创建自定义二进制输入/输出端口的程序，通常应当提供 gp 和 sp! 过程。
 
-procedure: ~(make-custom-textual-input-port id r! gp sp! close)~
-returns: 一个新的自定义文本输入端口
-procedure: ~(make-custom-textual-output-port id w! gp sp! close)~
-returns: 一个新的自定义文本输出端口
-procedure: ~(make-custom-textual-input/output-port id r! w! gp sp! close)~
-returns: 一个新的自定义文本输入/输出端口
-libraries: (rnrs io ports), (rnrs)
+过程: ~(make-custom-textual-input-port id r! gp sp! close)~
+返回: 一个新的自定义文本输入端口
+过程: ~(make-custom-textual-output-port id w! gp sp! close)~
+返回: 一个新的自定义文本输出端口
+过程: ~(make-custom-textual-input/output-port id r! w! gp sp! close)~
+返回: 一个新的自定义文本输入/输出端口
+库: (rnrs io ports), (rnrs)
 
 These procedures allow programs to create ports from arbitrary character streams. id must be a string naming the new port; the name is used for informational purposes only, and an implementation may choose to include it in the printed syntax, if any, of a custom port. r! and w! must be procedures, while gp, sp!, and close must each be a procedure or #f. These arguments are described below.
 这些过程允许程序通过任意字符流创建端口。id 必须是一个命名新端口的字符串；名字只是用于信息用途，而一个实现可以选择把它包含在自定义端口的打印语法形式（如果存在的话）中。r! 和 w! 必须是过程，而 gp, sp! 和 close 均必须为过程或 #f. 这些实参介绍如下。
@@ -391,32 +380,32 @@ It should, however, be possible to perform output reliably after reading if the 
 This section describes a variety of operations on ports that do not directly involve either reading from or writing to a port. The input and output operations are described in subsequent sections.
 本节介绍了多种不直接涉及读写端口的端口操作。输入和输出操作会在后续章节中介绍。
 
-procedure: ~(port? obj)~
+过程: ~(port? obj)~
 返回: 如果 ~obj~ 是端口，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs)
+库: (rnrs io ports), (rnrs)
 
-procedure: ~(input-port? obj)~
+过程: ~(input-port? obj)~
 返回: 如果 ~obj~ 是输入端口或输入/输出端口，则为 ~#t~, 否则为 ~#f~.
-procedure: ~(output-port? obj)~
+过程: ~(output-port? obj)~
 返回: 如果 ~obj~ 是输出端口或输入/输出端口，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+库: (rnrs io ports), (rnrs io simple), (rnrs)
 
-procedure: ~(binary-port? obj)~
+过程: ~(binary-port? obj)~
 返回: 如果 ~obj~ 是二进制端口，则为 ~#t~, 否则为 ~#f~.
-procedure: ~(textual-port? obj)~
+过程: ~(textual-port? obj)~
 返回: 如果 ~obj~ 是文本端口，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs)
+库: (rnrs io ports), (rnrs)
 
-procedure: ~(close-port port)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(close-port port)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 If port is not already closed, close-port closes it, first flushing any buffered bytes or characters to the underlying stream if the port is an output port. Once a port has been closed, no more input or output operations may be performed on the port. Because the operating system may place limits on the number of file ports open at one time or restrict access to an open file, it is good practice to close any file port that will no longer be used for input or output. If the port is an output port, closing the port explicitly also ensures that buffered data is written to the underlying stream. Some Scheme implementations close file ports automatically after they become inaccessible to the program or when the Scheme program exits, but it is best to close file ports explicitly whenever possible. Closing a port that has already been closed has no effect.
 如果端口尚未关闭，则 close-port 会关闭它，如果端口是输出端口，首先要把任何缓存的字节或字符 flush 进底层的流。一旦端口被关闭，就不可以在端口上再进行任何的输入或输出操作。由于操作系统可能会对同时开启的文件端口数量设限，或对打开文件的访问设限，因此，关闭任何不再用于输入或输出的文件端口是个好的习惯。如果端口是输出端口，显式关闭端口同样确保了缓冲数据会被写入底层的流。某些 Scheme 实现，在文件端口对程序变得不可访问，或在 Scheme 程序退出后，会自动关闭文件端口，但最好还是尽可能显式关闭文件端口。关闭一个已经关闭的端口不会产生任何影响。
 
-procedure: ~(transcoded-port binary-port transcoder)~
-returns: 一个新的文本端口，有着和 binary-port 一样的字节流 a new textual port with the same byte stream as binary-port
-libraries: (rnrs io ports), (rnrs)
+过程: ~(transcoded-port binary-port transcoder)~
+返回: 一个新的文本端口，有着和 binary-port 一样的字节流 a new textual port with the same byte stream as binary-port
+库: (rnrs io ports), (rnrs)
 
 This procedure returns a new textual port with transcoder transcoder and the same underlying byte stream as binary-port, positioned at the current position of binary-port.
 这个过程返回一个新的文本端口，编码转换器为 transcoder, 底层字节流和 binary-port 一样，定位于 binary-port 的当前位置。
@@ -424,27 +413,27 @@ This procedure returns a new textual port with transcoder transcoder and the sam
 As a side effect of creating the textual port, binary-port is closed to prevent read or write operations on binary-port from interfering with read and write operations on the new textual port. The underlying byte stream remains open, however, until the textual port is closed.
 作为创建文本端口的副作用，binary-port 会被关闭，以防止在 binary-port 上的读写操作和在新的文本端口上的读写操作会互相干扰。不过，底层字节流会保持开启，直到此文本端口被关闭。
 
-procedure: ~(port-transcoder port)~
-returns: 与 port 相关联的编码转换器（如果存在的话），否则为 #f
-libraries: (rnrs io ports), (rnrs)
+过程: ~(port-transcoder port)~
+返回: 与 port 相关联的编码转换器（如果存在的话），否则为 #f
+库: (rnrs io ports), (rnrs)
 
 This procedure always returns #f for binary ports and may return #f for some textual ports.
 这个过程对二进制端口总是返回 #f, 而对某些文本端口可能返回 #f.
 
-procedure: ~(port-position port)~
-returns: port 的当前位置
-procedure: ~(port-has-port-position? port)~
+过程: ~(port-position port)~
+返回: port 的当前位置
+过程: ~(port-has-port-position? port)~
 返回: 如果 ~port~ 支持 port-position，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs)
+库: (rnrs io ports), (rnrs)
 
 A port may allow queries to determine its current position in the underlying stream of bytes or characters. If so, the procedure port-has-port-position? returns #t and port-position returns the current position. For binary ports, the position is always an exact nonnegative integer byte displacement from the start of the byte stream. For textual ports, the representation of a position is unspecified; it may not be an exact nonnegative integer and, even if it is, it may not represent either a byte or character displacement in the underlying stream. The position may be used at some later time to reset the position if the port supports set-port-position!. If port-position is called on a port that does not support it, an exception with condition type &assertion is raised.
 端口可能支持查询以确定它的底层字节或字符流中的当前位置。如果是这样，过程 port-has-port-position? 返回 #t, 而 port-position 返回当前位置。对于二进制端口，位置总是一个精确的非负整数的，从字节流起始位置起的字节偏移量。对于文本端口，位置的表示形式是未定义的；它可能不是一个精确的非负整数，而即使它是，它可能也不表示底层流的字节或字符偏移量。如果端口支持 set-port-position!, 位置可以在之后用于重置位置。如果在一个不支持 port-position 的端口上调用它，会抛出一个条件类型的 &assertion 异常。
 
-procedure: ~(set-port-position! port pos)~
-returns: unspecified
-procedure: ~(port-has-set-port-position!? port)~
+过程: ~(set-port-position! port pos)~
+返回: unspecified
+过程: ~(port-has-set-port-position!? port)~
 返回: 如果 ~port~ 支持 set-port-position!，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs)
+库: (rnrs io ports), (rnrs)
 
 A port may allow its current position to be moved directly to a different position in the underlying stream of bytes or characters. If so, the procedure port-has-set-port-position!? returns #t and set-port-position! changes the current position. For binary ports, the position pos must be an exact nonnegative integer byte displacement from the start of the byte stream. For textual ports, the representation of a position is unspecified, as described in the entry for port-position above, but pos must be an appropriate position for the textual port, which is usually guaranteed to be the case only if it was obtained from a call to port-position on the same port. If set-port-position! is called on a port that does not support it, an exception with condition type &assertion is raised.
 一个端口可能允许把它的当前位置直接移动到底层字节或字符流中的一个不同位置。如果这样的话，过程 port-has-set-port-position!? 返回 #t, 而 set-port-position! 改变当前位置。对于二进制端口，位置 pos 必须是一个精确非负整数的，从字节流起始位置起的字节偏移量。对于文本端口，位置的表示形式是未定义的，如同上面 port-position 条目中所介绍的，但 pos 必须是文本端口的一个适当的位置，通常只有在它是从相同端口上对 port-position 的调用中获得时，才能确保如此。如果在不支持 set-port-position! 的端口上调用它，会抛出一个条件类型的 &assertion 异常。
@@ -452,9 +441,9 @@ A port may allow its current position to be moved directly to a different positi
 If port is a binary output port and the position is set beyond the current end of the data in the underlying stream, the stream is not extended until new data is written at that position. If new data is written at that position, the contents of each intervening position is unspecified. Binary ports created with open-file-output-port and open-file-input/output-port can always be extended in this manner within the limits of the underlying operating system. In other cases, attempts to set the port beyond the current end of data in the underlying object may result in an exception with condition type &i/o-invalid-position.
 如果端口是二进制输出端口，而设定的位置超过了底层流中数据的当前末尾，则直到向那个位置写入新数据时，流才会扩展。如果向那个位置写入新数据，则每个中间位置的内容为未定义的。通过 open-file-output-port 和 open-file-input/output-port 创建的二进制端口，总是能以这种方式扩展，只要不超出底层操作系统的限制。在其它情况下，尝试把端口设定到超出底层对象中数据的当前末尾的位置时，可能会引起条件类型的&i/o-invalid-position 异常。
 
-procedure: ~(call-with-port port procedure)~
-returns: procedure 返回的值
-libraries: (rnrs io ports), (rnrs)
+过程: ~(call-with-port port procedure)~
+返回: procedure 返回的值
+库: (rnrs io ports), (rnrs)
 
 call-with-port 以 port 作为唯一实参调用 procedure. 如果 procedure 返回， 则 call-with-port 关闭端口，并返回 procedure 返回的值。
 
@@ -481,54 +470,54 @@ The example below copies the contents of infile to outfile, overwriting outfile 
 A definition of call-with-port is given on page 135.
 call-with-port 的定义在 135 页给出。
 
-procedure: ~(output-port-buffer-mode port)~
-returns: 表示 port 缓冲模式的符号
-libraries: (rnrs io ports), (rnrs)
+过程: ~(output-port-buffer-mode port)~
+返回: 表示 port 缓冲模式的符号
+库: (rnrs io ports), (rnrs)
 
 ** Section 7.7. Input Operations
 
-Procedures whose primary purpose is to read data from an input port are described in this section, along with related procedures for recognizing or creating end-of-file (eof) objects.
+过程 s whose primary purpose is to read data from an input port are described in this section, along with related procedures for recognizing or creating end-of-file (eof) objects.
 本节介绍了主要目的为从输入端口读取数据的过程，以及识别或创建文件结尾（eof）对象的相关过程。
 
-procedure: ~(eof-object? obj)~
+过程: ~(eof-object? obj)~
 返回: 如果 ~obj~ 是 eof 对象，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+库: (rnrs io ports), (rnrs io simple), (rnrs)
 
 The end-of-file object is returned by input operations, e.g., get-datum, when an input port has reached the end of input.
 当抵达一个输入端口中输入的末尾，则输入操作，如，get-datum, 会返回文件结尾对象。
 
-procedure: ~(eof-object)~
-returns: eof 对象
-libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+过程: ~(eof-object)~
+返回: eof 对象
+库: (rnrs io ports), (rnrs io simple), (rnrs)
 
 #+begin_src scheme
 (eof-object? (eof-object)) => #t
 #+end_src
 
-procedure: ~(get-u8 binary-input-port)~
-returns: binary-input-port 中的下一个字节，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-u8 binary-input-port)~
+返回: binary-input-port 中的下一个字节，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, the next available byte is returned as an unsigned 8-bit quantity, i.e., an exact unsigned integer less than or equal to 255, and the port's position is advanced one byte.
 如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，会把下一个可用字节作为无符号 8 位数返回，即，一个精确的无符号整数，小于等于 255，而端口位置会增加一个字节。
 
-procedure: ~(lookahead-u8 binary-input-port)~
-returns: binary-input-port 中的下一个字节，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(lookahead-u8 binary-input-port)~
+返回: binary-input-port 中的下一个字节，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, the next available byte is returned as an unsigned 8-bit quantity, i.e., an exact unsigned integer less than or equal to 255. In contrast to get-u8, lookahead-u8 does not consume the byte it reads from the port, so if the next operation on the port is a call to lookahead-u8 or get-u8, the same byte is returned.
 如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，会把下一个可用字节作为无符号 8 位数返回，即，一个精确的无符号整数，小于等于 255. 与 get-u8 相比，lookahead-u8 不消耗它从端口读取的字节，所以，如果下一个端口上的操作是对 lookahead-u8 或 get-u8 的调用，则会返回相同的字节。
 
-procedure: ~(get-bytevector-n binary-input-port n)~
-returns: 一个非空字节向量，包含至多 n 字节，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-bytevector-n binary-input-port n)~
+返回: 一个非空字节向量，包含至多 n 字节，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 n 必须是精确的非负整数。如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-n 读取（和 get-u8 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字节，并返回一个新的（非空）的包含这些字节的字节向量。端口位置移动到所读字节的后面。
 reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, and returns a new (nonempty) bytevector containing these bytes. The port's position is advanced past the bytes read.
 
-procedure: ~(get-bytevector-n! binary-input-port bytevector start n)~
-returns: 读取的字节数，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-bytevector-n! binary-input-port bytevector start n)~
+返回: 读取的字节数，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 start and n must be exact nonnegative integers, and the sum of start and n must not exceed the length of bytevector.
 start 和 n 必须是精确的非负整数，且 start 和 n 的和一定不能超过 bytevector 的长度。
@@ -536,30 +525,30 @@ start 和 n 必须是精确的非负整数，且 start 和 n 的和一定不能�
 If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-n! reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, stores the bytes in consecutive locations of bytevector starting at start, and returns the count of bytes read as an exact positive integer. The port's position is advanced past the bytes read.
 如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-n! 读取（和 get-u8 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字节，把这些字节存储在 bytevector 起始于 start 的连续位置上，并把读取的字节数作为一个精确的正整数返回。端口位置被移动到读取的字节之后。
 
-procedure: ~(get-bytevector-some binary-input-port)~
-returns: 一个非空字节向量，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-bytevector-some binary-input-port)~
+返回: 一个非空字节向量，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-some reads (as if with get-u8) at least one byte and possibly more, and returns a bytevector containing these bytes. The port's position is advanced past the bytes read. The maximum number of bytes read by this operation is implementation-dependent.
 如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-some 读取（和 get-u8 一样）至少一个，也可能多个字节，并返回一个包含这些字节的字节向量。端口位置被移动到读取的字节之后。通过这个操作读取的最大字节数是与实现相关的。
 
-procedure: ~(get-bytevector-all binary-input-port)~
-returns: 一个非空字节向量，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-bytevector-all binary-input-port)~
+返回: 一个非空字节向量，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-all reads (as if with get-u8) all of the bytes available before the port is at end of file and returns a bytevector containing these bytes. The port's position is advanced past the bytes read.
 如果 binary-input-port 处于文件末尾，则返回 eof 对象。否则，get-bytevector-all 读取（和 get-u8 一样）在端口到达文件末尾前可用的所有字节，并返回一个包含这些字节的字节向量。端口位置被移动到读取的字节之后。
 
-procedure: ~(get-char textual-input-port)~
-returns: textual-input-port 中的下一个字符，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-char textual-input-port)~
+返回: textual-input-port 中的下一个字符，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, the next available character is returned and the port's position is advanced one character. If textual-input-port is a transcoded port, the position in the underlying byte stream may advance by more than one byte.
 如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，会返回下一个可用字符，且端口位置会后移一个字符。如果 textual-input-port 是一个经过编码转换的端口，则底层字节流中的位置可能后移多于一个字节。
 
-procedure: ~(lookahead-char textual-input-port)~
-returns: textual-input-port 中的下一个字符，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(lookahead-char textual-input-port)~
+返回: textual-input-port 中的下一个字符，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, the next available character is returned. In contrast to get-char, lookahead-char does not consume the character it reads from the port, so if the next operation on the port is a call to lookahead-char or get-char, the same character is returned.
 如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，会返回下一个可用字符。与 get-char 相比，lookahead-char 不消耗它从端口读取的字符，所以，如果下一个端口上的操作是对 lookahead-char 或 get-char 的调用，则会返回相同的字符。
@@ -579,16 +568,16 @@ is provided for applications requiring one character of lookahead. The procedure
             [else '()]))))))
 #+end_src
 
-procedure: ~(get-string-n textual-input-port n)~
-returns: 一个包含至多 n 个字符的非空字符串，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-string-n textual-input-port n)~
+返回: 一个包含至多 n 个字符的非空字符串，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 n must be an exact nonnegative integer. If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-n reads (as if with get-char) as many characters, up to n, as are available before the port is at end of file, and returns a new (nonempty) string containing these characters. The port's position is advanced past the characters read.
 n 必须是精确的非负整数。如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-string-n 读取（和 get-char 一样）在端口到达文件末尾前可用的尽可能多的，至多 n 个字节，并返回一个新的（非空）的包含这些字符的字符串。端口位置被移动到读取的字符之后。
 
-procedure: ~(get-string-n! textual-input-port string start n)~
-returns: 读入的字符数，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-string-n! textual-input-port string start n)~
+返回: 读入的字符数，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 start and n must be exact nonnegative integers, and the sum of start and n must not exceed the length of string.
 start 和 n 必须是精确的非负整数，且 start 和 n 的和一定不能超过 string 的长度。
@@ -625,16 +614,16 @@ get-string-n! 可被用于实现 string-set! 和 string-fill!, 如下所示，�
   x) => ";-)"
 #+end_src
 
-procedure: ~(get-string-all textual-input-port)~
-returns: 一个非空字符串，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-string-all textual-input-port)~
+返回: 一个非空字符串，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-all reads (as if with get-char) all of the characters available before the port is at end of file and returns a string containing these characters. The port's position is advanced past the characters read.
 如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-string-all 读取（和 get-char 一样）在端口到达文件末尾前可用的所有字符，并返回一个包含这些字符的字符串。端口位置被移动到读取的字符之后。
 
-procedure: ~(get-line textual-input-port)~
-returns: 一个字符串，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-line textual-input-port)~
+返回: 一个字符串，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 If textual-input-port is at end of file, the eof object is returned. Otherwise, get-line reads (as if with get-char) all of the characters available before the port is at end of file or a line-feed character has been read and returns a string containing all but the line-feed character of the characters read. The port's position is advanced past the characters read.
 如果 textual-input-port 处于文件末尾，则返回 eof 对象。否则，get-line 读取（和 get-char 一样）在端口到达文件末尾前或读到换行字符时可用的所有字符，并返回一个包含除了换行字符以外的所有读入字符的字符串。端口位置被移动到读取的字符之后。
@@ -651,9 +640,9 @@ If textual-input-port is at end of file, the eof object is returned. Otherwise, 
     (list s1 s2 (port-eof? sip)))) => ("one" "two" #t)
 #+end_src
 
-procedure: ~(get-datum textual-input-port)~
-returns: 一个 Scheme datum 对象，或 eof 对象
-libraries: (rnrs io ports), (rnrs)
+过程: ~(get-datum textual-input-port)~
+返回: 一个 Scheme datum 对象，或 eof 对象
+库: (rnrs io ports), (rnrs)
 
 This procedure scans past whitespace and comments to find the start of the external representation of a datum. If textual-input-port reaches end of file before the start of the external representation of a datum is found, the eof object is returned.
 这个过程扫描时略过空白和注释，寻找一个 datum 外部表示形式的起始点。如果在找到一个 datum 外部表示形式的起始点之前，textual-input-port 就到达了文件末尾，则返回 eof 对象。
@@ -669,9 +658,9 @@ Otherwise, get-datum reads as many characters as necessary, and no more, to pars
     (list x1 c1 x2 (port-eof? sip)))) => (one #\space (two) #f)
 #+end_src
 
-procedure: ~(port-eof? input-port)~
+过程: ~(port-eof? input-port)~
 返回: 如果 ~input-port~ 处于文件末尾，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs io ports), (rnrs)
+库: (rnrs io ports), (rnrs)
 
 This procedure is similar to lookahead-u8 on a binary input port or lookahead-char on a textual input port, except that instead of returning the next byte/character or eof object, it returns a boolean value to indicate whether the value would be the eof object.
 这个过程类似于二进制输入端口上的 lookahead-u8 过程，或文本输入端口上的 lookahead-char 过程，只是它并非返回下一个字节/字符或 eof 对象，而是返回一个布尔值，以指示值是否为 eof 对象。
@@ -679,21 +668,21 @@ This procedure is similar to lookahead-u8 on a binary input port or lookahead-ch
 
 ** Section 7.8. Output Operations
 
-Procedures whose primary purpose is to send data to an output port are described in this section.
+过程 s whose primary purpose is to send data to an output port are described in this section.
 本节介绍了主要用途为向输出端口发送数据的过程。
 
-procedure: ~(put-u8 binary-output-port octet)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(put-u8 binary-output-port octet)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 octet 必须是一个精确的非负整数，且小于等于 255. 这个过程把 octet 写入 binary-output-port, 并把端口位置后移一个节字。
 must be an exact nonnegative integer less than or equal to 255. This procedure writes octet to binary-output-port, advancing the port's position by one byte.
 
-procedure: ~(put-bytevector binary-output-port bytevector)~
-procedure: ~(put-bytevector binary-output-port bytevector start)~
-procedure: ~(put-bytevector binary-output-port bytevector start n)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(put-bytevector binary-output-port bytevector)~
+过程: ~(put-bytevector binary-output-port bytevector start)~
+过程: ~(put-bytevector binary-output-port bytevector start n)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 start 和 n 必须是非负的精确整数，且 start 和 n 的和一定不能超过 bytevector 的长度。如果不指定，则 start 默认为 0，而 n 默认为 bytevector 的长度与 start 的差。
 must be nonnegative exact integers, and the sum of start and n must not exceed the length of bytevector. If not supplied, start defaults to zero and n defaults to the difference between the length of bytevector and start.
@@ -701,18 +690,18 @@ must be nonnegative exact integers, and the sum of start and n must not exceed t
 This procedure writes the n bytes of bytevector starting at start to the port and advances the its position past the end of the bytes written.
 这个过程把 bytevector 始于 start 的 n 个字节写入端口，并把端口位置移动到写入字节的后面。
 
-procedure: ~(put-char textual-output-port char)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(put-char textual-output-port char)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 This procedure writes char to textual-output-port, advancing the port's position by one character. If textual-output-port is a transcoded port, the position in the underlying byte stream may advance by more than one byte.
 这个过程把 char 写入 textual-output-port, 并把端口位置前进一个节符。如果 textual-output-port 是一个经过编码转换的端口，则底层字节流中的位置可能后移多于一个字节。
 
-procedure: ~(put-string textual-output-port string)~
-procedure: ~(put-string textual-output-port string start)~
-procedure: ~(put-string textual-output-port string start n)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(put-string textual-output-port string)~
+过程: ~(put-string textual-output-port string start)~
+过程: ~(put-string textual-output-port string start n)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 start and n must be nonnegative exact integers, and the sum of start and n must not exceed the length of string. If not supplied, start defaults to zero and n defaults to the difference between the length of string and start.
 start 和 n 必须是非负的精确整数，且 start 和 n 的和一定不能超过 string 的长度。如果不指定，则 start 默认为 0，而 n 默认为 string 的长度与 start 的差。
@@ -720,16 +709,16 @@ start 和 n 必须是非负的精确整数，且 start 和 n 的和一定不能�
 This procedure writes the n characters of string starting at start to the port and advances the its position past the end of the characters written.
 这个过程把 string 始于 start 的 n 个字符写入端口，并把端口位置移动到写入字符的后面。
 
-procedure: ~(put-datum textual-output-port obj)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(put-datum textual-output-port obj)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 This procedure writes an external representation of obj to textual-output-port. If obj does not have an external representation as a datum, the behavior is unspecified. The precise external representation is implementation-dependent, but when obj does have an external representation as a datum, put-datum should produce a sequence of characters that can later be read by get-datum as an object equivalent (in the sense of equal?) to obj. See Section 12.5 for an implementation of put-datum, write, and display.
 这个过程把 obj 的外部表示形式写入 textual-output-port. 如果 obj 没有作为 datum 的外部表示形式，则过程的行为是未定义的。精确的外部表示形式是依赖于实现的，但是当 obj 确实有一个作为 datum 的外部表示形式时，则 put-datum 应当生成一个字符序列，此字符序列能够在之后被 get-datum 读取为一个与 obj 等价（基于 equal?）的对象。put-datum, write, 和 display 的实现可参见 12.5 节。
 
-procedure: ~(flush-output-port output-port)~
-returns: unspecified
-libraries: (rnrs io ports), (rnrs)
+过程: ~(flush-output-port output-port)~
+返回: unspecified
+库: (rnrs io ports), (rnrs)
 
 This procedure forces any bytes or characters in the buffer associated with output-port to be sent immediately to the underlying stream.
 这个过程强制把缓冲区中与 output-port 相关联的任何字节或字符立即发送到底层的流。
@@ -746,9 +735,9 @@ The procedures in this section are referred to as "convenience" I/O operators be
 The convenience input/output procedures may be called with or without an explicit port argument. If called without an explicit port argument, the current input or output port is used, as appropriate. For example, (read-char) and (read-char (current-input-port)) both return the next character from the current input port.
 调用便捷的输入/输出过程时，可以传入或不传入显式的端口实参。如果调用时不带有显式的端口实参，则酌情使用当前的输入或输出端口。例如， (read-char) 和 (read-char (current-input-port)) 均返回当前输入端口的下一个字符。
 
-procedure: ~(open-input-file path)~
-returns: 一个新的输入端口
-libraries: (rnrs io simple), (rnrs)
+过程: ~(open-input-file path)~
+返回: 一个新的输入端口
+库: (rnrs io simple), (rnrs)
 
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。open-input-file 为 path 命名的文件创建了一个新的文本输入端口，和以默认选项，一个与实现相关的缓冲模式，及一个与实现相关的编码转换器调用 open-file-input-port 一样。
 creates a new textual input port for the file named by path, as if by open-file-input-port with default options, an implementation-dependent buffer mode, and an implementation-dependent transcoder.
@@ -766,9 +755,9 @@ The following shows the use of open-input-file, read, and close-port in an expre
           (cons x (f (read p))))))
 #+end_src
 
-procedure: ~(open-output-file path)~
-returns: 一个新的输出端口
-libraries: (rnrs io simple), (rnrs)
+过程: ~(open-output-file path)~
+返回: 一个新的输出端口
+库: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. open-output-file creates a new output port for the file named by path, as if by open-file-output-port with default options, an implementation-dependent buffer mode, and an implementation-dependent transcoder.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。open-output-file 为 path 命名的文件创建了一个新的文本输出端口，和以默认选项，一个与实现相关的缓冲模式，及一个与实现相关的编码转换器调用 open-file-output-port 一样。
@@ -787,9 +776,9 @@ The following shows the use of open-output-file to write a list of objects (the 
   (close-port p))
 #+end_src
 
-procedure: ~(call-with-input-file path procedure)~
-returns: procedure 的返回值
-libraries: (rnrs io simple), (rnrs)
+过程: ~(call-with-input-file path procedure)~
+返回: procedure 的返回值
+库: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. procedure should accept one argument.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。procedure 应当接受一个参数。
@@ -822,9 +811,9 @@ The following example shows the use of call-with-input-file in an expression tha
         (apply values v*)))))
 #+end_src
 
-procedure: ~(call-with-output-file path procedure)~
-returns: procedure 的返回值
-libraries: (rnrs io simple), (rnrs)
+过程: ~(call-with-output-file path procedure)~
+返回: procedure 的返回值
+库: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. procedure should accept one argument.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。procedure 应当接受一个参数。
@@ -859,9 +848,9 @@ The following shows the use of call-with-output-file to write a list of objects 
         (apply values v*)))))
 #+end_src
 
-procedure: ~(with-input-from-file path thunk)~
-returns: thunk 的返回值
-libraries: (rnrs io simple), (rnrs)
+过程: ~(with-input-from-file path thunk)~
+返回: thunk 的返回值
+库: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. thunk must be a procedure and should accept zero arguments.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。thunk 必须是一个过程，且应当接受 0 个参数。
@@ -871,9 +860,9 @@ with-input-from-file 在应用 thunk 期间，把当前输入端口临时更改�
 The behavior of with-input-from-file is unspecified if a continuation created outside of thunk is invoked before thunk returns. An implementation may close the port and restore the current input port to its old value---but it may not.
 如果在 thunk 返回之前调用一个在 thunk 之外创建的 continuation, 则 with-input-from-file 的行为是未定义的。一个实现可能会关闭端口，并把当前输入端口恢复为它先前的值——但它也可能不会这样做。
 
-procedure: ~(with-output-to-file path thunk)~
-returns: thunk 的返回值
-libraries: (rnrs io simple), (rnrs)
+过程: ~(with-output-to-file path thunk)~
+返回: thunk 的返回值
+库: (rnrs io simple), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. thunk must be a procedure and should accept zero arguments.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。thunk 必须是一个过程，且应当接受 0 个参数。
@@ -885,41 +874,41 @@ temporarily changes the current output port to be the result of opening the file
 The behavior of with-output-to-file is unspecified if a continuation created outside of thunk is invoked before thunk returns. An implementation may close the port and restore the current output port to its old value---but it may not.
 如果在 thunk 返回之前调用一个在 thunk 之外创建的 continuation, 则 with-output-to-file 的行为是未定义的。一个实现可能会关闭端口，并把当前输出端口恢复为它先前的值——但它也可能不会这样做。
 
-procedure: ~(read)~
-procedure: ~(read textual-input-port)~
-returns: 一个 Scheme datum 对象，或 eof 对象
-libraries: (rnrs io simple), (rnrs)
+过程: ~(read)~
+过程: ~(read textual-input-port)~
+返回: 一个 Scheme datum 对象，或 eof 对象
+库: (rnrs io simple), (rnrs)
 
 如果不提供 textual-input-port, 则默认为当前输入端口。其它情况下，这个过程等价于 get-datum.
 
-procedure: ~(read-char)~
-procedure: ~(read-char textual-input-port)~
-returns: textual-input-port 中的下一个字符
-libraries: (rnrs io simple), (rnrs)
+过程: ~(read-char)~
+过程: ~(read-char textual-input-port)~
+返回: textual-input-port 中的下一个字符
+库: (rnrs io simple), (rnrs)
 
 If textual-input-port is not supplied, it defaults to the current input port. This procedure is otherwise equivalent to get-char.
 如果不提供 textual-input-port, 则默认为当前输入端口。其它情况下，这个过程等价于 get-char.
 
-procedure: ~(peek-char)~
-procedure: ~(peek-char textual-input-port)~
-returns: textual-input-port 中的下一个字符
-libraries: (rnrs io simple), (rnrs)
+过程: ~(peek-char)~
+过程: ~(peek-char textual-input-port)~
+返回: textual-input-port 中的下一个字符
+库: (rnrs io simple), (rnrs)
 
 If textual-input-port is not supplied, it defaults to the current input port. This procedure is otherwise equivalent to lookahead-char.
 如果不提供 textual-input-port, 则默认为当前输入端口。其它情况下，这个过程等价于 lookahead-char.
 
-procedure: ~(write obj)~
-procedure: ~(write obj textual-output-port)~
-returns: unspecified
-libraries: (rnrs io simple), (rnrs)
+过程: ~(write obj)~
+过程: ~(write obj textual-output-port)~
+返回: unspecified
+库: (rnrs io simple), (rnrs)
 
 If textual-output-port is not supplied, it defaults to the current output port. This procedure is otherwise equivalent to put-datum, with the arguments reversed. See Section 12.5 for an implementation of put-datum, write, and display.
 如果不提供 textual-output-port, 则默认为当前输出端口。其它情况下，这个过程等价于参数顺序相反的 put-datum. put-datum, write, 和 display 的实现可参见 12.5 节。
 
-procedure: ~(display obj)~
-procedure: ~(display obj textual-output-port)~
-returns: unspecified
-libraries: (rnrs io simple), (rnrs)
+过程: ~(display obj)~
+过程: ~(display obj textual-output-port)~
+返回: unspecified
+库: (rnrs io simple), (rnrs)
 
 If textual-output-port is not supplied, it defaults to the current output port.
 如果不提供 textual-output-port, 则默认为当前输出端口。
@@ -927,25 +916,25 @@ If textual-output-port is not supplied, it defaults to the current output port.
 display is similar to write or put-datum but prints strings and characters found within obj directly. Strings are printed without quotation marks or escapes for special characters, as if by put-string, and characters are printed without the #\ notation, as if by put-char. With display, the three-element list (a b c) and the two-element list ("a b" c) both print as (a b c). Because of this, display should not be used to print objects that are intended to be read with read. display is useful primarily for printing messages, with obj most often being a string. See Section 12.5 for an implementation of put-datum, write, and display.
 display 和 write 或 put-datum 类似，但是直接打印在 obj 中出现的字符串和字符。字符串打印时不带有引号或特殊字符的转义符，和使用 put-string 时一样，而字符打印时不带有 #\ 标记，和使用 put-char 时一样。使用 display 时，三元素列表 (a b c) 和两元素列表 ("a b" c) 均打印为 (a b c). 因此，display 不应被用于打印将被 read 读取的对象。display 主要用于打印消息，其中 obj 多为字符串。put-datum, write, 和 display 的实现可参见 12.5 节。
 
-procedure: ~(write-char char)~
-procedure: ~(write-char char textual-output-port)~
-returns: unspecified
-libraries: (rnrs io simple), (rnrs)
+过程: ~(write-char char)~
+过程: ~(write-char char textual-output-port)~
+返回: unspecified
+库: (rnrs io simple), (rnrs)
 
 If textual-output-port is not supplied, it defaults to the current output port. This procedure is otherwise equivalent to put-char, with the arguments reversed.
 如果不提供 textual-output-port, 则默认为当前输出端口。其它情况下，这个过程等价于参数顺序相反的 put-char.
 
-procedure: ~(newline)~
-procedure: ~(newline textual-output-port)~
-returns: unspecified
-libraries: (rnrs io simple), (rnrs)
+过程: ~(newline)~
+过程: ~(newline textual-output-port)~
+返回: unspecified
+库: (rnrs io simple), (rnrs)
 
 如果不提供 textual-output-port, 则默认为当前输出端口。newline 向端口发送一个换行字符。
 
-procedure: ~(close-input-port input-port)~
-procedure: ~(close-output-port output-port)~
-returns: unspecified
-libraries: (rnrs io simple), (rnrs)
+过程: ~(close-input-port input-port)~
+过程: ~(close-output-port output-port)~
+返回: unspecified
+库: (rnrs io simple), (rnrs)
 
 close-input-port 关闭一个输入端口，而 close-output-port 关闭一个输出端口。提供这些过程是为了向后兼容 R^{5}RS; 使用它们实际上并不比使用 close-port 更便捷。
 
@@ -955,17 +944,17 @@ close-input-port 关闭一个输入端口，而 close-output-port 关闭一个�
 Scheme has two standard operations, beyond file input/output, for interacting with the filesystem: file-exists? and delete-file. Most implementations support additional operations.
 对于和文件系统的交互，除了文件输入/输出，Scheme 还有两个标准操作：file-exists? and delete-file. 大多数实现还支持更多的操作。
 
-procedure: ~(file-exists? path)~
-returns: #t if the file named by path exists, #f otherwise
+过程: ~(file-exists? path)~
+返回: #t if the file named by path exists, #f otherwise
 返回: 如果 ~path~ 指定的文件存在，则为 ~#t~, 否则为 ~#f~.
-libraries: (rnrs files), (rnrs)
+库: (rnrs files), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. Whether file-exists? follows symbolic links is unspecified.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。file-exists? 是否指向符号链接是未定义的。
 
-procedure: ~(delete-file path)~
-returns: unspecified
-libraries: (rnrs files), (rnrs)
+过程: ~(delete-file path)~
+返回: unspecified
+库: (rnrs files), (rnrs)
 
 path must be a string or some other implementation-dependent value that names a file. delete-file removes the file named by path if it exists and can be deleted, otherwise it raises an exception with condition type &i/o-filename. Whether delete-file follows symbolic links is unspecified.
 path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。如果 path 指定的文件存在，且可以被删除，则 delete-file 移除此文件，否则，它抛出一个条件类型的 &i/o-filename 异常。delete-file 是否指向符号链接是未定义的。
@@ -979,9 +968,9 @@ The procedures described in this section encode or decode character sequences, c
 前两个过程，bytevector->string 和 string->bytevector, 要传入一个显式的编码转换器实参，以决定字符编码，eol 风格，和错误处理模式。其它过程以隐含的 eol 风格 none 和错误处理模式 replace 执行特定的 Unicode 转换。
 take an explicit transcoder argument that determines the character encodings, eol styles, and error-handling modes. The others perform specific Unicode conversions with an implicit eol-style of none and error-handling mode of replace.
 
-procedure: ~(bytevector->string bytevector transcoder)~
-returns: 一个字符串，包含 bytevector 中编码的字符
-libraries: (rnrs io ports), (rnrs)
+过程: ~(bytevector->string bytevector transcoder)~
+返回: 一个字符串，包含 bytevector 中编码的字符
+库: (rnrs io ports), (rnrs)
 
 This operation, at least in effect, creates a bytevector input port with the specified transcoder from which all of the available characters are read, as if by get-string-all, and placed into the output string.
 这个操作，至少在效果上，以指定的 transcoder 创建了一个字节向量输入端口，从中读取所有可用的字符，如同使用 get-string-all, 并把这些字符放入输出的字符串中。
@@ -992,9 +981,9 @@ This operation, at least in effect, creates a bytevector input port with the spe
   (bytevector->string #vu8(97 98 99) tx)) => "abc"
 #+end_src
 
-procedure: ~(string->bytevector string transcoder)~
-returns: 一个字节向量，包含 string 中的字符编码
-libraries: (rnrs io ports), (rnrs)
+过程: ~(string->bytevector string transcoder)~
+返回: 一个字节向量，包含 string 中的字符编码
+库: (rnrs io ports), (rnrs)
 
 This operation, at least in effect, creates a bytevector output port with the specified transcoder to which all of the characters of string are written, then extracts a bytevector containing the accumulated bytes.
 这个操作，至少在效果上，以指定的 transcoder 创建了一个字节向量输出端口，向其中写入字符串中的所有字符，然后提取一个包含所累积字节的字节向量。
@@ -1005,30 +994,30 @@ This operation, at least in effect, creates a bytevector output port with the sp
   (string->bytevector "abc" tx)) => #vu8(97 98 99)
 #+end_src
 
-procedure: ~(string->utf8 string)~
-returns: 一个字节向量，包含 string 的 UTF-8 编码
-libraries: (rnrs bytevectors), (rnrs)
+过程: ~(string->utf8 string)~
+返回: 一个字节向量，包含 string 的 UTF-8 编码
+库: (rnrs bytevectors), (rnrs)
 
-procedure: ~(string->utf16 string)~
-procedure: ~(string->utf16 string endianness)~
-procedure: ~(string->utf32 string)~
-procedure: ~(string->utf32 string endianness)~
-returns: 一个字节向量，包含 string 的指定编码
-libraries: (rnrs bytevectors), (rnrs)
+过程: ~(string->utf16 string)~
+过程: ~(string->utf16 string endianness)~
+过程: ~(string->utf32 string)~
+过程: ~(string->utf32 string endianness)~
+返回: 一个字节向量，包含 string 的指定编码
+库: (rnrs bytevectors), (rnrs)
 
 endianness 必须是符号 big 或 little 之一。如果 endianness 没有指定，或为符号 big, 则 string->utf16 返回 string 的 UTF-16BE 编码，而 string->utf32 返回 string 的 UTF-32BE 编码。如果 endianness 为符号 little, 则 string->utf16 返回 string 的 UTF-16LE 编码，而 string->utf32 返回 string 的 UTF-32LE 编码。编码中不包含字节序标记。
 . If endianness is not provided or is the symbol big, string->utf16 returns the UTF-16BE encoding of string and string->utf32 returns the UTF-32BE encoding of string. If endianness is the symbol little, string->utf16 returns the UTF-16LE encoding of string and string->utf32 returns the UTF-32LE encoding of string. No byte-order mark is included in the encoding.
 
-procedure: ~(utf8->string bytevector)~
-returns: 一个字符串，包含 bytevector 的 UTF-8 解码
-libraries: (rnrs bytevectors), (rnrs)
+过程: ~(utf8->string bytevector)~
+返回: 一个字符串，包含 bytevector 的 UTF-8 解码
+库: (rnrs bytevectors), (rnrs)
 
-procedure: ~(utf16->string bytevector endianness)~
-procedure: ~(utf16->string bytevector endianness endianness-mandatory?)~
-procedure: ~(utf32->string bytevector endianness)~
-procedure: ~(utf32->string bytevector endianness endianness-mandatory?)~
-returns: 一个字符串，包含 bytevector 的指定解码
-libraries: (rnrs bytevectors), (rnrs)
+过程: ~(utf16->string bytevector endianness)~
+过程: ~(utf16->string bytevector endianness endianness-mandatory?)~
+过程: ~(utf32->string bytevector endianness)~
+过程: ~(utf32->string bytevector endianness endianness-mandatory?)~
+返回: 一个字符串，包含 bytevector 的指定解码
+库: (rnrs bytevectors), (rnrs)
 
 endianness must be one of the symbols big or little. These procedures return a UTF-16 or UTF-32 decoding of bytevector, with the endianness of the representation determined from the endianness argument or byte-order mark (BOM). If endianness-mandatory? is not provided or is #f, the endianness is determined by a BOM at the front of bytevector or, if no BOM is present, by endianness. If endianness-mandatory? is #t, the endianness is determined by endianness, and, if a BOM appears at the front of bytevector, it is treated as a regular character encoding.
 endianness 必须是符号 big 或 little 之一。这些过程返回 bytevector 的 UTF-16 或 UTF-32 解码，其表示形式的字节序由实参 endianness 或字节序标记（BOM）决定。如果 endianness-mandatory? 没有提供或为 #f, 则字节序由字节向量前面的 BOM 决定，如果没有 BOM，则由 endianness 决定。如果 endianness-mandatory? 为 #t, 则字节序由 endianness 决定，并且，如果一个 BOM 出现在 bytevector 的前面，则它被视为一个普通的字符编码。
