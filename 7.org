@@ -859,39 +859,32 @@ call-with-string-output-port can be used along with put-datum to define a proced
 
 ** 7.10. 文件系统操作
 
-Scheme has two standard operations, beyond file input/output, for interacting with the filesystem: file-exists? and delete-file. Most implementations support additional operations.
-对于和文件系统的交互，除了文件输入/输出，Scheme 还有两个标准操作：file-exists? and delete-file. 大多数实现还支持更多的操作。
+对于和文件系统的交互，除了文件输入/输出，Scheme 还有两个标准操作： ~file-exists?~ 和 ~delete-file~. 大多数实现还支持更多的操作。
 
 过程: ~(file-exists? path)~
-返回: #t if the file named by path exists, #f otherwise
 返回: 如果 ~path~ 指定的文件存在，则为 ~#t~, 否则为 ~#f~.
 库: (rnrs files), (rnrs)
 
-path must be a string or some other implementation-dependent value that names a file. Whether file-exists? follows symbolic links is 未指定.
-path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。file-exists? 是否指向符号链接是未定义的。
+/path/ 必须是命名了一个文件的字符串或其它某些依赖于实现的值。 ~file-exists?~ 是否指向符号链接是未定义的。
 
 过程: ~(delete-file path)~
 返回: 未指定
 库: (rnrs files), (rnrs)
 
-path must be a string or some other implementation-dependent value that names a file. delete-file removes the file named by path if it exists and can be deleted, otherwise it raises an exception with condition type &i/o-filename. Whether delete-file follows symbolic links is 未指定.
-path 必须是命名了一个文件的字符串或其它某些依赖于实现的值。如果 path 指定的文件存在，且可以被删除，则 delete-file 移除此文件，否则，它抛出一个条件类型的 &i/o-filename 异常。delete-file 是否指向符号链接是未定义的。
+/path/ 必须是命名了一个文件的字符串或其它某些依赖于实现的值。如果 /path/ 指定的文件存在，且可以被删除，则 ~delete-file~ 移除此文件，否则，它抛出一个条件类型的 ~&i/o-filename~ 异常。 ~delete-file~ 是否指向符号链接是未定义的。
 
 
-** Section 7.11. Bytevector/String Conversions
+** 7.11. 字节向量/字符串转换
 
-The procedures described in this section encode or decode character sequences, converting from strings to bytevectors or bytevectors to strings. They do not necessarily involve input/output, though they might be implemented using bytevector input and output ports.
-本节中介绍的过程编码或解码字符序列，把字符串转换为字节向量，或把字节向量转换为字符串。虽然它们可能使用字节向量输入和输出端口来实现，但它们不一定要涉及输入/输出，。
+本节中介绍的过程编码或解码字符序列，把字符串转换为字节向量，或把字节向量转换为字符串。虽然它们可能使用字节向量输入和输出端口来实现，但它们不一定要涉及输入/输出。
 
-前两个过程，bytevector->string 和 string->bytevector, 要传入一个显式的编码转换器实参，以决定字符编码，eol 风格，和错误处理模式。其它过程以隐含的 eol 风格 none 和错误处理模式 replace 执行特定的 Unicode 转换。
-take an explicit transcoder argument that determines the character encodings, eol styles, and error-handling modes. The others perform specific Unicode conversions with an implicit eol-style of none and error-handling mode of replace.
+前两个过程， ~bytevector->string~ 和 ~string->bytevector~, 要传入一个显式的编码转换器实参，以决定字符编码，eol 风格，和错误处理模式。其它过程以隐含的 eol 风格 ~none~ 和错误处理模式 ~replace~ 执行特定的 Unicode 转换。
 
 过程: ~(bytevector->string bytevector transcoder)~
-返回: 一个字符串，包含 bytevector 中编码的字符
+返回: 一个字符串，包含 /bytevector/ 中编码的字符
 库: (rnrs io ports), (rnrs)
 
-This operation, at least in effect, creates a bytevector input port with the specified transcoder from which all of the available characters are read, as if by get-string-all, and placed into the output string.
-这个操作，至少在效果上，以指定的 transcoder 创建了一个字节向量输入端口，从中读取所有可用的字符，如同使用 get-string-all, 并把这些字符放入输出的字符串中。
+这个操作，至少在效果上，以指定的 /transcoder/ 创建了一个字节向量输入端口，从中读取所有可用的字符，如同使用 ~get-string-all~, 并把这些字符放入输出的字符串中。
 
 #+begin_src scheme
 (let ([tx (make-transcoder (utf-8-codec) (eol-style lf)
@@ -900,11 +893,10 @@ This operation, at least in effect, creates a bytevector input port with the spe
 #+end_src
 
 过程: ~(string->bytevector string transcoder)~
-返回: 一个字节向量，包含 string 中的字符编码
+返回: 一个字节向量，包含 /string/ 中的字符编码
 库: (rnrs io ports), (rnrs)
 
-This operation, at least in effect, creates a bytevector output port with the specified transcoder to which all of the characters of string are written, then extracts a bytevector containing the accumulated bytes.
-这个操作，至少在效果上，以指定的 transcoder 创建了一个字节向量输出端口，向其中写入字符串中的所有字符，然后提取一个包含所累积字节的字节向量。
+这个操作，至少在效果上，以指定的 /transcoder/ 创建了一个字节向量输出端口，向其中写入字符串中的所有字符，然后提取一个包含所累积字节的字节向量。
 
 #+begin_src scheme
 (let ([tx (make-transcoder (utf-8-codec) (eol-style none)
@@ -913,34 +905,32 @@ This operation, at least in effect, creates a bytevector output port with the sp
 #+end_src
 
 过程: ~(string->utf8 string)~
-返回: 一个字节向量，包含 string 的 UTF-8 编码
+返回: 一个字节向量，包含 /string/ 的 UTF-8 编码
 库: (rnrs bytevectors), (rnrs)
 
 过程: ~(string->utf16 string)~
 过程: ~(string->utf16 string endianness)~
 过程: ~(string->utf32 string)~
 过程: ~(string->utf32 string endianness)~
-返回: 一个字节向量，包含 string 的指定编码
+返回: 一个字节向量，包含 /string/ 的指定编码
 库: (rnrs bytevectors), (rnrs)
 
-endianness 必须是符号 big 或 little 之一。如果 endianness 没有指定，或为符号 big, 则 string->utf16 返回 string 的 UTF-16BE 编码，而 string->utf32 返回 string 的 UTF-32BE 编码。如果 endianness 为符号 little, 则 string->utf16 返回 string 的 UTF-16LE 编码，而 string->utf32 返回 string 的 UTF-32LE 编码。编码中不包含字节序标记。
-. If endianness is not provided or is the symbol big, string->utf16 returns the UTF-16BE encoding of string and string->utf32 returns the UTF-32BE encoding of string. If endianness is the symbol little, string->utf16 returns the UTF-16LE encoding of string and string->utf32 returns the UTF-32LE encoding of string. No byte-order mark is included in the encoding.
+/endianness/ 必须是符号 ~big~ 或 ~little~ 之一。如果没有指定 /endianness/, 或为符号 ~big~, 则 ~string->utf16~ 返回 /string/ 的 UTF-16BE 编码，而 ~string->utf32~ 返回 /string/ 的 UTF-32BE 编码。如果 /endianness/ 为符号 ~little~, 则 ~string->utf16~ 返回 /string/ 的 UTF-16LE 编码，而 ~string->utf32~ 返回 /string/ 的 UTF-32LE 编码。编码中不包含字节序标记。
 
 过程: ~(utf8->string bytevector)~
-返回: 一个字符串，包含 bytevector 的 UTF-8 解码
+返回: 一个字符串，包含 /bytevector/ 的 UTF-8 解码
 库: (rnrs bytevectors), (rnrs)
 
 过程: ~(utf16->string bytevector endianness)~
 过程: ~(utf16->string bytevector endianness endianness-mandatory?)~
 过程: ~(utf32->string bytevector endianness)~
 过程: ~(utf32->string bytevector endianness endianness-mandatory?)~
-返回: 一个字符串，包含 bytevector 的指定解码
+返回: 一个字符串，包含 /bytevector/ 的指定解码
 库: (rnrs bytevectors), (rnrs)
 
-endianness must be one of the symbols big or little. These procedures return a UTF-16 or UTF-32 decoding of bytevector, with the endianness of the representation determined from the endianness argument or byte-order mark (BOM). If endianness-mandatory? is not provided or is #f, the endianness is determined by a BOM at the front of bytevector or, if no BOM is present, by endianness. If endianness-mandatory? is #t, the endianness is determined by endianness, and, if a BOM appears at the front of bytevector, it is treated as a regular character encoding.
-endianness 必须是符号 big 或 little 之一。这些过程返回 bytevector 的 UTF-16 或 UTF-32 解码，其表示形式的字节序由实参 endianness 或字节序标记（BOM）决定。如果 endianness-mandatory? 没有提供或为 #f, 则字节序由字节向量前面的 BOM 决定，如果没有 BOM，则由 endianness 决定。如果 endianness-mandatory? 为 #t, 则字节序由 endianness 决定，并且，如果一个 BOM 出现在 bytevector 的前面，则它被视为一个普通的字符编码。
+/endianness/ 必须是符号 ~big~ 或 ~little~ 之一。这些过程返回 /bytevector/ 的 UTF-16 或 UTF-32 解码，其表示形式的字节序由实参 /endianness/ 或字节序标记（BOM）决定。如果 /endianness-mandatory?/ 没有提供或为 ~#f~, 则字节序由字节向量前面的 BOM 决定，如果没有 BOM，则由 /endianness/ 决定。如果 /endianness-mandatory?/ 为 ~#t~, 则字节序由 /endianness/ 决定，并且，如果一个 BOM 出现在 /bytevector/ 的前面，则它被视为一个普通的字符编码。
 
-UTF-16 BOM 为双字节序列 #xFE, #xFF, 表示 "big"; 或为双字节序列 #xFF, #xFE, 表示 "little". UTF-32 BOM 为四字节序列 #x00, #x00, #xFE, #xFF, 表示 "big";  或为四字节序列 #xFF, #xFE, #x00, #x00, 表示 "little".
+UTF-16 BOM 为指定 "big" 的双字节序列 ~#xFE,#xFF~ 或指定 "little" 的双字节序列 ~#xFF,#xFE~. UTF-32 BOM 为指定 "big" 的四字节序列 ~#x00,#x00,#xFE,#xFF~ 或指定 "little" 的四字节序列 ~#xFF,#xFE,#x00,#x00~.
 
 R. Kent Dybvig / The Scheme Programming Language, Fourth Edition
 Copyright © 2009 The MIT Press. Electronically reproduced by permission.
