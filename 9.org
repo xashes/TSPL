@@ -5,101 +5,101 @@
 
 ** 9.1. 定义 Record
 
-A define-record-type form defines a record type and, along with it, a constructor procedure for records of the type, a type predicate that returns true only for records of the type, an access procedure for each field, and an assignment procedure for each mutable field. For example, the definition
+define-record-type 语法形式定义一个 record 类型，并且同时还定义了此类型 record 的一个构造过程，一个仅对此类型 record 返回真的类型谓词，每个字段的访问过程，以及对于每个可变字段的赋值过程。例如，定义
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields x y))
-src_end
+#+end_src
 
-creates a point record type with two fields, x and y, and defines the following procedures:
+创建一个包含两个字段 x 和 y 的 point record 类型，并定义以下过程：
 
-src_begin scheme
-(make-point x y) 	constructor
-(point? obj) 	predicate
-(point-x p) 	accessor for field x
-(point-y p) 	accessor for field y
-src_end
+#+begin_src scheme
+(make-point x y) 	构造函数
+(point? obj) 	谓词
+(point-x p) 	字段 x 的访问过程
+(point-y p) 	字段 y 的访问过程
+#+end_src
 
-With this definition in place, we can use these procedures to create and manipulate records of the point type, as illustrated below.
+有了这个定义，我们就可以使用这些过程来创建和操作 point 类型的 record, 如下所示。
 
-src_begin scheme
+#+begin_src scheme
 (define p (make-point 36 -17))
-(point? p) <graphic> #t
-(point? '(cons 36 -17)) <graphic> #f
-(point-x p) <graphic> 36
-(point-y p) <graphic> -17
-src_end
+(point? p) \Rightarrow #t
+(point? '(cons 36 -17)) \Rightarrow #f
+(point-x p) \Rightarrow 36
+(point-y p) \Rightarrow -17
+#+end_src
 
-Fields are immutable by default, but may be declared mutable. In the alternate definition of point below, the x field is mutable while y remains immutable.
+默认情况下，字段是不可变的，但可以声明为可变。在下面的 point 替代定义中，x 字段是可变的，而 y 仍然是不可变的。
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields (mutable x) y))
-src_end
+#+end_src
 
-In this case, define-record-type defines a mutator for the x field in addition to the other products shown above.
+在这种情况下，除了上面显示的其他过程之外，define-record-type 还为 x 字段定义了一个修改器。
 
-src_begin scheme
-(point-x-set! p x) 	mutator for field x
-src_end
+#+begin_src scheme
+(point-x-set! p x) 	字段 x 的修改器
+#+end_src
 
-The mutator can be used to change the contents of the x field.
+该修改器可用于修改字段 x 的内容。
 
-src_begin scheme
+#+begin_src scheme
 (define p (make-point 36 -17))
 (point-x-set! p (- (point-x p) 12))
-(point-x p) <graphic> 24
-src_end
+(point-x p) \Rightarrow 24
+#+end_src
 
 A field may be declared immutable explicitly for clarity; the definition of point below is equivalent to the second definition above.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields (mutable x) (immutable y)))
-src_end
+#+end_src
 
 The names of the procedures defined by define-record-type follow the regular naming convention illustrated by the examples above, by default, but the programmer can override the defaults if desired. With the following definition of point, the constructor is mkpoint, the predicate is ispoint?, and the accessors for x and y are x-val and y-val. The mutator for x is set-x-val!.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type (point mkpoint ispoint?)
   (fields (mutable x x-val set-x-val!)
           (immutable y y-val)))
-src_end
+#+end_src
 
 By default, a record definition creates a new type each time it is evaluated, as illustrated by the example below.
 
-src_begin scheme
+#+begin_src scheme
 (define (f p)
   (define-record-type point (fields x y))
   (if (eq? p 'make) (make-point 3 4) (point? p)))
-(f (f 'make)) <graphic> #f
-src_end
+(f (f 'make)) \Rightarrow #f
+#+end_src
 
 The first (inner) call to f returns a point p, which is passed to f in the second (outer) call, which applies point? to p. This point? is looking for points of the type created by the second call, while p is a point of the type created by the first call. So point? returns #f.
 
 This default generative behavior may be overridden by including a nongenerative clause in the record definition.
 
-src_begin scheme
+#+begin_src scheme
 (define (f p)
   (define-record-type point (fields x y) (nongenerative))
   (if (eq? p 'make) (make-point 3 4) (point? p)))
 (define p (f 'make))
-(f p) <graphic> #t
-src_end
+(f p) \Rightarrow #t
+#+end_src
 
 Record types created in this manner are still distinct from record types created by a definition appearing in a different part of the program, even if the definitions are syntactically identical:
 
-src_begin scheme
+#+begin_src scheme
 (define (f)
   (define-record-type point (fields x y) (nongenerative))
   (make-point 3 4))
 (define (g p)
   (define-record-type point (fields x y) (nongenerative))
   (point? p))
-(g (f)) <graphic> #f
-src_end
+(g (f)) \Rightarrow #f
+#+end_src
 
 Even this can be overridden by including a uid (unique id) in the nongenerative clause:
 
-src_begin scheme
+#+begin_src scheme
 (define (f)
   (define-record-type point (fields x y)
     (nongenerative really-the-same-point))
@@ -108,63 +108,63 @@ src_begin scheme
   (define-record-type point (fields x y)
     (nongenerative really-the-same-point))
   (point? p))
-(g (f)) <graphic> #t
-src_end
+(g (f)) \Rightarrow #t
+#+end_src
 
 The uid may be any identifier, but programmers are encouraged to select uids from the RFC 4122 UUID namespace [20], possibly with the record-type name as a prefix.
 
 A record type may be defined as a subtype of an existing "parent" type with a parent clause that declares the name of the existing record type. If a parent is specified, the new "child" record type inherits the parent record's fields, and each instance of the child type is considered to be an instance of the parent type, so that accessors and mutators for the parent type may be used on instances of the child type.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields x y))
 (define-record-type cpoint (parent point) (fields color))
-src_end
+#+end_src
 
 The child type has all of the fields of the parent type, plus the additional fields declared in the child's definition. This is reflected in the constructor for cpoint, which now takes three arguments, with the parent arguments followed by the child argument.
 
-src_begin scheme
+#+begin_src scheme
 (define cp (make-cpoint 3 4 'red))
-src_end
+#+end_src
 
 A record of the child type is considered a record of the parent type, but a record of the parent type is not a record of the new type.
 
-src_begin scheme
-(point? (make-cpoint 3 4 'red)) <graphic> #t
-(cpoint? (make-point 3 4)) <graphic> #f
-src_end
+#+begin_src scheme
+(point? (make-cpoint 3 4 'red)) \Rightarrow #t
+(cpoint? (make-point 3 4)) \Rightarrow #f
+#+end_src
 
 Only one new accessor is created for cpoint, the one for the new field color. The existing accessors and mutators for the parent type may be used to access and modify the parent fields of the child type.
 
-src_begin scheme
+#+begin_src scheme
 (define cp (make-cpoint 3 4 'red))
-(point-x cp) <graphic> 3
-(point-y cp) <graphic> 4
-(cpoint-color cp) <graphic> red
-src_end
+(point-x cp) \Rightarrow 3
+(point-y cp) \Rightarrow 4
+(cpoint-color cp) \Rightarrow red
+#+end_src
 
 As the examples given so far illustrate, the default constructor defined by define-record-type accepts as many arguments as the record has fields, including parent fields, and parent's parent fields, and so on. The programmer may override the default and specify the arguments to the constructor for the new type and how it determines the initial values of the constructed record's fields, via the protocol clause. The following definition creates a point record with three fields: x, y, and d, where d represents the displacement from the origin. The constructor still takes only two arguments, the x and y values, and initializes d to the square root of the sum of the squares of x and y.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point
   (fields x y d)
   (protocol
     (lambda (new)
       (lambda (x y)
         (new x y (sqrt (+ (* x x) (* y y))))))))
-src_end
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define p (make-point 3 4))
-(point-x p) <graphic> 3
-(point-y p) <graphic> 4
-(point-d p) <graphic> 5
-src_end
+(point-x p) \Rightarrow 3
+(point-y p) \Rightarrow 4
+(point-d p) \Rightarrow 5
+#+end_src
 
 The procedure value of the expression within the protocol clause receives as an argument a primitive constructor new and returns a final constructor c. There are essentially no limits on what c is allowed to do, but if it returns, it should return the result of calling new. Before it does so, it may modify the new record instance (if the record type has mutable fields), register it with some external handler, print messages, etc. In this case, c accepts two arguments, x and y, and applies new to x, y, and the result of computing the origin displacement based on x and y.
 
 If a parent record is specified, the construction protocol becomes more involved. The following definition of cpoint assumes that point has been defined as shown just above.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type cpoint
   (parent point)
   (fields color)
@@ -172,31 +172,31 @@ src_begin scheme
     (lambda (pargs->new)
       (lambda (c x y)
         ((pargs->new x y) c)))))
-src_end
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define cp (make-cpoint 'red 3 4))
-(point-x cp) <graphic> 3
-(point-y cp) <graphic> 4
-(point-d cp) <graphic> 5
-(cpoint-color cp) <graphic> red
-src_end
+(point-x cp) \Rightarrow 3
+(point-y cp) \Rightarrow 4
+(point-d cp) \Rightarrow 5
+(cpoint-color cp) \Rightarrow red
+#+end_src
 
 Because a parent clause is present, the procedure value of the expression within the protocol clause receives a procedure pargs->new that, when applied to parent arguments, returns a new procedure. The new procedure, when passed the values of the child fields, returns the result of applying the parent protocol to an appropriate new procedure of its own. In this case, pargs->new is passed the values of the child constructor's second and third arguments (the x and y values) and the resulting new procedure is passed the value of the child constructor's first argument (the color). Thus, the protocol supplied in this example effectively reverses the normal order of arguments in which the parent arguments come before the child arguments, while arranging to pass along the arguments needed by the parent protocol.
 
 The default protocol is equivalent to
 
-src_begin scheme
+#+begin_src scheme
 (lambda (new) new)
-src_end
+#+end_src
 
 for record types with no parents, while for record types with parents, the default protocol is equivalent to the following
 
-src_begin scheme
+#+begin_src scheme
 (lambda (pargs->new)
   (lambda (x1 ... xn y1 ... ym)
     ((pargs->new x1 ... xn) y1 ... ym)))
-src_end
+#+end_src
 
 where n is the number of parent (including grandparent, etc.) fields and m is the number of child fields.
 
@@ -214,9 +214,9 @@ The clauses clause ... of the record definition determine the fields of the reco
 
 None of the clauses is required; thus, the simplest record definition is
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type record-name)
-src_end
+#+end_src
 
 which defines a new, generative, non-sealed, non-opaque record type with no parent and no fields, plus a constructor of no arguments and a predicate.
 
@@ -225,12 +225,12 @@ At most one of each kind of clause may be present in the set of clauses, and if 
 Fields clause.  A (fields field-spec ...) clause declares the fields of the record type. Each field-spec must take one of the following forms:
 
 field-name
-src_begin scheme
+#+begin_src scheme
 (immmutable field-name)
 (mutable field-name)
 (immmutable field-name accessor-name)
 (mutable field-name accessor-name mutator-name)
-src_end
+#+end_src
 
 where field-name, accessor-name, and mutator-name are identifiers. The first form, field-name, is equivalent to (immutable field-name). The value of a field declared immutable may not be changed, and no mutator is created for it. With the first three forms, the name of the accessor is rname-fname, where rname is the record name and fname is the field name. With the third form, the name of the accessor is rname-fname-set!. The fourth and fifth forms explicitly declare the accessor and mutator names.
 
@@ -240,10 +240,10 @@ Parent clause.  A (parent parent-name) clause declares the parent record type; p
 
 Nongenerative clause.  A nongenerative clause may take one of two forms:
 
-src_begin scheme
+#+begin_src scheme
 (nongenerative)
 (nongenerative uid)
-src_end
+#+end_src
 
 where uid is a symbol. The first form is equivalent to the second, with a uid generated by the implementation at macro-expansion time. When a define-record-type form with a nongenerative clause is evaluated, a new type is created if and only if the uid is not the uid of an existing record type.
 
@@ -304,21 +304,21 @@ If uid is nonfalse and is the uid (page 325) of an existing record type, the par
 
 Using the rtd returned by make-record-type-descriptor, programs can generate constructors, type predicates, field accessors, and field mutators dynamically. The following code demonstrates how the procedural interface might be used to create a point record type and associated definitions similar to those of the second point record definition in Section 9.1, with a mutable x field and an immutable y field.
 
-src_begin scheme
+#+begin_src scheme
 (define point-rtd (make-record-type-descriptor 'point #f #f #f #f
-src_end
+#+end_src
                 '#((mutable x) (immutable y))))
-src_begin scheme
+#+begin_src scheme
 (define point-rcd (make-record-constructor-descriptor point-rtd
-src_end
+#+end_src
                     #f #f))
-src_begin scheme
+#+begin_src scheme
 (define make-point (record-constructor point-rcd))
 (define point? (record-predicate point-rtd))
 (define point-x (record-accessor point-rtd 0))
 (define point-y (record-accessor point-rtd 1))
 (define point-x-set! (record-mutator point-rtd 0))
-src_end
+#+end_src
 
 See the additional examples given at the end of this section.
 
@@ -384,83 +384,83 @@ A child rtd cannot be used directly to create mutators for parent fields. To cre
 
 The following example illustrates the creation of parent and child record types, predicates, accessors, mutators, and constructors using the procedures described in this section.
 
-src_begin scheme
+#+begin_src scheme
 (define rtd/parent
   (make-record-type-descriptor 'parent #f #f #f #f
-src_end
+#+end_src
     '#((mutable x))))
 
-src_begin scheme
-(record-type-descriptor? rtd/parent) <graphic> #t
+#+begin_src scheme
+(record-type-descriptor? rtd/parent) \Rightarrow #t
 (define parent? (record-predicate rtd/parent))
 (define parent-x (record-accessor rtd/parent 0))
 (define set-parent-x! (record-mutator rtd/parent 0))
-src_end
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define rtd/child
   (make-record-type-descriptor 'child rtd/parent #f #f #f
-src_end
+#+end_src
     '#((mutable x) (immutable y))))
 
-src_begin scheme
+#+begin_src scheme
 (define child? (record-predicate rtd/child))
 (define child-x (record-accessor rtd/child 0))
 (define set-child-x! (record-mutator rtd/child 0))
 (define child-y (record-accessor rtd/child 1))
-src_end
+#+end_src
 
-src_begin scheme
-(record-mutator rtd/child 1) <graphic> exception: immutable field
-src_end
+#+begin_src scheme
+(record-mutator rtd/child 1) \Rightarrow exception: immutable field
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define rcd/parent
   (make-record-constructor-descriptor rtd/parent #f
     (lambda (new) (lambda (x) (new (* x x))))))
-src_end
+#+end_src
 
-src_begin scheme
-(record-type-descriptor? rcd/parent) <graphic> #f
-src_end
+#+begin_src scheme
+(record-type-descriptor? rcd/parent) \Rightarrow #f
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define make-parent (record-constructor rcd/parent))
-src_end
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define p (make-parent 10))
-(parent? p) <graphic> #t
-(parent-x p) <graphic> 100
+(parent? p) \Rightarrow #t
+(parent-x p) \Rightarrow 100
 (set-parent-x! p 150)
-(parent-x p) <graphic> 150
-src_end
+(parent-x p) \Rightarrow 150
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define rcd/child
   (make-record-constructor-descriptor rtd/child rcd/parent
     (lambda (pargs->new)
       (lambda (x y)
         ((pargs->new x) (+ x 5) y)))))
-src_end
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define make-child (record-constructor rcd/child))
 (define c (make-child 10 'cc))
-(parent? c) <graphic> #t
-(child? c) <graphic> #t
-(child? p) <graphic> #f
-src_end
+(parent? c) \Rightarrow #t
+(child? c) \Rightarrow #t
+(child? p) \Rightarrow #f
+#+end_src
 
-src_begin scheme
-(parent-x c) <graphic> 100
-(child-x c) <graphic> 15
-(child-y c) <graphic> cc
-src_end
+#+begin_src scheme
+(parent-x c) \Rightarrow 100
+(child-x c) \Rightarrow 15
+(child-y c) \Rightarrow cc
+#+end_src
 
-src_begin scheme
-(child-x p) <graphic> exception: invalid argument type
-src_end
+#+begin_src scheme
+(child-x p) \Rightarrow exception: invalid argument type
+#+end_src
 
 ** 9.3. Inspection
 
@@ -472,32 +472,32 @@ procedure: (record-type-name rtd)
 returns: the name associated with rtd
 libraries: (rnrs records inspection), (rnrs)
 
-src_begin scheme
+#+begin_src scheme
 (define record->name
   (lambda (x)
     (and (record? x) (record-type-name (record-rtd x)))))
-src_end
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type dim (fields w l h))
-(record->name (make-dim 10 15 6)) <graphic> dim
-src_end
+(record->name (make-dim 10 15 6)) \Rightarrow dim
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type dim (fields w l h) (opaque #t))
-(record->name (make-dim 10 15 6)) <graphic> #f
-src_end
+(record->name (make-dim 10 15 6)) \Rightarrow #f
+#+end_src
 
 procedure: (record-type-parent rtd)
 returns: the parent of rtd, or #f if it has no parent
 libraries: (rnrs records inspection), (rnrs)
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields x y))
 (define-record-type cpoint (parent point) (fields color))
-(record-type-parent (record-type-descriptor point)) <graphic> #f
-(record-type-parent (record-type-descriptor cpoint)) <graphic> #<rtd>
-src_end
+(record-type-parent (record-type-descriptor point)) \Rightarrow #f
+(record-type-parent (record-type-descriptor cpoint)) \Rightarrow #<rtd>
+#+end_src
 
 procedure: (record-type-uid rtd)
 returns: the uid of rtd, or #f if it has no uid
@@ -505,15 +505,15 @@ libraries: (rnrs records inspection), (rnrs)
 
 Whether a record type created without a programmer-supplied uid actually has one anyway is left up to the implementation, so this procedure is never guaranteed to return #f.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields x y))
 (define-record-type cpoint
   (parent point)
   (fields color)
   (nongenerative e40cc926-8cf4-4559-a47c-cac636630314))
-(record-type-uid (record-type-descriptor point)) <graphic> unspecified
-(record-type-uid (record-type-descriptor cpoint)) <graphic>
-src_end
+(record-type-uid (record-type-descriptor point)) \Rightarrow unspecified
+(record-type-uid (record-type-descriptor cpoint)) \Rightarrow
+#+end_src
                              e40cc926-8cf4-4559-a47c-cac636630314
 
 procedure: (record-type-generative? rtd)
@@ -524,26 +524,26 @@ procedure: (record-type-opaque? rtd)
 returns: #t if the record type described by rtd is opaque, #f otherwise
 libraries: (rnrs records inspection), (rnrs)
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type table
   (fields keys vals)
   (opaque #t))
 (define rtd (record-type-descriptor table))
-(record-type-generative? rtd) <graphic> #t
-(record-type-sealed? rtd) <graphic> #f
-(record-type-opaque? rtd) <graphic> #t
-src_end
+(record-type-generative? rtd) \Rightarrow #t
+(record-type-sealed? rtd) \Rightarrow #f
+(record-type-opaque? rtd) \Rightarrow #t
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type cache-table
   (parent table)
   (fields key val)
   (nongenerative))
 (define rtd (record-type-descriptor cache-table))
-(record-type-generative? rtd) <graphic> #f
-(record-type-sealed? rtd) <graphic> #f
-(record-type-opaque? rtd) <graphic> #t
-src_end
+(record-type-generative? rtd) \Rightarrow #f
+(record-type-sealed? rtd) \Rightarrow #f
+(record-type-opaque? rtd) \Rightarrow #t
+#+end_src
 
 procedure: (record-type-field-names rtd)
 returns: a vector containing the names of the fields of the type described by rtd
@@ -551,14 +551,14 @@ libraries: (rnrs records inspection), (rnrs)
 
 The vector returned by this procedure is immutable: the effect on rtd of modifying it is unspecified. The vector does not include parent field names. The order of the names in the vector is the same as the order in which the fields were specified in the define-record-type form or make-record-type-descriptor call that created the record type.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields x y))
 (define-record-type cpoint (parent point) (fields color))
 (record-type-field-names
-  (record-type-descriptor point)) <graphic> #(x y)
+  (record-type-descriptor point)) \Rightarrow #(x y)
 (record-type-field-names
-  (record-type-descriptor cpoint)) <graphic> #(color)
-src_end
+  (record-type-descriptor cpoint)) \Rightarrow #(color)
+#+end_src
 
 procedure: (record-field-mutable? rtd idx)
 returns: #t if the specified field of rtd is mutable, #f otherwise
@@ -566,15 +566,15 @@ libraries: (rnrs records inspection), (rnrs)
 
 idx must be a nonnegative integer less than the number of fields of rtd, not counting parent fields. An idx value of 0 specifies the first field given in the define-record-type form or make-record-type-descriptor call that created the record type, 1 specifies the second, and so on.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields (mutable x) (mutable y)))
 (define-record-type cpoint (parent point) (fields color))
-src_end
+#+end_src
 
-src_begin scheme
-(record-field-mutable? (record-type-descriptor point) 0) <graphic> #t
-(record-field-mutable? (record-type-descriptor cpoint) 0) <graphic> #f
-src_end
+#+begin_src scheme
+(record-field-mutable? (record-type-descriptor point) 0) \Rightarrow #t
+(record-field-mutable? (record-type-descriptor cpoint) 0) \Rightarrow #f
+#+end_src
 
 procedure: (record? obj)
 returns: #t if obj is a non-opaque record instance, #f otherwise
@@ -582,19 +582,19 @@ libraries: (rnrs records inspection), (rnrs)
 
 When passed an instance of an opaque record type, record? returns #f. While an instance of an opaque record type is, in essence, a record, the point of opacity is to hide all representation information from the parts of a program that should not have access to the information, and this includes whether an object is a record. Furthermore, the primary purpose of this predicate is to allow programs to check whether it is possible to obtain from the argument an rtd via the record-rtd procedure described below.
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type statement (fields str))
 (define q (make-statement "He's dead, Jim"))
-(statement? q) <graphic> #t
-(record? q) <graphic> #t
-src_end
+(statement? q) \Rightarrow #t
+(record? q) \Rightarrow #t
+#+end_src
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type opaque-statement (fields str) (opaque #t))
 (define q (make-opaque-statement "He's moved on, Jim"))
-(opaque-statement? q) <graphic> #t
-(record? q) <graphic> #f
-src_end
+(opaque-statement? q) \Rightarrow #t
+(record? q) \Rightarrow #f
+#+end_src
 
 procedure: (record-rtd record)
 returns: the record-type descriptor (rtd) of record
@@ -602,7 +602,7 @@ libraries: (rnrs records inspection), (rnrs)
 
 The argument must be an instance of a non-opaque record type. In combination with some of the other procedures described in this section and Section 9.2, record-rtd allows the inspection or mutation of record instances, even if the type of the instance is unknown to the inspector. This capability is illustrated by the procedure print-fields below, which accepts a record argument and writes the name and value of each field of the record.
 
-src_begin scheme
+#+begin_src scheme
 (define print-fields
   (lambda (r)
     (unless (record? r)
@@ -611,7 +611,6 @@ src_begin scheme
       (let ([prtd (record-type-parent rtd)])
         (when prtd (loop prtd)))
       (let* ([v (record-type-field-names rtd)]
-src_end
              [n (vector-length v)])
         (do ([i 0 (+ i 1)])
             ((= i n))
@@ -619,13 +618,14 @@ src_end
           (display "=")
           (write ((record-accessor rtd i) r))
           (newline))))))
+#+end_src
 
 With the familiar definitions of point and cpoint:
 
-src_begin scheme
+#+begin_src scheme
 (define-record-type point (fields x y))
 (define-record-type cpoint (parent point) (fields color))
-src_end
+#+end_src
 
 the expression (print-fields (make-cpoint -3 7 'blue)) displays the following three lines.
 
