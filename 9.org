@@ -16,8 +16,8 @@ define-record-type 语法形式定义一个 record 类型，并且同时还定�
 #+begin_src scheme
 (make-point x y) 	构造函数
 (point? obj) 	谓词
-(point-x p) 	字段 x 的访问过程
-(point-y p) 	字段 y 的访问过程
+(point-x p) 	字段 x 的访问器
+(point-y p) 	字段 y 的访问器
 #+end_src
 
 有了这个定义，我们就可以使用这些过程来创建和操作 point 类型的 record, 如下所示。
@@ -50,13 +50,13 @@ define-record-type 语法形式定义一个 record 类型，并且同时还定�
 (point-x p) \Rightarrow 24
 #+end_src
 
-A field may be declared immutable explicitly for clarity; the definition of point below is equivalent to the second definition above.
+为清楚起见，可以明确声明字段是不可变的; 以下 point 的定义等同于上面的第二个定义。
 
 #+begin_src scheme
 (define-record-type point (fields (mutable x) (immutable y)))
 #+end_src
 
-The names of the procedures defined by define-record-type follow the regular naming convention illustrated by the examples above, by default, but the programmer can override the defaults if desired. With the following definition of point, the constructor is mkpoint, the predicate is ispoint?, and the accessors for x and y are x-val and y-val. The mutator for x is set-x-val!.
+默认情况下，define-record-type 定义的过程名称遵循上面示例所示的常规命名约定，但程序员可以根据需要覆盖默认值。使用以下 point 定义，构造函数是 mkpoint，谓词是 ispoint?, x 和 y 的访问器是 x-val 和 y-val. x 的修改器是 set-x-val!.
 
 #+begin_src scheme
 (define-record-type (point mkpoint ispoint?)
@@ -64,7 +64,7 @@ The names of the procedures defined by define-record-type follow the regular nam
           (immutable y y-val)))
 #+end_src
 
-By default, a record definition creates a new type each time it is evaluated, as illustrated by the example below.
+默认情况下，record 定义在每次求值时都会创建一个新类型，如下面的示例所示。
 
 #+begin_src scheme
 (define (f p)
@@ -73,9 +73,9 @@ By default, a record definition creates a new type each time it is evaluated, as
 (f (f 'make)) \Rightarrow #f
 #+end_src
 
-The first (inner) call to f returns a point p, which is passed to f in the second (outer) call, which applies point? to p. This point? is looking for points of the type created by the second call, while p is a point of the type created by the first call. So point? returns #f.
+对 f 的第一个（内层）调用返回一个 point p，它在第二个（外层）调用中被传给 f，它把 point? 应用于 p. 该 point? 在寻找第二个调用创建的类型的 points, 而 p 是第一个调用创建的类型的 point. 因此 point? 返回 ~#f~.
 
-This default generative behavior may be overridden by including a nongenerative clause in the record definition.
+可以通过在 record 定义中包含 ~nongenerative~ 子句来覆盖此默认的 /generative/ 行为。
 
 #+begin_src scheme
 (define (f p)
@@ -85,7 +85,7 @@ This default generative behavior may be overridden by including a nongenerative 
 (f p) \Rightarrow #t
 #+end_src
 
-Record types created in this manner are still distinct from record types created by a definition appearing in a different part of the program, even if the definitions are syntactically identical:
+以这种方式创建的 record 类型仍然与出现在程序的不同部分中的定义创建的 record 类型不同，即使定义在语法上相同：
 
 #+begin_src scheme
 (define (f)
@@ -97,7 +97,7 @@ Record types created in this manner are still distinct from record types created
 (g (f)) \Rightarrow #f
 #+end_src
 
-Even this can be overridden by including a uid (unique id) in the nongenerative clause:
+甚至这也可以通过在 nongenerative 子句中包含 uid（唯一 id）来覆盖：
 
 #+begin_src scheme
 (define (f)
@@ -111,22 +111,22 @@ Even this can be overridden by including a uid (unique id) in the nongenerative 
 (g (f)) \Rightarrow #t
 #+end_src
 
-The uid may be any identifier, but programmers are encouraged to select uids from the RFC 4122 UUID namespace [20], possibly with the record-type name as a prefix.
+uid 可以是任意标识符，但鼓励程序员从 RFC 4122 UUID 名称空间[20]中选择 uid，可以使用 record 类型名称作为前缀。
 
-A record type may be defined as a subtype of an existing "parent" type with a parent clause that declares the name of the existing record type. If a parent is specified, the new "child" record type inherits the parent record's fields, and each instance of the child type is considered to be an instance of the parent type, so that accessors and mutators for the parent type may be used on instances of the child type.
+record 类型可以以一个声明现有 record 类型名的 parent 子句，定义为现有“父”类型的子类型。如果指定了父类型，则新的“子” record 类型将继承父类型的 record 字段，并且子类型的每个实例都被视为父类型的实例，因此父类型的访问器和修改器可以用于子类型的实例。
 
 #+begin_src scheme
 (define-record-type point (fields x y))
 (define-record-type cpoint (parent point) (fields color))
 #+end_src
 
-The child type has all of the fields of the parent type, plus the additional fields declared in the child's definition. This is reflected in the constructor for cpoint, which now takes three arguments, with the parent arguments followed by the child argument.
+子类型具有父类型的所有字段，以及子类型定义中声明的其他字段。这反映在 cpoint 的构造函数中，它现在接受三个参数，父类型参数后跟着子类型参数。
 
 #+begin_src scheme
 (define cp (make-cpoint 3 4 'red))
 #+end_src
 
-A record of the child type is considered a record of the parent type, but a record of the parent type is not a record of the new type.
+子类型的 record 被视为父类型的 record, 但父类型的 record 不是新类型的 record.
 
 #+begin_src scheme
 (point? (make-cpoint 3 4 'red)) \Rightarrow #t
